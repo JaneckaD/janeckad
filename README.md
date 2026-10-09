@@ -27,7 +27,7 @@ Web se otevře v prohlížeči na `http://localhost:5173`. Změny v souborech se
 | Jméno, e-mail, sociální sítě | `src/data/site.js` |
 | Projekty v portfoliu | `src/data/projects.js` |
 | Obrázky projektů | složka `public/portfolio/` |
-| Služby, ceny, balíčky, sleva | `src/data/services.js` |
+| Služby, ceny, rychlé volby | `src/data/services.js` |
 | Texty sekcí | `index.html` |
 | Barvy a písma | začátek `src/style.css` |
 

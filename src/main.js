@@ -1,7 +1,7 @@
 import './style.css';
 import { site } from './data/site.js';
 import { projects } from './data/projects.js';
-import { groups, services, bundles, discount } from './data/services.js';
+import { groups, services, bundles } from './data/services.js';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -338,11 +338,7 @@ function initBuilder() {
   const empty = $('[data-summary-empty]');
   const totalEl = $('[data-total]');
   const totalMaxEl = $('[data-total-max]');
-  const discountEl = $('[data-discount]');
-  const discountRow = $('[data-discount-row]');
   const dealNote = $('[data-deal-note]');
-  const hint = $('[data-discount-hint]');
-  $('[data-discount-label]').textContent = `Sleva ${discount.percent} % za kombinaci`;
 
   const animated = new Map();
   const countTo = (el, target) => {
@@ -373,10 +369,6 @@ function initBuilder() {
     const priced = chosen.filter((s) => s.price != null);
     const min = priced.reduce((sum, s) => sum + s.price, 0);
     const max = priced.reduce((sum, s) => sum + (s.priceMax ?? s.price), 0);
-    const hasDiscount = priced.length >= discount.minItems;
-    const rate = hasDiscount ? discount.percent / 100 : 0;
-    const totalMin = min * (1 - rate);
-    const totalMax = max * (1 - rate);
 
     // seznam: nové položky dostanou animaci, staré zůstanou v klidu
     list.innerHTML = chosen
@@ -385,21 +377,11 @@ function initBuilder() {
     previous = ids;
     empty.hidden = chosen.length > 0;
 
-    discountRow.hidden = !hasDiscount;
-    discountEl.textContent = max > min ? `−${kc(min * rate)} až ${kc(max * rate)} Kč` : `−${kc(min * rate)} Kč`;
-    countTo(totalEl, totalMin);
-    totalMaxEl.hidden = !(totalMax > totalMin);
-    totalMaxEl.dataset.value = kc(totalMax);
-    totalMaxEl.textContent = ` – ${kc(totalMax)}`;
+    countTo(totalEl, min);
+    totalMaxEl.hidden = !(max > min);
+    totalMaxEl.dataset.value = kc(max);
+    totalMaxEl.textContent = ` – ${kc(max)}`;
     dealNote.hidden = !chosen.some((s) => s.price == null);
-
-    const missing = discount.minItems - priced.length;
-    hint.textContent =
-      priced.length > 0 && missing > 0
-        ? `Přidejte ještě ${missing === 1 ? 'jednu službu' : `${missing} služby`} a máte slevu ${discount.percent} %.`
-        : hasDiscount
-          ? `Kombinace se vyplatí, sleva ${discount.percent} % je započítaná.`
-          : '';
 
     $$('[data-bundle]', bundleRoot).forEach((b) => {
       const items = bundles[Number(b.dataset.bundle)].items;

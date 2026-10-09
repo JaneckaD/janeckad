@@ -360,12 +360,11 @@ section { position: relative; }
 .summary__totals { margin: 1.2rem 0 .4rem; }
 .summary__totals > div { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
 .summary__totals dd { margin: 0; }
-.summary__discount { color: var(--sun); font-weight: 600; }
 .summary__total { margin-top: .4rem; }
 .summary__total dt { font-weight: 500; }
 .summary__total dd { font: 800 clamp(2rem, 3vw, 2.6rem)/1 var(--display); font-variation-settings: 'wdth' 80; }
 .summary__deal { margin-top: .3rem; opacity: .9; }
-.summary__hint { min-height: 1.4em; font-size: .9rem; color: var(--sun); margin-bottom: 1.2rem; }
+.summary__totals + .btn { margin-top: 1.2rem; }
 .summary .btn { --bg: var(--ink); }
 .summary .btn:hover { background: var(--paper); border-color: var(--paper); color: var(--ink); }
 .summary__note { margin-top: .9rem; font-size: .85rem; opacity: .85; }

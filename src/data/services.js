@@ -12,7 +12,6 @@
 //   priceMax  – (volitelné) horní hranice, když je cena rozpětí
 //
 // bundles – rychlé volby podle situace klienta; jedním klikem zaškrtnou několik služeb.
-// discount – sleva při kombinaci více služeb (minItems = od kolika služeb s cenou).
 
 export const groups = [
   { id: 'web', name: 'Web', exclusive: true },
@@ -71,5 +70,3 @@ export const bundles = [
   { name: 'Chci silnou značku', desc: 'Identita, logo a větší web', items: ['logo', 'identity', 'web-big'] },
   { name: 'Chci prodávat online', desc: 'E-shop s logem a identitou', items: ['logo', 'identity', 'eshop'] },
 ];
-
-export const discount = { minItems: 3, percent: 10 };
