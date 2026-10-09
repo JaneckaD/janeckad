@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>David · webař a grafik</title>
+  <meta name="description" content="Navrhuju a stavím weby, loga a grafiku pro malé firmy a živnostníky. Poskládejte si služby, které potřebujete." />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <a class="skip" href="#prace">Přeskočit na obsah</a>
+
+  <header class="nav" data-nav>
+    <a class="nav__logo" href="#top" aria-label="Na začátek">d<span>.</span></a>
+    <nav class="nav__links" aria-label="Hlavní navigace">
+      <a href="#prace">Práce</a>
+      <a href="#sluzby">Služby</a>
+      <a href="#postup">Postup</a>
+      <a href="#o-mne">O mně</a>
+    </nav>
+    <a class="btn btn--small" href="#kontakt">Napsat mi</a>
+  </header>
+
+  <main id="top">
+    <!-- HERO -->
+    <section class="hero" aria-labelledby="hero-title">
+      <svg class="hero__blobs" viewBox="0 0 800 800" aria-hidden="true">
+        <defs>
+          <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="30" /></filter>
+        </defs>
+        <g filter="url(#soft)">
+          <path class="blob blob--a" d="M420 140c110 10 210 90 230 200s-40 230-160 270-260 10-320-90-50-230 30-310 110-80 220-70z" />
+          <path class="blob blob--b" d="M300 300c70-40 170-30 220 30s40 160-30 210-180 40-230-20-30-180 40-220z" />
+          <circle class="blob blob--c" cx="600" cy="560" r="110" />
+        </g>
+      </svg>
+
+      <div class="hero__inner">
+        <p class="hero__hello" data-intro>Ahoj, jsem</p>
+        <h1 class="hero__name" id="hero-title" data-name aria-label="David">David</h1>
+        <div class="hero__bottom">
+          <p class="hero__lead" data-intro>
+            Junior webař a grafik. Navrhnu vám logo, postavím web a&nbsp;postarám se, aby k&nbsp;sobě všechno sedělo.
+            Bez agenturních cen a&nbsp;bez&nbsp;čekání týdny na odpověď.
+          </p>
+          <div class="hero__cta" data-intro>
+            <a class="btn" href="#sluzby" data-magnet>Poskládat si nabídku</a>
+            <a class="btn btn--ghost" href="#prace">Prohlédnout práce</a>
+          </div>
+        </div>
+      </div>
+
+      <a class="badge" href="#kontakt" aria-label="Beru nové projekty, napište mi">
+        <svg viewBox="0 0 200 200" aria-hidden="true">
+          <defs><path id="circle" d="M100,100 m-72,0 a72,72 0 1,1 144,0 a72,72 0 1,1 -144,0" /></defs>
+          <text><textPath href="#circle">beru nové projekty ✦ beru nové projekty ✦ </textPath></text>
+        </svg>
+        <span class="badge__dot"></span>
+      </a>
+    </section>
+
+    <!-- PORTFOLIO -->
+    <section class="work" id="prace" aria-labelledby="work-title">
+      <div class="section-head">
+        <h2 id="work-title" data-reveal>Co jsem vytvořil</h2>
+        <p data-reveal>Weby, loga a grafika pro lidi, kteří chtěli vypadat profesionálně. Klikněte na projekt a podívejte se blíž.</p>
+      </div>
+      <ul class="work__grid" data-projects></ul>
+    </section>
+
+    <!-- SLUŽBY -->
+    <section class="services" id="sluzby" aria-labelledby="services-title">
+      <div class="section-head">
+        <h2 id="services-title" data-reveal>Poskládejte si, co potřebujete</h2>
+        <p data-reveal>Každý projekt je jiný, proto nemám pevné balíčky. Vyberte služby, které dávají smysl, a hned uvidíte orientační cenu. Čím víc toho spojíte, tím víc ušetříte.</p>
+      </div>
+
+      <div class="builder">
+        <div class="builder__picker">
+          <div class="bundles" role="group" aria-label="Rychlý výběr">
+            <span class="bundles__label">Nevíte, kde začít? Zkuste:</span>
+            <div class="bundles__list" data-bundles></div>
+          </div>
+          <div data-services></div>
+        </div>
+
+        <aside class="summary" aria-live="polite" data-summary>
+          <h3>Vaše skládačka</h3>
+          <ul class="summary__list" data-summary-list></ul>
+          <p class="summary__empty" data-summary-empty>Zatím nic. Vyberte vlevo služby, které vás zajímají.</p>
+          <dl class="summary__totals">
+            <div class="summary__discount" data-discount-row hidden>
+              <dt data-discount-label>Sleva za kombinaci</dt>
+              <dd data-discount>0 Kč</dd>
+            </div>
+            <div class="summary__total">
+              <dt>Orientačně od</dt>
+              <dd><span data-total>0</span> Kč</dd>
+            </div>
+            <div class="summary__monthly" data-monthly-row hidden>
+              <dt>Měsíčně</dt>
+              <dd><span data-monthly>0</span> Kč</dd>
+            </div>
+          </dl>
+          <p class="summary__hint" data-discount-hint></p>
+          <a class="btn btn--full" href="#kontakt" data-send-selection>Poslat poptávku</a>
+          <p class="summary__note">Přesnou cenu vám pošlu, až se domluvíme na detailech. Nezavazuje vás to k ničemu.</p>
+        </aside>
+      </div>
+    </section>
+
+    <!-- POSTUP -->
+    <section class="process" id="postup" aria-labelledby="process-title">
+      <div class="section-head">
+        <h2 id="process-title" data-reveal>Jak spolu budeme pracovat</h2>
+      </div>
+      <ol class="process__steps">
+        <li data-reveal>
+          <span class="process__num">1</span>
+          <h3>Ozvete se</h3>
+          <p>Napíšete mi, co potřebujete. Klidně jen pár vět, zbytek doladíme.</p>
+        </li>
+        <li data-reveal>
+          <span class="process__num">2</span>
+          <h3>Probereme to</h3>
+          <p>Krátký hovor nebo káva. Ujasníme si cíl, rozsah a pošlu vám přesnou cenu.</p>
+        </li>
+        <li data-reveal>
+          <span class="process__num">3</span>
+          <h3>Navrhnu a stavím</h3>
+          <p>Ukážu vám návrh dřív, než začnu programovat. Průběžně vidíte, jak to roste.</p>
+        </li>
+        <li data-reveal>
+          <span class="process__num">4</span>
+          <h3>Spustíme to</h3>
+          <p>Web pustíme do světa a ukážu vám, jak si v něm věci měnit sami.</p>
+        </li>
+      </ol>
+    </section>
+
+    <!-- O MNĚ -->
+    <section class="about" id="o-mne" aria-labelledby="about-title">
+      <div class="about__text">
+        <h2 id="about-title" data-reveal>Kód i grafika z jedné hlavy</h2>
+        <p data-reveal>
+          Jsem David, junior webař a grafik. Baví mě, když web není jen hezký obrázek, ale dělá, co má:
+          přivádí zákazníky. Protože umím obojí, nemusíte shánět grafika a programátora zvlášť a hlídat, jestli si rozumí.
+        </p>
+        <p data-reveal>
+          Jsem na začátku, takže každý projekt beru osobně a mám na vás čas. A ceny tomu odpovídají.
+        </p>
+      </div>
+      <div class="about__skills" data-reveal>
+        <h3>S čím pracuju</h3>
+        <ul class="chips">
+          <li>HTML a CSS</li><li>JavaScript</li><li>Responzivní weby</li><li>WordPress</li>
+          <li>Figma</li><li>Photoshop</li><li>Illustrator</li><li>Logo a identita</li><li>Tiskoviny</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- KONTAKT -->
+    <section class="contact" id="kontakt" aria-labelledby="contact-title">
+      <div class="contact__inner">
+        <h2 id="contact-title" class="contact__title" data-reveal>Pojďme na to</h2>
+        <p class="contact__lead" data-reveal>Napište mi pár vět o svém projektu. Odpovím do druhého dne.</p>
+        <form class="form" data-form novalidate>
+          <label class="field">
+            <span>Jméno</span>
+            <input name="name" type="text" autocomplete="name" required />
+          </label>
+          <label class="field">
+            <span>E-mail</span>
+            <input name="email" type="email" autocomplete="email" required />
+          </label>
+          <label class="field field--wide">
+            <span>Co potřebujete</span>
+            <textarea name="message" rows="5" required data-message></textarea>
+          </label>
+          <p class="form__error" data-form-error role="alert"></p>
+          <button class="btn btn--light" type="submit">Odeslat zprávu</button>
+        </form>
+      </div>
+      <footer class="footer">
+        <span>© <span data-year></span> David</span>
+        <span class="footer__links" data-socials></span>
+      </footer>
+    </section>
+  </main>
+
+  <!-- GALERIE -->
+  <dialog class="lightbox" data-lightbox aria-labelledby="lb-title">
+    <div class="lightbox__head">
+      <div>
+        <h3 id="lb-title" data-lb-title></h3>
+        <p data-lb-meta></p>
+      </div>
+      <div class="lightbox__actions">
+        <a class="btn btn--small" data-lb-link target="_blank" rel="noopener" hidden>Navštívit web</a>
+        <button class="lightbox__close" type="button" data-lb-close aria-label="Zavřít galerii">✕</button>
+      </div>
+    </div>
+    <div class="lightbox__stage">
+      <button class="lightbox__arrow lightbox__arrow--prev" type="button" data-lb-prev aria-label="Předchozí obrázek">‹</button>
+      <figure class="lightbox__figure">
+        <img data-lb-img alt="" />
+        <figcaption data-lb-caption></figcaption>
+      </figure>
+      <button class="lightbox__arrow lightbox__arrow--next" type="button" data-lb-next aria-label="Další obrázek">›</button>
+    </div>
+    <div class="lightbox__thumbs" data-lb-thumbs></div>
+  </dialog>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
