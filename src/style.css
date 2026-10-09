@@ -95,24 +95,15 @@ p { margin: 0; }
 }
 
 .nav__logo { display: flex; align-items: center; gap: .7rem; text-decoration: none; }
-/* Značka: „d“ nakreslené jednou čarou, fialová tečka uprostřed a mátová tečka za ním */
-.nav__mark { width: 46px; height: 46px; flex-shrink: 0; overflow: visible; }
-.nav__mark-bg { fill: var(--ink); transition: fill .4s var(--ease); }
-.nav__mark-line {
-  fill: none; stroke: var(--paper); stroke-width: 4.6; stroke-linecap: round;
-  stroke-dasharray: 100; stroke-dashoffset: 0;
-  transition: stroke .4s var(--ease);
-}
-.nav__mark-eye { fill: var(--violet); transform-box: fill-box; transform-origin: center; }
-.nav__mark-dot { fill: var(--mint); transform-box: fill-box; transform-origin: center; }
-.nav__logo:hover .nav__mark-line { animation: draw .9s var(--ease); }
-.nav__logo:hover .nav__mark-eye { animation: eye .9s var(--ease); }
-.nav__logo:hover .nav__mark-dot { animation: hop .9s var(--ease); }
-@keyframes draw { from { stroke-dashoffset: 100; } }
-@keyframes eye { 0%, 30% { transform: scale(0); } 70% { transform: scale(1.35); } }
-@keyframes hop { 40% { transform: translateY(-7px); } 60% { transform: translateY(0); } 75% { transform: translateY(-2.5px); } }
+/* Značka: tučné „d“ přesně uprostřed kulatého pozadí */
+.nav__mark { width: 46px; height: 46px; flex-shrink: 0; transition: transform .6s var(--ease); }
+.nav__mark-bg { fill: var(--ink); transition: fill .3s; }
+.nav__mark-d { fill: var(--paper); stroke: var(--paper); transition: fill .3s, stroke .3s; }
+.nav__mark-d rect { stroke: none; }
+.nav__logo:hover .nav__mark { transform: rotate(-360deg); }
+.nav__logo:hover .nav__mark-bg { fill: var(--violet); }
 .nav.is-dark .nav__mark-bg { fill: var(--paper); }
-.nav.is-dark .nav__mark-line { stroke: var(--ink); }
+.nav.is-dark .nav__mark-d { fill: var(--ink); stroke: var(--ink); }
 .nav__status { display: inline-flex; align-items: center; gap: .45rem; font-size: .85rem; font-weight: 500; white-space: nowrap; }
 .nav__status i { width: 8px; height: 8px; border-radius: 50%; background: #2fbf8a; box-shadow: 0 0 0 0 rgba(47, 191, 138, .6); animation: ping 2s infinite; }
 @keyframes ping { 70% { box-shadow: 0 0 0 7px rgba(47, 191, 138, 0); } 100% { box-shadow: 0 0 0 0 rgba(47, 191, 138, 0); } }
