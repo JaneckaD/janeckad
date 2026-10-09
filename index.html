@@ -16,7 +16,12 @@
   <header class="nav" data-nav>
     <div class="nav__bar">
       <a class="nav__logo" href="#top" aria-label="David, zpět na začátek">
-        <span class="nav__mark" aria-hidden="true">d</span>
+        <svg class="nav__mark" viewBox="0 0 48 48" aria-hidden="true">
+          <rect class="nav__mark-bg" width="48" height="48" rx="15" />
+          <path class="nav__mark-line" d="M29.5 10.5v17a9 9 0 1 1-9-9" pathLength="100" />
+          <circle class="nav__mark-eye" cx="20.5" cy="27.5" r="3.4" />
+          <circle class="nav__mark-dot" cx="37" cy="35.5" r="2.7" />
+        </svg>
         <span class="nav__status"><i aria-hidden="true"></i>Mám volno na nové projekty</span>
       </a>
       <nav class="nav__links" id="menu" aria-label="Hlavní navigace" data-nav-links>
@@ -38,16 +43,11 @@
   <main id="top">
     <!-- HERO -->
     <section class="hero" aria-labelledby="hero-title">
-      <svg class="hero__blobs" viewBox="0 0 800 800" aria-hidden="true">
-        <defs>
-          <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="30" /></filter>
-        </defs>
-        <g filter="url(#soft)">
-          <path class="blob blob--a" d="M420 140c110 10 210 90 230 200s-40 230-160 270-260 10-320-90-50-230 30-310 110-80 220-70z" />
-          <path class="blob blob--b" d="M300 300c70-40 170-30 220 30s40 160-30 210-180 40-230-20-30-180 40-220z" />
-          <circle class="blob blob--c" cx="600" cy="560" r="110" />
-        </g>
-      </svg>
+      <div class="hero__blobs" aria-hidden="true">
+        <span class="blob blob--a"></span>
+        <span class="blob blob--b"></span>
+        <span class="blob blob--c"></span>
+      </div>
 
       <div class="hero__inner">
         <p class="hero__hello" data-intro>Ahoj, jsem</p>

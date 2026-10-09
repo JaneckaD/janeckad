@@ -24,30 +24,55 @@ function initHero() {
   requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.add('is-loaded')));
 
   if (reduceMotion || !finePointer) return;
-  const chars = $$('.ch', nameEl);
-  let frame = 0;
-  let mouse = null;
-
-  const update = () => {
-    frame = 0;
-    for (const ch of chars) {
-      if (!mouse) {
-        ch.style.fontVariationSettings = '';
-        continue;
-      }
-      const r = ch.getBoundingClientRect();
-      const dx = mouse.x - (r.left + r.width / 2);
-      const dy = mouse.y - (r.top + r.height / 2);
-      const dist = Math.hypot(dx, dy);
-      const t = Math.max(0, 1 - dist / 520); // 1 = kurzor přímo nad písmenem
-      const wght = 900 - t * 700;
-      const wdth = 100 - t * 45;
-      ch.style.fontVariationSettings = `'wght' ${wght.toFixed(0)}, 'wdth' ${wdth.toFixed(1)}`;
-    }
-  };
-  const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
-
+  const chars = $$('.ch', nameEl).map((el) => ({ el, cx: 0, cy: 0, wght: 900, wdth: 100, tw: 900, td: 100 }));
   const hero = $('.hero');
+  let mouse = null;
+  let frame = 0;
+
+  // Středy písmen měříme jen v klidu (při načtení a změně velikosti okna).
+  // Kdybychom je měřili každý snímek, měnící se šířka písmen by je posouvala a efekt by škubal.
+  const measure = () => {
+    const prev = chars.map((c) => c.el.style.fontVariationSettings);
+    chars.forEach((c) => { c.el.style.fontVariationSettings = ''; });
+    const heroTop = hero.getBoundingClientRect().top;
+    chars.forEach((c) => {
+      const r = c.el.getBoundingClientRect();
+      c.cx = r.left + r.width / 2;
+      c.cy = r.top - heroTop + r.height / 2; // vůči hero, ať nevadí scroll
+    });
+    chars.forEach((c, i) => { c.el.style.fontVariationSettings = prev[i]; });
+  };
+
+  const tick = () => {
+    frame = 0;
+    const heroTop = hero.getBoundingClientRect().top;
+    let moving = false;
+    for (const c of chars) {
+      if (mouse) {
+        const dist = Math.hypot(mouse.x - c.cx, mouse.y - (c.cy + heroTop));
+        const t = Math.max(0, 1 - dist / 520); // 1 = kurzor přímo nad písmenem
+        const ease = t * t * (3 - 2 * t);
+        c.tw = 900 - ease * 700;
+        c.td = 100 - ease * 45;
+      } else {
+        c.tw = 900;
+        c.td = 100;
+      }
+      // plynulé dojíždění k cílové hodnotě
+      c.wght += (c.tw - c.wght) * 0.14;
+      c.wdth += (c.td - c.wdth) * 0.14;
+      if (Math.abs(c.tw - c.wght) > 0.5 || Math.abs(c.td - c.wdth) > 0.05) moving = true;
+      else { c.wght = c.tw; c.wdth = c.td; }
+      c.el.style.fontVariationSettings = `'wght' ${c.wght.toFixed(0)}, 'wdth' ${c.wdth.toFixed(1)}`;
+    }
+    if (moving) frame = requestAnimationFrame(tick);
+  };
+  const schedule = () => { if (!frame) frame = requestAnimationFrame(tick); };
+
+  // měření až po dojetí úvodní animace a načtení písma
+  document.fonts.ready.then(() => setTimeout(measure, 2000));
+  let resizeTimer;
+  window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(measure, 150); });
   hero.addEventListener('pointermove', (e) => { mouse = { x: e.clientX, y: e.clientY }; schedule(); });
   hero.addEventListener('pointerleave', () => { mouse = null; schedule(); });
 }
@@ -74,7 +99,10 @@ function initNav() {
     nav.style.setProperty('--progress', max > 0 ? (window.scrollY / max).toFixed(4) : 0);
   };
   onScroll();
-  window.addEventListener('scroll', onScroll, { passive: true });
+  let scrollFrame = 0;
+  window.addEventListener('scroll', () => {
+    if (!scrollFrame) scrollFrame = requestAnimationFrame(() => { scrollFrame = 0; onScroll(); });
+  }, { passive: true });
 
   // pilulka jede pod odkazem, na kterém je myš, jinak pod aktuální sekcí
   const movePill = () => {
@@ -397,6 +425,9 @@ function initBuilder() {
     if (input.checked && group?.exclusive) {
       inputs.forEach((i) => { if (i !== input && i.dataset.group === group.id) i.checked = false; });
     }
+    // služby, které se navzájem vylučují (např. identita už logo obsahuje)
+    const excludes = services.find((s) => s.id === input.value)?.excludes ?? [];
+    if (input.checked) inputs.forEach((i) => { if (excludes.includes(i.value)) i.checked = false; });
     render();
   });
   bundleRoot.addEventListener('click', (e) => {

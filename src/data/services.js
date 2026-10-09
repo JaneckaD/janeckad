@@ -10,6 +10,7 @@
 //   desc      – jedna až dvě věty, co klient dostane
 //   price     – cena v Kč; null = cena dohodou
 //   priceMax  – (volitelné) horní hranice, když je cena rozpětí
+//   excludes  – (volitelné) služby, které s touto nejdou dohromady; zaškrtnutím se odškrtnou
 //
 // bundles – rychlé volby podle situace klienta; jedním klikem zaškrtnou několik služeb.
 
@@ -48,13 +49,15 @@ export const services = [
     name: 'Logo',
     desc: 'Logo, které si lidé zapamatují. Dostanete ho ve všech formátech pro web i tisk.',
     price: 1390,
+    excludes: ['identity'],
   },
   {
     id: 'identity',
     group: 'grafika',
     name: 'Vizuální identita',
-    desc: 'Barvy, písma a pravidla, díky kterým bude web, vizitka i příspěvek vypadat jako jedna značka.',
+    desc: 'Celá značka včetně loga: barvy, písma a pravidla, díky kterým bude web, vizitka i příspěvek vypadat jednotně.',
     price: 3990,
+    excludes: ['logo'],
   },
   {
     id: 'graphics-other',
@@ -67,6 +70,6 @@ export const services = [
 
 export const bundles = [
   { name: 'Teprve začínám', desc: 'Logo a jednoduchý web', items: ['logo', 'web-simple'] },
-  { name: 'Chci silnou značku', desc: 'Identita, logo a větší web', items: ['logo', 'identity', 'web-big'] },
-  { name: 'Chci prodávat online', desc: 'E-shop s logem a identitou', items: ['logo', 'identity', 'eshop'] },
+  { name: 'Chci silnou značku', desc: 'Identita s logem a větší web', items: ['identity', 'web-big'] },
+  { name: 'Chci prodávat online', desc: 'E-shop s identitou a logem', items: ['identity', 'eshop'] },
 ];
