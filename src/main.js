@@ -1,7 +1,7 @@
 import './style.css';
 import { site } from './data/site.js';
 import { projects } from './data/projects.js';
-import { services, bundles, discount } from './data/services.js';
+import { groups, services, bundles, discount } from './data/services.js';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -40,9 +40,9 @@ function initHero() {
       const dy = mouse.y - (r.top + r.height / 2);
       const dist = Math.hypot(dx, dy);
       const t = Math.max(0, 1 - dist / 520); // 1 = kurzor přímo nad písmenem
-      const wght = 800 - t * 580;
-      const wdth = 100 - t * 25;
-      ch.style.fontVariationSettings = `'wght' ${wght.toFixed(0)}, 'wdth' ${wdth.toFixed(1)}, 'opsz' 96`;
+      const wght = 900 - t * 700;
+      const wdth = 100 - t * 45;
+      ch.style.fontVariationSettings = `'wght' ${wght.toFixed(0)}, 'wdth' ${wdth.toFixed(1)}`;
     }
   };
   const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
@@ -52,21 +52,71 @@ function initHero() {
   hero.addEventListener('pointerleave', () => { mouse = null; schedule(); });
 }
 
-/* ---------- Navigace: pozadí po odscrollování, tmavá nad tmavými sekcemi ---------- */
+/* ---------- Navigace ---------- */
 function initNav() {
   const nav = $('[data-nav]');
+  const links = $$('[data-nav-links] a:not(.nav__menu-cta)');
+  const pill = $('[data-nav-pill]');
+  const toggle = $('[data-nav-toggle]');
   const darkSections = $$('.work, .contact');
+  let active = null;
+  let hovered = null;
+
+  // tmavá varianta nad tmavými sekcemi + ukazatel, kolik stránky je přečteno
   const onScroll = () => {
     nav.classList.toggle('is-scrolled', window.scrollY > 40);
     const probe = nav.offsetHeight / 2;
-    const overDark = darkSections.some((s) => {
-      const r = s.getBoundingClientRect();
+    nav.classList.toggle('is-dark', darkSections.some((sec) => {
+      const r = sec.getBoundingClientRect();
       return r.top <= probe && r.bottom >= probe;
-    });
-    nav.classList.toggle('is-dark', overDark);
+    }));
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    nav.style.setProperty('--progress', max > 0 ? (window.scrollY / max).toFixed(4) : 0);
   };
   onScroll();
   window.addEventListener('scroll', onScroll, { passive: true });
+
+  // pilulka jede pod odkazem, na kterém je myš, jinak pod aktuální sekcí
+  const movePill = () => {
+    const target = hovered || active;
+    links.forEach((l) => l.classList.toggle('is-pill', l === target));
+    if (!target) { pill.classList.remove('is-on'); return; }
+    pill.style.width = `${target.offsetWidth}px`;
+    pill.style.transform = `translateX(${target.offsetLeft}px)`;
+    pill.classList.add('is-on');
+  };
+  links.forEach((l) => {
+    l.addEventListener('pointerenter', () => { hovered = l; movePill(); });
+    l.addEventListener('pointerleave', () => { hovered = null; movePill(); });
+  });
+  window.addEventListener('resize', movePill);
+
+  if ('IntersectionObserver' in window) {
+    const sections = links.map((l) => $(l.getAttribute('href'))).filter(Boolean);
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          const link = links.find((l) => l.getAttribute('href') === `#${e.target.id}`);
+          if (e.isIntersecting) active = link;
+          else if (active === link) active = null;
+        }
+        links.forEach((l) => (l === active ? l.setAttribute('aria-current', 'true') : l.removeAttribute('aria-current')));
+        movePill();
+      },
+      { rootMargin: '-45% 0px -50% 0px' },
+    );
+    sections.forEach((sec) => io.observe(sec));
+  }
+
+  // mobilní menu
+  const setOpen = (open) => {
+    nav.classList.toggle('is-open', open);
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute('aria-label', open ? 'Zavřít menu' : 'Otevřít menu');
+  };
+  toggle.addEventListener('click', () => setOpen(!nav.classList.contains('is-open')));
+  $('[data-nav-links]').addEventListener('click', (e) => { if (e.target.closest('a')) setOpen(false); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
 }
 
 /* ---------- Odhalování nadpisů při scrollu ---------- */
@@ -245,28 +295,30 @@ function initLightbox() {
 }
 
 /* ---------- Skládačka služeb ---------- */
+const priceLabel = (s) =>
+  s.price == null ? 'cena dohodou' : s.priceMax ? `${kc(s.price)} – ${kc(s.priceMax)} Kč` : `${kc(s.price)} Kč`;
+
 function initBuilder() {
   const root = $('[data-services]');
-  const groups = [...new Set(services.map((s) => s.group))];
   const check = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 10 17 19 7"/></svg>';
 
   root.innerHTML = groups
     .map(
-      (g, gi) => `
-      <div class="svc-group" role="group" aria-labelledby="svc-group-${gi}">
-        <h3 id="svc-group-${gi}">${escapeHtml(g)}</h3>
+      (g) => `
+      <div class="svc-group" role="group" aria-labelledby="svc-group-${g.id}">
+        <h3 id="svc-group-${g.id}">${escapeHtml(g.name)}${g.exclusive ? '<small>vyberte jednu možnost</small>' : '<small>můžete kombinovat</small>'}</h3>
         <div class="svc-list">
           ${services
-            .filter((s) => s.group === g)
+            .filter((s) => s.group === g.id)
             .map(
               (s) => `
             <div class="svc">
-              <input type="checkbox" id="svc-${s.id}" value="${s.id}" />
+              <input type="checkbox" id="svc-${s.id}" value="${s.id}" data-group="${g.id}" />
               <label for="svc-${s.id}">
                 <span class="svc__name">${escapeHtml(s.name)}</span>
                 <span class="svc__check">${check}</span>
                 <span class="svc__desc">${escapeHtml(s.desc)}</span>
-                <span class="svc__price">od ${kc(s.price)} Kč${s.monthly ? ' / měsíc' : ''}</span>
+                <span class="svc__price">${priceLabel(s)}</span>
               </label>
             </div>`,
             )
@@ -285,10 +337,10 @@ function initBuilder() {
   const list = $('[data-summary-list]');
   const empty = $('[data-summary-empty]');
   const totalEl = $('[data-total]');
-  const monthlyEl = $('[data-monthly]');
+  const totalMaxEl = $('[data-total-max]');
   const discountEl = $('[data-discount]');
   const discountRow = $('[data-discount-row]');
-  const monthlyRow = $('[data-monthly-row]');
+  const dealNote = $('[data-deal-note]');
   const hint = $('[data-discount-hint]');
   $('[data-discount-label]').textContent = `Sleva ${discount.percent} % za kombinaci`;
 
@@ -310,36 +362,43 @@ function initBuilder() {
 
   let previous = new Set();
   const selected = () => services.filter((s) => inputs.find((i) => i.value === s.id)?.checked);
+  const summaryText = () => {
+    const min = totalEl.textContent;
+    return totalMaxEl.hidden ? `${min} Kč` : `${min} – ${totalMaxEl.dataset.value} Kč`;
+  };
 
   const render = () => {
     const chosen = selected();
     const ids = new Set(chosen.map((s) => s.id));
-    const oneOff = chosen.filter((s) => !s.monthly);
-    const monthly = chosen.filter((s) => s.monthly);
-    const base = oneOff.reduce((sum, s) => sum + s.price, 0);
-    const hasDiscount = oneOff.length >= discount.minItems;
-    const saved = hasDiscount ? (base * discount.percent) / 100 : 0;
-    const monthlySum = monthly.reduce((sum, s) => sum + s.price, 0);
+    const priced = chosen.filter((s) => s.price != null);
+    const min = priced.reduce((sum, s) => sum + s.price, 0);
+    const max = priced.reduce((sum, s) => sum + (s.priceMax ?? s.price), 0);
+    const hasDiscount = priced.length >= discount.minItems;
+    const rate = hasDiscount ? discount.percent / 100 : 0;
+    const totalMin = min * (1 - rate);
+    const totalMax = max * (1 - rate);
 
     // seznam: nové položky dostanou animaci, staré zůstanou v klidu
     list.innerHTML = chosen
-      .map((s) => `<li${previous.has(s.id) ? ' style="animation:none"' : ''}><span>${escapeHtml(s.name)}</span><span>${kc(s.price)} Kč${s.monthly ? ' / měs.' : ''}</span></li>`)
+      .map((s) => `<li${previous.has(s.id) ? ' style="animation:none"' : ''}><span>${escapeHtml(s.name)}</span><span>${priceLabel(s)}</span></li>`)
       .join('');
     previous = ids;
     empty.hidden = chosen.length > 0;
 
     discountRow.hidden = !hasDiscount;
-    discountEl.textContent = `−${kc(saved)} Kč`;
-    monthlyRow.hidden = monthly.length === 0;
-    countTo(totalEl, base - saved);
-    countTo(monthlyEl, monthlySum);
+    discountEl.textContent = max > min ? `−${kc(min * rate)} až ${kc(max * rate)} Kč` : `−${kc(min * rate)} Kč`;
+    countTo(totalEl, totalMin);
+    totalMaxEl.hidden = !(totalMax > totalMin);
+    totalMaxEl.dataset.value = kc(totalMax);
+    totalMaxEl.textContent = ` – ${kc(totalMax)}`;
+    dealNote.hidden = !chosen.some((s) => s.price == null);
 
-    const missing = discount.minItems - oneOff.length;
+    const missing = discount.minItems - priced.length;
     hint.textContent =
-      oneOff.length > 0 && missing > 0
-        ? `Přidejte ještě ${missing === 1 ? 'jednu službu' : `${missing} služby`} a dostanete slevu ${discount.percent} %.`
+      priced.length > 0 && missing > 0
+        ? `Přidejte ještě ${missing === 1 ? 'jednu službu' : `${missing} služby`} a máte slevu ${discount.percent} %.`
         : hasDiscount
-          ? `Kombinace se vyplatí: ušetříte ${kc(saved)} Kč.`
+          ? `Kombinace se vyplatí, sleva ${discount.percent} % je započítaná.`
           : '';
 
     $$('[data-bundle]', bundleRoot).forEach((b) => {
@@ -349,7 +408,15 @@ function initBuilder() {
     });
   };
 
-  root.addEventListener('change', render);
+  // ve skupině s exclusive jde mít zaškrtnutou jen jednu službu
+  root.addEventListener('change', (e) => {
+    const input = e.target;
+    const group = groups.find((g) => g.id === input.dataset.group);
+    if (input.checked && group?.exclusive) {
+      inputs.forEach((i) => { if (i !== input && i.dataset.group === group.id) i.checked = false; });
+    }
+    render();
+  });
   bundleRoot.addEventListener('click', (e) => {
     const b = e.target.closest('[data-bundle]');
     if (!b) return;
@@ -364,7 +431,7 @@ function initBuilder() {
     if (!chosen.length) return;
     const msg = $('[data-message]');
     const lines = chosen.map((s) => `• ${s.name}`).join('\n');
-    msg.value = `Dobrý den, zajímá mě:\n${lines}\n\nOrientační cena z webu: od ${totalEl.textContent} Kč.\n\nO projektu: `;
+    msg.value = `Ahoj Davide, zajímá mě:\n${lines}\n\nOrientační cena z webu: ${summaryText()}.\n\nO projektu: `;
   });
 
   render();
