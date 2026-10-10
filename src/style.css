@@ -14,6 +14,7 @@
   --body: 'Onest', system-ui, sans-serif;
 
   --gutter: clamp(1rem, 4vw, 3.5rem);
+  --radius: clamp(24px, 4vw, 48px); /* zaoblení tmavých sekcí */
   --max: 1240px;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -72,7 +73,8 @@ p { margin: 0; }
 /* ===== Navigace ===== */
 .nav {
   position: fixed; inset: 0 0 auto; z-index: 50;
-  padding: 1rem var(--gutter);
+  /* lišta zůstává uvnitř zaoblených rohů tmavých sekcí, aby přes ně nepřečnívala */
+  padding: 1rem calc(var(--gutter) + var(--radius) * .6);
   pointer-events: none;
 }
 .nav__bar {
@@ -190,13 +192,15 @@ p { margin: 0; }
   100% { transform: translate3d(-4%, 3%, 0) scale(.95); }
 }
 
-.hero__inner { width: 100%; max-width: var(--max); margin: 0 auto; }
+.hero__inner { width: 100%; max-width: var(--max); margin: 0 auto; container-type: inline-size; }
 .hero__hello {
   font: 500 clamp(1.25rem, 2.4vw, 1.8rem)/1 var(--display);
   margin-bottom: .2em; padding-left: .3em;
 }
 .hero__name {
-  font-size: clamp(6rem, 27vw, 24rem);
+  /* jméno se vždy vejde na šířku obsahu (cca 3,1 em široké) */
+  font-size: min(24rem, calc((100vw - 2 * var(--gutter) - 20px) / 3.15));
+  font-size: min(24rem, 31.5cqi);
   line-height: .82;
   letter-spacing: -.045em;
   margin-left: -.04em;
@@ -263,7 +267,7 @@ section { position: relative; }
 .work {
   background: var(--ink); color: var(--paper);
   padding: clamp(4rem, 10vw, 8rem) var(--gutter);
-  border-radius: clamp(24px, 4vw, 48px) clamp(24px, 4vw, 48px) 0 0;
+  border-radius: var(--radius) var(--radius) 0 0;
 }
 .work .section-head p { color: rgba(242, 240, 250, .7); }
 .work__grid {
@@ -423,7 +427,7 @@ section { position: relative; }
 .contact {
   background: var(--ink); color: var(--paper);
   padding: clamp(4rem, 10vw, 8rem) var(--gutter) 2rem;
-  border-radius: clamp(24px, 4vw, 48px) clamp(24px, 4vw, 48px) 0 0;
+  border-radius: var(--radius) var(--radius) 0 0;
 }
 .contact__inner { max-width: var(--max); margin: 0 auto; }
 .contact__title {
@@ -538,7 +542,6 @@ section { position: relative; }
   .nav__links .nav__menu-cta { display: block; margin-top: .4rem; background: var(--mint); color: var(--ink); text-align: center; }
   .hero__bottom { grid-template-columns: 1fr; }
   .badge { top: 5.5rem; }
-  .hero__name { font-size: 34vw; }
   .work__grid > li, .work__grid > li:nth-child(n) { grid-column: 1 / -1; margin-top: 0; }
   .form { grid-template-columns: 1fr; }
   .process__steps { grid-template-columns: 1fr; }
