@@ -1,5 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
-  <rect width="1200" height="800" fill="#FFF3D6"/>
-  <rect x="170" y="230" width="140" height="340" rx="70" fill="#E2563B" stroke="#3A1F14" stroke-opacity=".15"/><rect x="350" y="230" width="140" height="340" rx="70" fill="#3A1F14" stroke="#3A1F14" stroke-opacity=".15"/><rect x="530" y="230" width="140" height="340" rx="70" fill="#F7D99A" stroke="#3A1F14" stroke-opacity=".15"/><rect x="710" y="230" width="140" height="340" rx="70" fill="#FFF3D6" stroke="#3A1F14" stroke-opacity=".15"/><rect x="890" y="230" width="140" height="340" rx="70" fill="#E2563B" stroke="#3A1F14" stroke-opacity=".15"/>
-       <text x="600" y="660" text-anchor="middle" font-family="Arial, sans-serif" font-size="30" fill="#3A1F14" letter-spacing="6">Pekárna</text>
-</svg>

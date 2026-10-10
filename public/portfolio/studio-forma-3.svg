@@ -1,5 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
-  <rect width="1200" height="800" fill="#F4F0FF"/>
-  <rect x="170" y="230" width="140" height="340" rx="70" fill="#6A5CFF" stroke="#1F1640" stroke-opacity=".15"/><rect x="350" y="230" width="140" height="340" rx="70" fill="#1F1640" stroke="#1F1640" stroke-opacity=".15"/><rect x="530" y="230" width="140" height="340" rx="70" fill="#D9D3FF" stroke="#1F1640" stroke-opacity=".15"/><rect x="710" y="230" width="140" height="340" rx="70" fill="#F4F0FF" stroke="#1F1640" stroke-opacity=".15"/><rect x="890" y="230" width="140" height="340" rx="70" fill="#6A5CFF" stroke="#1F1640" stroke-opacity=".15"/>
-       <text x="600" y="660" text-anchor="middle" font-family="Arial, sans-serif" font-size="30" fill="#1F1640" letter-spacing="6">forma</text>
-</svg>

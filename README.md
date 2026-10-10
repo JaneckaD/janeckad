@@ -36,7 +36,7 @@ Web se otevře v prohlížeči na `http://localhost:5173`. Změny v souborech se
 Do `src/data/projects.js` zkopíruj jeden blok a uprav ho. Když vyplníš `link`, karta vede rovnou na web.
 Když vyplníš `gallery`, karta otevře galerii (a pokud je i `link`, v galerii bude tlačítko na web).
 
-Obrázky v portfoliu jsou zatím jen ukázkové.
+Obrázky dávej do `public/portfolio/`, ideálně JPG v poměru 3 : 2 (třeba 1800 × 1200 px).
 
 ## Zveřejnění na internetu (GitHub Pages)
 
