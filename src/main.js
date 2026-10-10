@@ -23,6 +23,12 @@ function initHero() {
 
   requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.add('is-loaded')));
 
+  // animace v hero běží jen, když je hero vidět
+  if ('IntersectionObserver' in window) {
+    const heroEl = $('.hero');
+    new IntersectionObserver(([e]) => heroEl.classList.toggle('is-paused', !e.isIntersecting)).observe(heroEl);
+  }
+
   if (reduceMotion || !finePointer) return;
   const chars = $$('.ch', nameEl).map((el) => ({ el, cx: 0, cy: 0, wght: 900, wdth: 100, tw: 900, td: 100 }));
   const hero = $('.hero');
@@ -220,23 +226,6 @@ function initPortfolio(openGallery) {
     const btn = e.target.closest('button[data-index]');
     if (btn) openGallery(projects[Number(btn.dataset.index)], btn);
   });
-
-  // jemné naklonění karty podle kurzoru
-  if (reduceMotion || !finePointer) return;
-  $$('.project', list).forEach((card) => {
-    const media = $('.project__media', card);
-    card.addEventListener('pointermove', (e) => {
-      const r = media.getBoundingClientRect();
-      const px = (e.clientX - r.left) / r.width - 0.5;
-      const py = (e.clientY - r.top) / r.height - 0.5;
-      media.style.setProperty('--ry', `${px * 6}deg`);
-      media.style.setProperty('--rx', `${-py * 6}deg`);
-    });
-    card.addEventListener('pointerleave', () => {
-      media.style.setProperty('--ry', '0deg');
-      media.style.setProperty('--rx', '0deg');
-    });
-  });
 }
 
 /* ---------- Galerie ---------- */
@@ -275,9 +264,11 @@ function initLightbox() {
     thumbs.innerHTML = project.gallery
       .map((g, i) => `<button type="button" data-thumb="${i}" aria-label="Obrázek ${i + 1}"><img src="${escapeHtml(g.src)}" alt="" /></button>`)
       .join('');
+    project.gallery.forEach((g) => { const pre = new Image(); pre.decoding = 'async'; pre.src = g.src; });
     show(0);
     dialog.showModal();
     document.body.style.overflow = 'hidden';
+    document.documentElement.classList.add('lb-open');
   };
 
   const close = () => {
@@ -293,6 +284,7 @@ function initLightbox() {
 
   dialog.addEventListener('close', () => {
     document.body.style.overflow = '';
+    document.documentElement.classList.remove('lb-open');
     opener?.focus();
   });
   dialog.addEventListener('cancel', (e) => { e.preventDefault(); close(); });

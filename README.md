@@ -37,3 +37,11 @@ Do `src/data/projects.js` zkopíruj jeden blok a uprav ho. Když vyplníš `link
 Když vyplníš `gallery`, karta otevře galerii (a pokud je i `link`, v galerii bude tlačítko na web).
 
 Obrázky v portfoliu jsou zatím jen ukázkové.
+
+## Zveřejnění na internetu (GitHub Pages)
+
+Web se nasazuje automaticky: po každém nahrání změn do větve `claude/personal-website-b5uqoc`
+ho GitHub sám sestaví a zveřejní na **https://janeckad.github.io/janeckad/**.
+Postup je v souboru `.github/workflows/deploy.yml`, průběh uvidíš na GitHubu v záložce **Actions**.
+
+Jednorázově je potřeba v repozitáři zapnout Pages: **Settings → Pages → Source: GitHub Actions**.
