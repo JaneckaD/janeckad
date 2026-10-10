@@ -345,6 +345,7 @@ function initBuilder() {
                 <span class="svc__desc">${escapeHtml(s.desc)}</span>
                 <span class="svc__price">${priceLabel(s)}</span>
               </label>
+              ${s.includes ? `<button class="svc__info" type="button" data-info="${s.id}" aria-label="Co obsahuje: ${escapeHtml(s.name)}">i</button>` : ''}
             </div>`,
             )
             .join('')}
@@ -434,6 +435,35 @@ function initBuilder() {
     inputs.forEach((i) => { i.checked = items.includes(i.value); });
     render();
   });
+
+  // ikonka „i“ otevře okénko s tím, co služba obsahuje
+  const info = $('[data-pkg]');
+  let infoService = null;
+  root.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-info]');
+    if (!btn) return;
+    infoService = services.find((s) => s.id === btn.dataset.info);
+    $('[data-pkg-title]', info).textContent = infoService.name;
+    $('[data-pkg-price]', info).textContent = priceLabel(infoService);
+    $('[data-pkg-list]', info).innerHTML = infoService.includes.map((t) => `<li>${escapeHtml(t)}</li>`).join('');
+    syncInfoButton();
+    info.showModal();
+  });
+  const syncInfoButton = () => {
+    const input = inputs.find((i) => i.value === infoService.id);
+    $('[data-pkg-add]', info).textContent = input.checked ? 'Už je ve skládačce ✓' : 'Přidat do skládačky';
+  };
+  $('[data-pkg-add]', info).addEventListener('click', () => {
+    const input = inputs.find((i) => i.value === infoService.id);
+    if (!input.checked) {
+      input.checked = true;
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    info.close();
+  });
+  $('[data-pkg-close]', info).addEventListener('click', () => info.close());
+  // klik mimo okénko ho zavře
+  info.addEventListener('click', (e) => { if (e.target === info) info.close(); });
 
   // „Poslat poptávku“ předvyplní zprávu ve formuláři
   $('[data-send-selection]').addEventListener('click', () => {

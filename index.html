@@ -222,6 +222,20 @@
     <div class="lightbox__thumbs" data-lb-thumbs></div>
   </dialog>
 
+  <!-- CO OBSAHUJE SLUŽBA -->
+  <dialog class="pkg" data-pkg aria-labelledby="pkg-title">
+    <div class="pkg__inner">
+      <button class="lightbox__close pkg__close" type="button" data-pkg-close aria-label="Zavřít">✕</button>
+      <p class="pkg__kicker">Co dostanete</p>
+      <h3 id="pkg-title" data-pkg-title></h3>
+      <ul class="pkg__list" data-pkg-list></ul>
+      <div class="pkg__foot">
+        <span class="pkg__price" data-pkg-price></span>
+        <button class="btn btn--small" type="button" data-pkg-add>Přidat do skládačky</button>
+      </div>
+    </div>
+  </dialog>
+
   <script type="module" src="/src/main.js"></script>
 </body>
 </html>

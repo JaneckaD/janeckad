@@ -340,7 +340,42 @@ section { position: relative; }
   background: #fff; border: 2px solid transparent; cursor: pointer;
   transition: border-color .3s, background .3s var(--ease), transform .4s var(--ease);
 }
-.svc label:hover { border-color: var(--violet); transform: translateY(-3px); }
+.svc label:hover { border-color: var(--violet); }
+.svc:hover label, .svc:hover .svc__info { transform: translateY(-3px); }
+.svc__info {
+  position: absolute; right: 1.1rem; bottom: 1rem; z-index: 1;
+  width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--ink);
+  background: transparent; color: var(--ink); cursor: pointer;
+  font: italic 700 1rem/1 Georgia, serif;
+  transition: background .3s, color .3s, border-color .3s, transform .4s var(--ease);
+}
+.svc__info:hover, .svc__info:focus-visible { background: var(--violet); border-color: var(--violet); color: #fff; }
+.svc input:checked ~ .svc__info { border-color: var(--mint); color: var(--mint); }
+.svc input:checked ~ .svc__info:hover { background: var(--mint); color: var(--ink); }
+
+/* Okénko „Co dostanete“ */
+.pkg {
+  width: min(520px, 100vw - 2rem); max-height: calc(100svh - 2rem); overflow-y: auto;
+  margin: auto; padding: 0; border: 0; border-radius: 28px;
+  background: var(--paper); color: var(--ink);
+}
+.pkg[open] { animation: lb-in .45s var(--ease); }
+.pkg::backdrop { background: rgba(31, 22, 64, .7); animation: fade .3s ease; }
+.pkg__inner { position: relative; padding: clamp(1.4rem, 4vw, 2.2rem); }
+.pkg__close { position: absolute; top: 1rem; right: 1rem; }
+.pkg__kicker { color: var(--violet-deep); font-weight: 600; font-size: .9rem; text-transform: uppercase; letter-spacing: .08em; }
+.pkg h3 { font: 800 clamp(1.6rem, 5vw, 2.1rem)/1.1 var(--display); margin: .3rem 3rem 1.1rem 0; }
+.pkg__list { list-style: none; padding: 0; display: grid; gap: .65rem; }
+.pkg__list li { position: relative; padding-left: 2rem; line-height: 1.45; }
+.pkg__list li::before {
+  content: ""; position: absolute; left: 0; top: .1rem; width: 1.3rem; height: 1.3rem; border-radius: 50%;
+  background: var(--mint) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 12.5 10.5 17 18 8' fill='none' stroke='%231F1640' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 70% no-repeat;
+}
+.pkg__foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  margin-top: 1.5rem; padding-top: 1.2rem; border-top: 2px dashed var(--line);
+}
+.pkg__price { font: 800 1.5rem var(--display); }
 .svc__name { font: 700 1.15rem/1.2 var(--display); }
 .svc__check {
   width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--line);

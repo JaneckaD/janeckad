@@ -10,6 +10,7 @@
 //   desc      – jedna až dvě věty, co klient dostane
 //   price     – cena v Kč; null = cena dohodou
 //   priceMax  – (volitelné) horní hranice, když je cena rozpětí
+//   includes  – (volitelné) co přesně klient dostane; u služby se pak ukáže ikonka „i“ s okénkem
 //   excludes  – (volitelné) služby, které s touto nejdou dohromady; zaškrtnutím se odškrtnou
 //
 // bundles – rychlé volby podle situace klienta; jedním klikem zaškrtnou několik služeb.
@@ -50,6 +51,13 @@ export const services = [
     desc: 'Logo, které si lidé zapamatují. Dostanete ho ve všech formátech pro web i tisk.',
     price: 1390,
     excludes: ['identity'],
+    includes: [
+      'Logo ve všech variantách: hlavní, na výšku, razítko, samotný nápis, symbol bez textu a ikona',
+      'Světlé i inverzní verze pro tmavé pozadí',
+      'Soubory SVG pro tisk i web a PNG s průhledným pozadím',
+      'Barvy loga s přesnými kódy',
+      'Prezentace v PDF, kde je logo hezky pohromadě',
+    ],
   },
   {
     id: 'identity',
@@ -58,6 +66,15 @@ export const services = [
     desc: 'Celá značka včetně loga: barvy, písma a pravidla, díky kterým bude web, vizitka i příspěvek vypadat jednotně.',
     price: 3990,
     excludes: ['logo'],
+    includes: [
+      'Logo ve všech variantách: hlavní, na výšku, razítko, samotný nápis, symbol bez textu a ikona',
+      'Několik barevných kombinací s přesnými kódy barev',
+      'Soubory SVG pro tisk i web a PNG s průhledným pozadím',
+      'Výběr písem, která jsou zdarma i pro komerční použití',
+      'Vzor, třeba na balicí papír, tašky nebo obaly',
+      'Ukázky značky v praxi: vizitky, obaly, výloha nebo menu podle vašeho oboru',
+      'Prezentace v PDF, kde je celá identita pohromadě',
+    ],
   },
   {
     id: 'social',
