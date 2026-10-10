@@ -108,6 +108,13 @@ export const services = [
     name: 'Šablony pro sociální sítě',
     desc: 'Sada šablon na příspěvky a stories ve stylu vaší značky. Stačí vyměnit text a fotku a můžete posílat ven.',
     price: 3990,
+    includes: [
+      'Ikony pro výběry (zvýraznění) na profilu ve stylu vaší značky',
+      'Šablona pro příspěvek, do které jen vyměníte text a fotku',
+      'Šablona pro příběh (story)',
+      'Hotové příběhy do výběrů, aby profil nepůsobil prázdně',
+      'Dva hotové příspěvky na rozjezd profilu',
+    ],
   },
   {
     id: 'graphics-other',
