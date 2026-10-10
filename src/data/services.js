@@ -60,10 +60,17 @@ export const services = [
     excludes: ['logo'],
   },
   {
+    id: 'social',
+    group: 'grafika',
+    name: 'Šablony pro sociální sítě',
+    desc: 'Sada šablon na příspěvky a stories ve stylu vaší značky. Stačí vyměnit text a fotku a můžete posílat ven.',
+    price: 3990,
+  },
+  {
     id: 'graphics-other',
     group: 'grafika',
     name: 'Jiná grafika',
-    desc: 'Plakáty, letáky, grafika na sítě nebo animace. Napište, co potřebujete, a domluvíme se.',
+    desc: 'Plakáty, letáky, jednotlivé příspěvky nebo animace. Napište, co potřebujete, a domluvíme se.',
     price: null,
   },
 ];

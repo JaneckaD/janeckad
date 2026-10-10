@@ -251,6 +251,11 @@ function initLightbox() {
     void img.offsetWidth; // restart animace
     img.classList.add('is-swapping');
     $$('button', thumbs).forEach((b, bi) => b.setAttribute('aria-current', String(bi === index)));
+    // na mobilu jsou náhledy v posuvném řádku, aktivní ať je vždy vidět
+    const active = thumbs.children[index];
+    if (active && thumbs.scrollWidth > thumbs.clientWidth) {
+      thumbs.scrollTo({ left: active.offsetLeft - (thumbs.clientWidth - active.offsetWidth) / 2, behavior: 'smooth' });
+    }
   };
 
   const open = (project, trigger) => {

@@ -462,7 +462,7 @@ section { position: relative; }
 
 /* ===== Galerie (lightbox) ===== */
 .lightbox {
-  width: min(1100px, 100vw - 2rem); max-height: calc(100svh - 2rem);
+  width: min(1100px, 100vw - 2rem); max-height: calc(100svh - 2rem); overflow-y: auto; overscroll-behavior: contain;
   padding: clamp(1rem, 2.5vw, 1.8rem); border: 0; border-radius: 28px;
   background: var(--paper); color: var(--ink);
   display: none; flex-direction: column; gap: 1rem;
@@ -474,24 +474,36 @@ section { position: relative; }
 @keyframes lb-in { from { opacity: 0; transform: translate3d(0, 40px, 0); } }
 @keyframes lb-out { to { opacity: 0; transform: translate3d(0, 30px, 0); } }
 @keyframes fade { from { opacity: 0; } }
-.lightbox__head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+/* Nadpis a tlačítka nahoře v řádku, popis pod nimi přes celou šířku */
+.lightbox__head {
+  display: grid; grid-template-columns: 1fr auto; align-items: center; gap: .3rem 1rem;
+  flex-shrink: 0;
+}
 .lightbox__head h3 { font-size: clamp(1.5rem, 3vw, 2.2rem); }
-.lightbox__head p { color: var(--ink-soft); margin-top: .3rem; max-width: 40rem; }
-.lightbox__actions { display: flex; gap: .6rem; align-items: center; flex-shrink: 0; }
+.lightbox__desc { grid-column: 1 / -1; grid-row: 2; color: var(--ink-soft); max-width: 46rem; }
+.lightbox__actions { display: flex; gap: .6rem; align-items: center; }
 .lightbox__close {
   width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--ink);
   background: transparent; color: var(--ink); font-size: 1.1rem; cursor: pointer;
   transition: background .3s, transform .4s var(--ease);
 }
 .lightbox__close:hover { background: var(--ink); color: var(--paper); transform: rotate(90deg); }
-.lightbox__stage { position: relative; display: flex; align-items: center; min-height: 0; flex: 1; }
-.lightbox__figure { margin: 0; flex: 1; min-width: 0; }
+.lightbox__stage {
+  position: relative; display: flex; flex: 1 1 auto;
+  min-height: calc(min(180px, 30svh) + 3.4rem); /* pod tohle se nezmenší, galerie se pak radši posune */
+}
+/* Obrázek se zmenší podle místa, popisek pod ním zůstane vždycky vidět */
+.lightbox__figure {
+  margin: 0; flex: 1; min-width: 0; min-height: 0;
+  display: flex; flex-direction: column; justify-content: center;
+}
 .lightbox__figure img {
-  width: 100%; max-height: 62svh; object-fit: contain; border-radius: 18px; background: var(--paper-2);
+  flex: 0 1 auto; min-height: 0; max-height: 62svh;
+  width: 100%; object-fit: contain; border-radius: 18px; background: var(--paper-2);
 }
 .lightbox__figure img.is-swapping { animation: swap .5s var(--ease); }
 @keyframes swap { from { opacity: 0; transform: translateX(calc(var(--dir, 1) * 30px)); } }
-.lightbox__figure figcaption { margin-top: .6rem; color: var(--ink-soft); font-size: .95rem; text-align: center; }
+.lightbox__figure figcaption { flex-shrink: 0; margin-top: .6rem; color: var(--ink-soft); font-size: .95rem; text-align: center; }
 .lightbox__arrow {
   position: absolute; top: calc(50% - 1.2rem); z-index: 1;
   width: 52px; height: 52px; border-radius: 50%; border: 0; transform: translateY(-50%);
@@ -502,9 +514,9 @@ section { position: relative; }
 .lightbox__arrow:hover { background: var(--mint); transform: translateY(-50%) scale(1.08); }
 .lightbox__arrow--prev { left: .8rem; }
 .lightbox__arrow--next { right: .8rem; }
-.lightbox__thumbs { display: flex; gap: .6rem; justify-content: center; flex-wrap: wrap; }
+.lightbox__thumbs { position: relative; display: flex; gap: .6rem; justify-content: center; flex-wrap: wrap; flex-shrink: 0; }
 .lightbox__thumbs button {
-  width: 78px; aspect-ratio: 3 / 2; padding: 0; border-radius: 10px; overflow: hidden;
+  flex-shrink: 0; width: 78px; aspect-ratio: 3 / 2; padding: 0; border-radius: 10px; overflow: hidden;
   border: 3px solid transparent; background: none; cursor: pointer; opacity: .55;
   transition: opacity .3s, border-color .3s;
 }
@@ -546,6 +558,8 @@ section { position: relative; }
   .form { grid-template-columns: 1fr; }
   .process__steps { grid-template-columns: 1fr; }
   .lightbox__arrow { width: 42px; height: 42px; font-size: 1.6rem; }
+  .lightbox__thumbs { flex-wrap: nowrap; justify-content: safe center; overflow-x: auto; padding-bottom: .2rem; scrollbar-width: none; }
+  .lightbox__thumbs button { width: 64px; }
 }
 
 /* Kdo nechce animace, nedostane je */
