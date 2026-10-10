@@ -14,6 +14,21 @@
 
 export const projects = [
   {
+    title: 'Ricci jídlo',
+    category: 'Web a objednávky na míru',
+    year: 2026,
+    description: 'Web pro rozvoz jídla s vlastním objednávkovým systémem. Majitel si v administraci spravuje menu, obsah webu i role týmu a každá restaurace má vlastní přístup ke svým objednávkám.',
+    cover: 'portfolio/ricci-cover.jpg',
+    link: 'https://riccijidlo.cz',
+    gallery: [
+      { src: 'portfolio/ricci-cover.jpg', alt: 'Úvodní stránka s vyhledáním restaurace podle adresy' },
+      { src: 'portfolio/ricci-detail.jpg', alt: 'Stránka restaurace s menu a košíkem' },
+      { src: 'portfolio/ricci-list.jpg', alt: 'Přehled restaurací s filtry a otevírací dobou' },
+      { src: 'portfolio/ricci-admin.jpg', alt: 'Administrace na míru: směny kurýrů, role a newsletter' },
+      { src: 'portfolio/ricci-dashboard.jpg', alt: 'Statistiky tržeb a objednávek v administraci' },
+    ],
+  },
+  {
     title: 'Kavárna U Mlýna',
     category: 'Web',
     year: 2026,
