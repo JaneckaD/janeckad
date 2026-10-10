@@ -60,7 +60,6 @@ p { margin: 0; }
   background: var(--bg); color: var(--fg);
   font: 600 1rem/1 var(--body); text-decoration: none; cursor: pointer;
   transition: background .3s var(--ease), color .3s var(--ease), transform .3s var(--ease), box-shadow .3s var(--ease);
-  will-change: transform;
 }
 .btn:hover { background: var(--violet); border-color: var(--violet); box-shadow: 0 10px 30px -10px rgba(106, 92, 255, .7); }
 .btn--ghost { --bg: transparent; --fg: var(--ink); border-color: var(--ink); }
@@ -82,18 +81,26 @@ p { margin: 0; }
   max-width: 1080px; margin: 0 auto;
   display: flex; align-items: center; justify-content: space-between; gap: 1rem;
   padding: .45rem .45rem .45rem .5rem;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, .55);
-  border: 1px solid rgba(255, 255, 255, .8);
+  border-radius: 999px; border: 1px solid transparent;
   box-shadow: 0 10px 40px -18px rgba(31, 22, 64, .35);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  transition: background .4s var(--ease), color .4s var(--ease), border-color .4s, max-width .6s var(--ease);
+  transition: color .4s var(--ease);
 }
-.nav.is-dark .nav__bar { background: rgba(242, 240, 250, .1); border-color: rgba(242, 240, 250, .18); color: var(--paper); }
+/* Světlé a tmavé pozadí lišty jsou dvě vrstvy, které se jen prolnou průhledností.
+   Přechod barvy pozadí by jinak nutil prohlížeč každý snímek znovu rozmazávat, co je pod lištou. */
+.nav__bar::before, .nav__bar::after {
+  content: ""; position: absolute; inset: -1px; z-index: -1; border-radius: inherit;
+  transition: opacity .4s var(--ease);
+}
+.nav__bar::before { background: rgba(255, 255, 255, .55); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .8); }
+.nav__bar::after { background: rgba(242, 240, 250, .1); box-shadow: inset 0 0 0 1px rgba(242, 240, 250, .18); opacity: 0; }
+.nav.is-dark .nav__bar { color: var(--paper); }
+.nav.is-dark .nav__bar::before { opacity: 0; }
+.nav.is-dark .nav__bar::after { opacity: 1; }
 .nav__progress {
   position: absolute; left: 1.4rem; right: 1.4rem; bottom: -1px; height: 2px; border-radius: 2px;
   background: linear-gradient(90deg, var(--violet), var(--mint));
-  transform: scaleX(var(--progress, 0)); transform-origin: left;
+  transform: scaleX(0); transform-origin: left;
 }
 
 .nav__logo { display: flex; align-items: center; gap: .7rem; text-decoration: none; }
@@ -111,8 +118,15 @@ p { margin: 0; }
 .nav.is-dark .nav__logo:hover .nav__mark-bowl { stroke: var(--paper); }
 .nav.is-dark .nav__logo:hover .nav__mark-cursor { stroke: var(--mint); }
 .nav__status { display: inline-flex; align-items: center; gap: .45rem; font-size: .85rem; font-weight: 500; white-space: nowrap; }
-.nav__status i { width: 8px; height: 8px; border-radius: 50%; background: #2fbf8a; box-shadow: 0 0 0 0 rgba(47, 191, 138, .6); animation: ping 2s infinite; }
-@keyframes ping { 70% { box-shadow: 0 0 0 7px rgba(47, 191, 138, 0); } 100% { box-shadow: 0 0 0 0 rgba(47, 191, 138, 0); } }
+/* Pulzující tečka: místo animovaného stínu se zvětšuje kroužek přes transform,
+   to zvládne grafická karta sama a stránka se kvůli tomu nepřekresluje */
+.nav__status i { position: relative; width: 8px; height: 8px; border-radius: 50%; background: #2fbf8a; }
+.nav__status i::after {
+  content: ""; position: absolute; inset: 0; border-radius: 50%;
+  background: rgba(47, 191, 138, .6); animation: ping 2s infinite;
+}
+@keyframes ping { 0% { transform: scale(1); opacity: 1; } 70% { transform: scale(2.75); opacity: 0; } 100% { transform: scale(1); opacity: 0; } }
+.nav.is-scrolled .nav__status i::after { animation-play-state: paused; }
 .nav.is-scrolled .nav__status { max-width: 0; overflow: hidden; opacity: 0; }
 .nav__status { max-width: 16rem; transition: max-width .6s var(--ease), opacity .3s; }
 
@@ -227,11 +241,17 @@ p { margin: 0; }
   transition: transform .5s var(--ease), background .3s;
 }
 .badge:hover { transform: scale(1.08) rotate(-6deg); background: var(--violet); }
-.badge svg { position: absolute; inset: 0; width: 100%; height: 100%; animation: spin 16s linear infinite; }
+/* točí se obal, ne samotné SVG: rotace SVG by prohlížeč nutila každý snímek přepočítat stránku */
+.badge__ring { position: absolute; inset: 0; animation: spin 16s linear infinite; will-change: transform; }
+.badge__ring svg { display: block; width: 100%; height: 100%; }
 .badge text { font: 600 17px var(--body); letter-spacing: .14em; fill: currentColor; }
-.badge__dot { width: 18%; aspect-ratio: 1; border-radius: 50%; background: var(--mint); box-shadow: 0 0 0 0 rgba(142, 227, 200, .7); animation: pulse 2.2s infinite; }
+.badge__dot { position: relative; width: 18%; aspect-ratio: 1; border-radius: 50%; background: var(--mint); }
+.badge__dot::after {
+  content: ""; position: absolute; inset: 0; border-radius: 50%;
+  background: rgba(142, 227, 200, .7); animation: pulse 2.2s infinite;
+}
 @keyframes spin { to { transform: rotate(360deg); } }
-@keyframes pulse { 70% { box-shadow: 0 0 0 14px rgba(142, 227, 200, 0); } 100% { box-shadow: 0 0 0 0 rgba(142, 227, 200, 0); } }
+@keyframes pulse { 0% { transform: scale(1); opacity: 1; } 70% { transform: scale(2.2); opacity: 0; } 100% { transform: scale(1); opacity: 0; } }
 
 /* Úvodní animace – spustí se jednou po načtení */
 .js [data-intro] { opacity: 0; transform: translateY(18px); }
@@ -248,6 +268,9 @@ p { margin: 0; }
   transition: transform 1s var(--ease) calc(var(--i) * 70ms + .2s), opacity .6s ease calc(var(--i) * 70ms + .2s);
 }
 .hero__name { overflow: hidden; padding-bottom: .04em; }
+/* Pevná výška + contain: když se při pohybu myši mění šířka písmen,
+   prohlížeč přepočítá jen jméno, ne celou stránku */
+.hero__name { height: .86em; contain: strict; }
 
 /* ===== Sekce obecně ===== */
 section { position: relative; }
@@ -606,5 +629,5 @@ section { position: relative; }
 
 /* Když hero není vidět nebo je otevřená galerie, animace v pozadí se zastaví,
    aby prohlížeč nepočítal něco, co nikdo nevidí */
-.hero.is-paused .blob, .hero.is-paused .badge svg, .hero.is-paused .badge__dot,
-.lb-open .blob, .lb-open .badge svg, .lb-open .badge__dot, .lb-open .nav__status i { animation-play-state: paused; }
+.hero.is-paused .blob, .hero.is-paused .badge__ring, .hero.is-paused .badge__dot::after,
+.lb-open .blob, .lb-open .badge__ring, .lb-open .badge__dot::after, .lb-open .nav__status i::after { animation-play-state: paused; }

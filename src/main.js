@@ -47,6 +47,7 @@ function initHero() {
       c.cy = r.top - heroTop + r.height / 2; // vůči hero, ať nevadí scroll
     });
     chars.forEach((c, i) => { c.el.style.fontVariationSettings = prev[i]; });
+    chars.forEach((c) => { c.fvs = null; });
   };
 
   const tick = () => {
@@ -69,7 +70,12 @@ function initHero() {
       c.wdth += (c.td - c.wdth) * 0.14;
       if (Math.abs(c.tw - c.wght) > 0.5 || Math.abs(c.td - c.wdth) > 0.05) moving = true;
       else { c.wght = c.tw; c.wdth = c.td; }
-      c.el.style.fontVariationSettings = `'wght' ${c.wght.toFixed(0)}, 'wdth' ${c.wdth.toFixed(1)}`;
+      // Hodnoty zaokrouhlujeme na kroky: každá nová kombinace tloušťky a šířky znamená,
+      // že prohlížeč musí písmo znovu připravit. S kroky si připravené verze pamatuje.
+      const w = Math.round(c.wght / 8) * 8;
+      const d = Math.round(c.wdth * 2) / 2;
+      const fvs = `'wght' ${w}, 'wdth' ${d}`;
+      if (fvs !== c.fvs) { c.fvs = fvs; c.el.style.fontVariationSettings = fvs; }
     }
     if (moving) frame = requestAnimationFrame(tick);
   };
@@ -90,19 +96,27 @@ function initNav() {
   const pill = $('[data-nav-pill]');
   const toggle = $('[data-nav-toggle]');
   const darkSections = $$('.work, .contact');
+  const progress = $('[data-progress]');
   let active = null;
   let hovered = null;
 
   // tmavá varianta nad tmavými sekcemi + ukazatel, kolik stránky je přečteno
+  // nejdřív všechno změříme a až potom zapisujeme, jinak by prohlížeč
+  // musel stránku přepočítávat několikrát za jeden snímek
+  const navHalf = () => nav.offsetHeight / 2;
+  let probe = navHalf();
+  window.addEventListener('resize', () => { probe = navHalf(); });
   const onScroll = () => {
-    nav.classList.toggle('is-scrolled', window.scrollY > 40);
-    const probe = nav.offsetHeight / 2;
-    nav.classList.toggle('is-dark', darkSections.some((sec) => {
+    const y = window.scrollY;
+    const dark = darkSections.some((sec) => {
       const r = sec.getBoundingClientRect();
       return r.top <= probe && r.bottom >= probe;
-    }));
+    });
     const max = document.documentElement.scrollHeight - window.innerHeight;
-    nav.style.setProperty('--progress', max > 0 ? (window.scrollY / max).toFixed(4) : 0);
+    nav.classList.toggle('is-scrolled', y > 40);
+    nav.classList.toggle('is-dark', dark);
+    // přímo na proužek, ne jako proměnná na celou lištu (ta by se pak přepočítávala celá)
+    progress.style.transform = `scaleX(${max > 0 ? (y / max).toFixed(4) : 0})`;
   };
   onScroll();
   let scrollFrame = 0;
@@ -205,7 +219,7 @@ function initPortfolio(openGallery) {
       const tag = hasGallery ? `${icons.gallery} Zobrazit galerii` : `${icons.link} Navštívit web`;
       const inner = `
         <div class="project__media">
-          <img src="${escapeHtml(p.cover)}" alt="" loading="lazy" />
+          <img src="${escapeHtml(p.cover)}" alt="" loading="lazy" decoding="async" />
           <span class="project__tag">${tag}</span>
         </div>
         <div class="project__info">
