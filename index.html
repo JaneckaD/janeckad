@@ -192,8 +192,11 @@
             <span>Co potřebujete</span>
             <textarea name="message" rows="5" required data-message></textarea>
           </label>
+          <!-- past na spamovací roboty: člověk pole nevidí, robot ho vyplní -->
+          <input class="form__hp" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" />
           <p class="form__error" data-form-error role="alert"></p>
-          <button class="btn btn--light" type="submit">Odeslat zprávu</button>
+          <button class="btn btn--light" type="submit" data-form-submit>Odeslat zprávu</button>
+          <p class="form__ok" data-form-ok role="status" hidden>Díky, zpráva dorazila! Ozvu se vám nejpozději druhý den.</p>
         </form>
       </div>
       <footer class="footer">

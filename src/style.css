@@ -508,6 +508,14 @@ section { position: relative; }
 .field [aria-invalid='true'] { border-color: var(--sun); }
 .form__error { grid-column: 1 / -1; color: var(--sun); min-height: 1.4em; margin: -.4rem 0 0; }
 .form .btn { justify-self: start; }
+.form .btn[disabled] { opacity: .65; cursor: progress; }
+.form__error a { color: inherit; }
+.form__ok {
+  grid-column: 1 / -1; margin: 0; padding: .9rem 1.1rem; border-radius: 14px;
+  background: rgba(142, 227, 200, .14); color: var(--mint); font-weight: 600;
+  animation: pop .45s var(--ease);
+}
+.form__hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 
 .footer {
   max-width: var(--max); margin: clamp(4rem, 8vw, 6rem) auto 0; padding-top: 1.5rem;

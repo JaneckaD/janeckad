@@ -503,14 +503,19 @@ function initBuilder() {
 function initContact() {
   const form = $('[data-form]');
   const error = $('[data-form-error]');
-  form.addEventListener('submit', (e) => {
+  const ok = $('[data-form-ok]');
+  const submit = $('[data-form-submit]');
+  const mailto = (data) =>
+    `mailto:${site.email}?subject=${encodeURIComponent(`Poptávka z webu od ${data.get('name')}`)}&body=${encodeURIComponent(data.get('message'))}`;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const fields = $$('input, textarea', form);
+    const fields = $$('input:not([name^="_"]), textarea', form);
     let firstInvalid = null;
     fields.forEach((f) => {
-      const ok = f.checkValidity() && f.value.trim() !== '';
-      f.setAttribute('aria-invalid', String(!ok));
-      if (!ok && !firstInvalid) firstInvalid = f;
+      const valid = f.checkValidity() && f.value.trim() !== '';
+      f.setAttribute('aria-invalid', String(!valid));
+      if (!valid && !firstInvalid) firstInvalid = f;
     });
     if (firstInvalid) {
       error.textContent =
@@ -521,11 +526,37 @@ function initContact() {
       return;
     }
     error.textContent = '';
+    ok.hidden = true;
     const data = new FormData(form);
-    const subject = `Poptávka z webu od ${data.get('name')}`;
-    const body = `${data.get('message')}\n\n${data.get('name')}\n${data.get('email')}`;
-    // Zatím otevře e-mailového klienta. Později lze napojit např. na Formspree nebo Netlify Forms.
-    window.location.href = `mailto:${site.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+    // Zprávu doručí služba FormSubmit.co na e-mail ze src/data/site.js (web nepotřebuje vlastní server)
+    submit.disabled = true;
+    submit.textContent = 'Odesílám…';
+    try {
+      const res = await fetch(`https://formsubmit.co/ajax/${site.formTarget || site.email}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          'Jméno': data.get('name'),
+          'E-mail': data.get('email'),
+          'Zpráva': data.get('message'),
+          _replyto: data.get('email'),
+          _subject: `Nová poptávka z webu Davix od ${data.get('name')}`,
+          _template: 'table',
+          _honey: data.get('_honey'),
+        }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || String(json.success) !== 'true') throw new Error(json.message || res.status);
+      form.reset();
+      fields.forEach((f) => f.removeAttribute('aria-invalid'));
+      ok.hidden = false;
+    } catch {
+      error.innerHTML = `Zprávu se nepodařilo odeslat. Zkuste to prosím znovu, nebo mi napište rovnou na <a href="${escapeHtml(mailto(data))}">${escapeHtml(site.email)}</a>.`;
+    } finally {
+      submit.disabled = false;
+      submit.textContent = 'Odeslat zprávu';
+    }
   });
   form.addEventListener('input', (e) => {
     if (e.target.getAttribute('aria-invalid') === 'true' && e.target.checkValidity()) e.target.setAttribute('aria-invalid', 'false');

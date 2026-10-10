@@ -24,7 +24,7 @@ Web se otevře v prohlížeči na `http://localhost:5173`. Změny v souborech se
 
 | Co | Soubor |
 | --- | --- |
-| Jméno, e-mail, sociální sítě | `src/data/site.js` |
+| Jméno, e-mail, sociální sítě (na e-mail chodí i zprávy z formuláře přes FormSubmit.co) | `src/data/site.js` |
 | Projekty v portfoliu | `src/data/projects.js` |
 | Obrázky projektů | složka `public/portfolio/` |
 | Služby, ceny, rychlé volby | `src/data/services.js` |
