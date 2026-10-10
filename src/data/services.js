@@ -27,6 +27,14 @@ export const services = [
     name: 'Jednoduchý web',
     desc: 'Přehledná stránka o vás: co děláte, proč zrovna vy a jak se vám ozvat. Skvělá na start.',
     price: 4790,
+    includes: [
+      'Návrh na míru, žádná hotová šablona',
+      'Jedna stránka se sekcemi podle potřeby: úvod, služby, o vás, reference a kontakt',
+      'Vzhled vyladěný pro mobil, tablet i počítač',
+      'Kontaktní formulář a odkazy na vaše sociální sítě',
+      'Základní SEO, aby vás lidé našli na Googlu',
+      'Pomoc se spuštěním webu na vaší doméně',
+    ],
   },
   {
     id: 'web-big',
@@ -34,6 +42,14 @@ export const services = [
     name: 'Rozsáhlejší web',
     desc: 'Víc stránek, efekty, které zaujmou, a podle potřeby databáze s administrací na míru. Po přihlášení si obsah spravujete sami.',
     price: 7990,
+    includes: [
+      'Všechno z jednoduchého webu',
+      'Víc samostatných stránek, třeba služby, galerie, ceník nebo novinky',
+      'Animace a efekty, které web oživí, ale nezdrží',
+      'Databáze a administrace na míru, kde si po přihlášení sami měníte obsah',
+      'SEO pro každou stránku zvlášť',
+      'Zaškolení, jak administraci používat',
+    ],
   },
   {
     id: 'eshop',
@@ -42,6 +58,16 @@ export const services = [
     desc: 'Celý obchod včetně administrace na míru: produkty, objednávky i zákazníci. Cena záleží na tom, co všechno má umět.',
     price: 15000,
     priceMax: 25000,
+    includes: [
+      'Návrh obchodu na míru včetně mobilní verze',
+      'Katalog produktů s kategoriemi, filtry a vyhledáváním',
+      'Košík a objednávka krok za krokem',
+      'Administrace na míru: produkty, objednávky, zákazníci a sklad',
+      'Automatické e-maily zákazníkům o přijetí a stavu objednávky',
+      'Napojení platby a dopravy podle domluvy',
+      'Role a vlastní přístupy pro váš tým',
+      'Zaškolení, jak e-shop spravovat',
+    ],
   },
 
   {
