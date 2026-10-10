@@ -179,14 +179,22 @@ function initReveal() {
       for (const entry of entries) {
         if (!entry.isIntersecting) continue;
         const el = entry.target;
+        io.unobserve(el);
+        // Prvek přichází shora (scroll nahoru, nebo prohlížeč po obnovení stránky vrátil
+        // pozici doprostřed): ukážeme ho hned, bez animace. Jinak by obsah nad vámi
+        // naskakoval a posouval se proti směru scrollu a stránka by působila, že skáče.
+        if (entry.boundingClientRect.top < 0) {
+          el.classList.add('is-instant', 'is-in');
+          continue;
+        }
         // sourozenci se odhalí s malým zpožděním za sebou
         const siblings = $$('[data-reveal]', el.parentElement);
         el.style.transitionDelay = `${Math.max(0, siblings.indexOf(el)) * 90}ms`;
         el.classList.add('is-in');
-        io.unobserve(el);
       }
     },
-    { rootMargin: '0px 0px -12% 0px' },
+    // nahoře s rezervou, aby se obsah nad obrazovkou připravil dřív, než na něj dojedete
+    { rootMargin: '300px 0px -12% 0px' },
   );
   items.forEach((el) => io.observe(el));
 }

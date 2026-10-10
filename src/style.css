@@ -285,6 +285,7 @@ section { position: relative; }
 .js [data-reveal].is-in { opacity: 1; transform: none; }
 .js h2[data-reveal] { clip-path: inset(0 0 100% 0); transform: translateY(30px); transition: clip-path 1s var(--ease), transform 1s var(--ease), opacity .4s; }
 .js h2[data-reveal].is-in { clip-path: inset(-10% 0 -10% 0); }
+.js [data-reveal].is-instant { transition: none; }
 
 /* ===== Portfolio ===== */
 .work {
