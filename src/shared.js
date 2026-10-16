@@ -173,6 +173,8 @@ export function initLightbox() {
   const caption = $('[data-lb-caption]', dialog);
   const thumbs = $('[data-lb-thumbs]', dialog);
   const link = $('[data-lb-link]', dialog);
+  const chapters = $('[data-lb-chapters]', dialog);
+  const caseBox = $('[data-lb-case]', dialog);
   let current = null;
   let index = 0;
   let opener = null;
@@ -193,6 +195,15 @@ export function initLightbox() {
     void img.offsetWidth; // restart animace
     img.classList.add('is-swapping');
     $$('button', thumbs).forEach((b, bi) => b.setAttribute('aria-current', String(bi === index)));
+    // u projektu s postupem se zvýrazní krok, ke kterému obrázek patří
+    if (current.steps) {
+      const step = current.steps.reduce((acc, st, si) => (st.from <= index ? si : acc), 0);
+      $$('[data-goto]', dialog).forEach((b) => b.setAttribute('aria-current', String(Number(b.dataset.step) === step)));
+      const chip = chapters.children[step];
+      if (chip && chapters.scrollWidth > chapters.clientWidth) {
+        chapters.scrollTo({ left: chip.offsetLeft - (chapters.clientWidth - chip.offsetWidth) / 2, behavior: 'smooth' });
+      }
+    }
     // na mobilu jsou náhledy v posuvném řádku, aktivní ať je vždy vidět
     const active = thumbs.children[index];
     if (active && thumbs.scrollWidth > thumbs.clientWidth) {
@@ -212,11 +223,56 @@ export function initLightbox() {
       .map((g, i) => `<button type="button" data-thumb="${i}" aria-label="Obrázek ${i + 1}"><img src="${escapeHtml(asset(g.src))}" alt="" /></button>`)
       .join('');
     project.gallery.forEach((g) => { const pre = new Image(); pre.decoding = 'async'; pre.src = asset(g.src); });
+    renderCase(project);
     show(0);
     dialog.showModal();
     document.body.style.overflow = 'hidden';
     document.documentElement.classList.add('lb-open');
   };
+
+  // Postup, co klient dostane a obsah prezentace (jen u projektů, které mají steps)
+  const renderCase = (project) => {
+    const steps = project.steps || [];
+    const has = steps.length > 0;
+    dialog.classList.toggle('lightbox--case', has);
+    chapters.hidden = !has;
+    caseBox.hidden = !has;
+    if (!has) return;
+    const num = (i) => String(i + 1).padStart(2, '0');
+    chapters.innerHTML = steps
+      .map((st, i) => `<button type="button" data-goto="${st.from}" data-step="${i}"><span>${num(i)}</span>${escapeHtml(st.title)}</button>`)
+      .join('') + '<button class="lightbox__jump" type="button" data-jump-case>Co klient dostane ↓</button>';
+    $('[data-lb-steps]', caseBox).innerHTML = steps
+      .map((st, i) => `
+        <li><button type="button" data-goto="${st.from}" data-step="${i}" data-scroll-up>
+          <span class="case__num">${num(i)}</span>
+          <span class="case__title">${escapeHtml(st.title)}</span>
+          <span class="case__text">${escapeHtml(st.text)}</span>
+        </button></li>`)
+      .join('');
+    $('[data-lb-includes]', caseBox).innerHTML = (project.includes || []).map((t) => `<li>${escapeHtml(t)}</li>`).join('');
+    const pdf = project.presentation;
+    const pdfBox = $('[data-lb-pdf]', caseBox);
+    pdfBox.hidden = !pdf;
+    if (pdf) {
+      pdfBox.innerHTML = `
+        <h4>${escapeHtml(pdf.title)}</h4>
+        <p>${escapeHtml(pdf.text)}</p>
+        <ul class="case__pages">${pdf.pages.map((t) => `<li>${escapeHtml(t)}</li>`).join('')}</ul>`;
+    }
+  };
+  dialog.addEventListener('click', (e) => {
+    if (e.target.closest('[data-jump-case]')) {
+      dialog.scrollTo({ top: caseBox.offsetTop - 16, behavior: reduceMotion ? 'auto' : 'smooth' });
+      return;
+    }
+    const b = e.target.closest('[data-goto]');
+    if (!b) return;
+    const to = Number(b.dataset.goto);
+    show(to, to < index ? -1 : 1);
+    // z popisu postupu dole vyjedeme nahoru k obrázku
+    if (b.hasAttribute('data-scroll-up')) dialog.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+  });
 
   const close = () => {
     if (!dialog.open || dialog.classList.contains('is-closing')) return;
