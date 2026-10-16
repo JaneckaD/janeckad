@@ -176,6 +176,7 @@ export function initLightbox() {
   const link = $('[data-lb-link]', dialog);
   const chapters = $('[data-lb-chapters]', dialog);
   const caseBox = $('[data-lb-case]', dialog);
+  const body = $('[data-lb-body]', dialog);
   let current = null;
   let index = 0;
   let opener = null;
@@ -225,6 +226,7 @@ export function initLightbox() {
       .join('');
     project.gallery.forEach((g) => { const pre = new Image(); pre.decoding = 'async'; pre.src = asset(g.src); });
     renderCase(project);
+    body.scrollTop = 0;
     show(0);
     dialog.showModal();
     document.body.style.overflow = 'hidden';
@@ -282,7 +284,7 @@ export function initLightbox() {
       return;
     }
     if (e.target.closest('[data-jump-case]')) {
-      dialog.scrollTo({ top: caseBox.offsetTop - 16, behavior: reduceMotion ? 'auto' : 'smooth' });
+      body.scrollTo({ top: caseBox.offsetTop - 16, behavior: reduceMotion ? 'auto' : 'smooth' });
       return;
     }
     const b = e.target.closest('[data-goto]');
@@ -290,7 +292,7 @@ export function initLightbox() {
     const to = Number(b.dataset.goto);
     show(to, to < index ? -1 : 1);
     // z popisu postupu dole vyjedeme nahoru k obrázku
-    if (b.hasAttribute('data-scroll-up')) dialog.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+    if (b.hasAttribute('data-scroll-up')) body.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
   });
 
   const close = () => {

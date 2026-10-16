@@ -211,37 +211,40 @@
 
   <!-- GALERIE -->
   <dialog class="lightbox" data-lightbox aria-labelledby="lb-title">
-    <div class="lightbox__head">
-      <h3 id="lb-title" data-lb-title></h3>
-      <p class="lightbox__desc" data-lb-meta></p>
-      <div class="lightbox__actions">
-        <a class="btn btn--small" data-lb-link target="_blank" rel="noopener" hidden>Navštívit web</a>
-        <button class="lightbox__close" type="button" data-lb-close aria-label="Zavřít galerii">✕</button>
+    <!-- obsah se posouvá uvnitř okna, aby posuvník nepřečníval přes zaoblené rohy -->
+    <div class="lightbox__body" data-lb-body>
+      <div class="lightbox__head">
+        <h3 id="lb-title" data-lb-title></h3>
+        <p class="lightbox__desc" data-lb-meta></p>
+        <div class="lightbox__actions">
+          <a class="btn btn--small" data-lb-link target="_blank" rel="noopener" hidden>Navštívit web</a>
+          <button class="lightbox__close" type="button" data-lb-close aria-label="Zavřít galerii">✕</button>
+        </div>
       </div>
-    </div>
-    <div class="lightbox__chapters" role="group" aria-label="Části projektu" data-lb-chapters hidden></div>
-    <div class="lightbox__stage">
-      <button class="lightbox__arrow lightbox__arrow--prev" type="button" data-lb-prev aria-label="Předchozí obrázek">‹</button>
-      <figure class="lightbox__figure">
-        <img data-lb-img alt="" />
-        <figcaption data-lb-caption></figcaption>
-      </figure>
-      <button class="lightbox__arrow lightbox__arrow--next" type="button" data-lb-next aria-label="Další obrázek">›</button>
-    </div>
-    <div class="lightbox__thumbs" data-lb-thumbs></div>
-    <!-- u projektů s postupem (steps v projects.js): jak to probíhalo, co klient dostane, co je v prezentaci -->
-    <div class="case" data-lb-case hidden>
-      <section class="case__steps">
-        <h4 data-lb-steps-title>Jak to probíhalo</h4>
-        <ol data-lb-steps></ol>
-      </section>
-      <div class="case__side">
-        <section class="case__box">
-          <h4 data-lb-includes-title>Co klient dostane</h4>
-          <ul class="case__list" data-lb-includes></ul>
-          <p class="case__pkg" data-lb-service hidden></p>
+      <div class="lightbox__chapters" role="group" aria-label="Části projektu" data-lb-chapters hidden></div>
+      <div class="lightbox__stage">
+        <button class="lightbox__arrow lightbox__arrow--prev" type="button" data-lb-prev aria-label="Předchozí obrázek">‹</button>
+        <figure class="lightbox__figure">
+          <img data-lb-img alt="" />
+          <figcaption data-lb-caption></figcaption>
+        </figure>
+        <button class="lightbox__arrow lightbox__arrow--next" type="button" data-lb-next aria-label="Další obrázek">›</button>
+      </div>
+      <div class="lightbox__thumbs" data-lb-thumbs></div>
+      <!-- u projektů s postupem (steps v projects.js): jak to probíhalo, co klient dostane, co je v prezentaci -->
+      <div class="case" data-lb-case hidden>
+        <section class="case__steps">
+          <h4 data-lb-steps-title>Jak to probíhalo</h4>
+          <ol data-lb-steps></ol>
         </section>
-        <section class="case__box case__box--pdf" data-lb-pdf></section>
+        <div class="case__side">
+          <section class="case__box">
+            <h4 data-lb-includes-title>Co klient dostane</h4>
+            <ul class="case__list" data-lb-includes></ul>
+            <p class="case__pkg" data-lb-service hidden></p>
+          </section>
+          <section class="case__box case__box--pdf" data-lb-pdf></section>
+        </div>
       </div>
     </div>
   </dialog>
