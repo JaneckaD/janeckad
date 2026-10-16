@@ -1,5 +1,6 @@
 // Věci, které používá hlavní stránka i stránka Portfolio
 import { site } from './data/site.js';
+import { services } from './data/services.js';
 
 export const $ = (sel, root = document) => root.querySelector(sel);
 export const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -241,7 +242,7 @@ export function initLightbox() {
     const num = (i) => String(i + 1).padStart(2, '0');
     chapters.innerHTML = steps
       .map((st, i) => `<button type="button" data-goto="${st.from}" data-step="${i}"><span>${num(i)}</span>${escapeHtml(st.title)}</button>`)
-      .join('') + '<button class="lightbox__jump" type="button" data-jump-case>Co klient dostane ↓</button>';
+      .join('') + '<button class="lightbox__jump" type="button" data-jump-case>Detail projektu ↓</button>';
     $('[data-lb-steps]', caseBox).innerHTML = steps
       .map((st, i) => `
         <li><button type="button" data-goto="${st.from}" data-step="${i}" data-scroll-up>
@@ -250,7 +251,16 @@ export function initLightbox() {
           <span class="case__text">${escapeHtml(st.text)}</span>
         </button></li>`)
       .join('');
+    $('[data-lb-steps-title]', caseBox).textContent = project.stepsTitle || 'Jak to probíhalo';
+    $('[data-lb-includes-title]', caseBox).textContent = project.includesTitle || 'Co klient dostane';
     $('[data-lb-includes]', caseBox).innerHTML = (project.includes || []).map((t) => `<li>${escapeHtml(t)}</li>`).join('');
+    // ke kterému balíčku z nabídky projekt patří, s odkazem na skládačku služeb
+    const svc = services.find((x) => x.id === project.service);
+    const svcBox = $('[data-lb-service]', caseBox);
+    svcBox.hidden = !svc;
+    if (svc) {
+      svcBox.innerHTML = `Odpovídá službě <strong>${escapeHtml(svc.name)}</strong> z nabídky. <a href="${import.meta.env.BASE_URL}#sluzby">Spočítat cenu</a>`;
+    }
     const pdf = project.presentation;
     const pdfBox = $('[data-lb-pdf]', caseBox);
     pdfBox.hidden = !pdf;
@@ -258,10 +268,19 @@ export function initLightbox() {
       pdfBox.innerHTML = `
         <h4>${escapeHtml(pdf.title)}</h4>
         <p>${escapeHtml(pdf.text)}</p>
-        <ul class="case__pages">${pdf.pages.map((t) => `<li>${escapeHtml(t)}</li>`).join('')}</ul>`;
+        ${pdf.pages ? `<ul class="case__pages">${pdf.pages.map((t) => `<li>${escapeHtml(t)}</li>`).join('')}</ul>` : ''}
+        ${pdf.link ? `<a class="btn btn--light btn--small btn--arrow case__link" href="${escapeHtml(pdf.link.url)}" target="_blank" rel="noopener">${escapeHtml(pdf.link.label)} ${icons.link}</a>` : ''}`;
     }
   };
   dialog.addEventListener('click', (e) => {
+    // odkaz na ceník: nejdřív zavřít galerii, pak teprve přejít
+    const pkgLink = e.target.closest('.case__pkg a');
+    if (pkgLink) {
+      e.preventDefault();
+      dialog.addEventListener('close', () => { location.href = pkgLink.href; }, { once: true });
+      close();
+      return;
+    }
     if (e.target.closest('[data-jump-case]')) {
       dialog.scrollTo({ top: caseBox.offsetTop - 16, behavior: reduceMotion ? 'auto' : 'smooth' });
       return;

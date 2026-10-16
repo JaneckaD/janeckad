@@ -232,13 +232,14 @@
     <!-- u projektů s postupem (steps v projects.js): jak to probíhalo, co klient dostane, co je v prezentaci -->
     <div class="case" data-lb-case hidden>
       <section class="case__steps">
-        <h4>Jak to probíhalo</h4>
+        <h4 data-lb-steps-title>Jak to probíhalo</h4>
         <ol data-lb-steps></ol>
       </section>
       <div class="case__side">
         <section class="case__box">
-          <h4>Co klient dostane</h4>
+          <h4 data-lb-includes-title>Co klient dostane</h4>
           <ul class="case__list" data-lb-includes></ul>
+          <p class="case__pkg" data-lb-service hidden></p>
         </section>
         <section class="case__box case__box--pdf" data-lb-pdf></section>
       </div>

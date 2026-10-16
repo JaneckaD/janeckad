@@ -727,6 +727,11 @@ section { position: relative; }
   background: rgba(242, 240, 250, .1); border: 1px solid rgba(242, 240, 250, .16);
 }
 .case__pages li::before { content: counter(page) " "; color: var(--mint); font-weight: 700; }
+.case__link { margin-top: 1rem; }
+.case__link svg { width: 1em; height: 1em; }
+.case__pkg { margin-top: 1rem; padding-top: .9rem; border-top: 1px dashed var(--line); font-size: .95rem; color: var(--ink-soft); }
+.case__pkg strong { color: var(--ink); }
+.case__pkg a { color: var(--violet-deep); font-weight: 600; text-underline-offset: .2em; }
 
 /* ===== Responzivita ===== */
 @media (max-width: 960px) {

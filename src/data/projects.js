@@ -12,10 +12,14 @@
 //   type        – 'web' nebo 'grafika' (podle toho se filtruje na stránce Portfolio)
 //   featured    – true = projekt se ukáže i na hlavní stránce; ostatní jsou jen na stránce /portfolio
 //
-// Volitelně u projektu jde v galerii ukázat i celý postup (jako u SPOJ):
-//   steps        – kroky { title, text, from }; from = číslo obrázku v galerii, kde krok začíná (od 0)
-//   includes     – co klient dostane (seznam)
-//   presentation – { title, text, pages: [...] } co je v prezentaci pro klienta
+// Detail projektu v galerii (kroky nad obrázkem, pod galerií postup a co klient dostane):
+//   steps         – kroky { title, text, from }; from = číslo obrázku v galerii, kde krok začíná (od 0)
+//   stepsTitle    – (volitelné) nadpis kroků, výchozí „Jak to probíhalo“
+//   includes      – co klient dostane (seznam)
+//   includesTitle – (volitelné) nadpis seznamu, výchozí „Co klient dostane“
+//   service       – id služby ze src/data/services.js, které projekt odpovídá (ukáže se odkaz na ceník)
+//   presentation  – tmavý rámeček: { title, text, pages: [...] } obsah prezentace,
+//                   nebo { title, text, link: { label, url } } třeba odkaz na živý web
 //
 // Pořadí v seznamu = pořadí na webu.
 // Když vyplníš link i gallery, otevře se galerie a v ní bude tlačítko na web.
@@ -31,10 +35,31 @@ export const projects = [
     description: 'Web pro rozvoz jídla s vlastním objednávkovým systémem. Majitel si v administraci spravuje menu, obsah webu i role týmu a každá restaurace má vlastní přístup ke svým objednávkám.',
     cover: 'portfolio/ricci-cover.jpg',
     link: 'https://riccijidlo.cz',
+    service: 'eshop',
+    stepsTitle: 'Co web umí',
+    steps: [
+      { title: 'Pro zákazníky', from: 0, text: 'Zákazník zadá adresu, vybere si z restaurací, které k němu rozvážejí, a objedná z menu přes košík. Všechno pohodlně i na mobilu.' },
+      { title: 'Administrace na míru', from: 3, text: 'Majitel si po přihlášení sám spravuje menu, obsah webu, role týmu, směny kurýrů i newsletter. Všechno běží na databázi, takže se změny hned propíšou na web.' },
+      { title: 'Restaurace a statistiky', from: 4, text: 'Každá restaurace má vlastní přístup a vidí jen svoje objednávky. Majitel má přehled o tržbách a objednávkách.' },
+    ],
+    includesTitle: 'Co klient dostal',
+    includes: [
+      'Návrh webu na míru, vyladěný pro mobil, tablet i počítač',
+      'Vyhledání restaurací podle adresy, menu a košík',
+      'Vlastní objednávkový systém napojený na databázi',
+      'Administraci na míru: menu, obsah webu, role týmu, směny kurýrů a newsletter',
+      'Vlastní přístup pro každou restauraci, kde vidí svoje objednávky',
+      'Statistiky tržeb a objednávek',
+    ],
+    presentation: {
+      title: 'Web naživo',
+      text: 'Web běží a slouží zákazníkům každý den. Klidně si ho proklikejte.',
+      link: { label: 'Otevřít riccijidlo.cz', url: 'https://riccijidlo.cz' },
+    },
     gallery: [
       { src: 'portfolio/ricci-cover.jpg', alt: 'Úvodní stránka s vyhledáním restaurace podle adresy' },
-      { src: 'portfolio/ricci-detail.jpg', alt: 'Stránka restaurace s menu a košíkem' },
       { src: 'portfolio/ricci-list.jpg', alt: 'Přehled restaurací s filtry a otevírací dobou' },
+      { src: 'portfolio/ricci-detail.jpg', alt: 'Stránka restaurace s menu a košíkem' },
       { src: 'portfolio/ricci-admin.jpg', alt: 'Administrace na míru: směny kurýrů, role a newsletter' },
       { src: 'portfolio/ricci-dashboard.jpg', alt: 'Statistiky tržeb a objednávek v administraci' },
     ],
@@ -47,6 +72,7 @@ export const projects = [
     year: 2026,
     description: 'Identita pro firmu, která staví skládané betonové ploty. Jednobarevný abstraktní znak ze tří desek, které do sebe zapadají na pero a drážku, přesně jako skutečný plot. Žádná písmena ani domeček, jen spoj, který drží.',
     cover: 'portfolio/spoj-cover.jpg',
+    service: 'identity',
     steps: [
       { title: 'Tři směry', from: 0, text: 'Na začátku jsem připravil tři různé koncepty znaku a vyzkoušel je ve velikostech od 64 do 16 px: Spoj (desky na pero a drážku), Tuhnutí (vlna tekutého betonu) a Ohrada (desky kolem kruhu).' },
       { title: 'Pero a drážka', from: 1, text: 'Dál jsem rozvinul Spoj: tři betonové desky do sebe zapadají jako skutečné plotové dílce. Znak stojí na přesné mřížce, takže drží tvar v každé velikosti.' },
@@ -104,11 +130,38 @@ export const projects = [
     year: 2026,
     description: 'Identita pro jídelnu, která každý den vaří a menu rozváží po Otrokovicích. Znak JO spojuje naběračku a talíř: polévka v naběračce i porce na talíři mají stejný tvar, protože je to pořád to samé jídlo na cestě z kuchyně až k zákazníkovi. Klient dostal logo s textem i bez něj, dvě barevné kombinace, vzor, šablonu denního menu a podklady pro tisk, všechno v jedné prezentaci.',
     cover: 'portfolio/jo-cover.jpg',
+    service: 'identity',
+    steps: [
+      { title: 'Znak JO', from: 0, text: 'J je naběračka a O talíř. Polévka v naběračce a porce na talíři mají stejný tvar, protože je to pořád to samé jídlo, jen putuje z kuchyně až k zákazníkovi. Dohromady to dává české „jo“.' },
+      { title: 'Konstrukce', from: 1, text: 'Znak stojí na jednotné mřížce, takže je čitelný na billboardu i jako malá ikona.' },
+      { title: 'Barvy a verze loga', from: 2, text: 'Tmavě modrá, vínová a bílá podle přání klienta. Hlavní a prohozená kombinace, logo s textem, na výšku, razítko a znak bez textu.' },
+      { title: 'Písmo, vzor a menu', from: 6, text: 'Písma Unbounded a DM Sans, vzor ze tvarů znaku na obaly a výlohu a šablona denního menu na sociální sítě.' },
+      { title: 'V praxi', from: 9, text: 'Devět ukázek na reálných fotkách: budova, výloha, rozvozové auto, billboard, plakát, vizitky, nálepky na krabičky s jídlem, hlavičkový papír a taška.' },
+    ],
+    includes: [
+      'Logo ve dvou barevných kombinacích, v SVG pro tisk i web a v PNG s průhledným pozadím',
+      'Logo s textem, na výšku, samotný nápis, znak JO a razítko',
+      'Ikony pro web a sociální sítě, čtvercové i kulaté',
+      'Barvy s kódy pro web i tisk',
+      'Písma, která jsou zdarma i pro komerční použití',
+      'Vzor ze tvarů znaku',
+      'Šablonu denního menu na sociální sítě',
+      'Podklady pro tisk: vizitky, plakát, billboard a nálepky',
+      'Devět ukázek použití na reálných fotkách',
+      'Prezentaci v PDF, kde je všechno pohromadě',
+    ],
+    presentation: {
+      title: 'Co je v prezentaci',
+      text: '18 stran v PDF. Klient ji může rovnou poslat tiskárně nebo polepovně aut.',
+      pages: ['Logo', 'Konstrukce na mřížce', 'Barvy', 'Logo s textem', 'Hlavní a prohozená kombinace', 'Znak bez textu', 'Písmo', 'Vzor', 'Denní menu', '9 ukázek v praxi'],
+    },
     gallery: [
       { src: 'portfolio/jo-logo.jpg', alt: 'Logo Jídelna Otrokovice' },
       { src: 'portfolio/jo-konstrukce.jpg', alt: 'Znak JO postavený na mřížce: naběračka a talíř' },
       { src: 'portfolio/jo-barvy.jpg', alt: 'Barvy: tmavě modrá, vínová a bílá' },
       { src: 'portfolio/jo-varianty.jpg', alt: 'Logo s textem, na výšku a razítko' },
+      { src: 'portfolio/jo-kombinace.jpg', alt: 'Hlavní a prohozená barevná kombinace' },
+      { src: 'portfolio/jo-bez-textu.jpg', alt: 'Znak JO bez textu' },
       { src: 'portfolio/jo-pismo.jpg', alt: 'Písma Unbounded a DM Sans' },
       { src: 'portfolio/jo-vzor.jpg', alt: 'Vzor na obaly, tašky a výlohu' },
       { src: 'portfolio/jo-menu.jpg', alt: 'Šablona denního menu na sociální sítě' },
@@ -131,19 +184,43 @@ export const projects = [
     year: 2026,
     description: 'Tohle není skutečný klient, ale zkušební zakázka, na které ukazuju, jak identita ode mě vypadá. Pekárna a kavárna dostala logo ve všech variantách, pět barevných kombinací, písma, vzor na obaly a ukázky na vizitkách, kelímcích, taškách i výloze. Všechno je pohromadě v prezentaci, kterou dostane každý klient.',
     cover: 'portfolio/park-vizitky.jpg',
+    service: 'identity',
+    steps: [
+      { title: 'Koncept', from: 0, text: 'Strom, který voní chlebem. Koruna stromu je kulatý bochník a zářez na jeho kůrce je zároveň žilkování listu. Znak tak jedním tvarem říká pekárna i klidné místo pod stromy.' },
+      { title: 'Pět barevných kombinací', from: 2, text: 'Teplé kombinace Kůrka, Meruňka, Park, Skořice a Espresso. Klient si vybere jednu, nebo je může střídat na obalech.' },
+      { title: 'Verze loga', from: 3, text: 'Logo s textem, na výšku, razítko, samotný strom a ikona, každé ve všech pěti barvách.' },
+      { title: 'Písmo a vzor', from: 6, text: 'Písma Young Serif, Fraunces a Figtree a vzor na balicí papír a tašky.' },
+      { title: 'V praxi', from: 8, text: 'Šest ukázek: vizitky, kelímky na kávu, tašky, výloha, krabice s nálepkami a menu s cenovkami.' },
+    ],
+    includes: [
+      'Logo v pěti barevných kombinacích, v SVG pro tisk i web a v PNG s průhledným pozadím',
+      'Logo s textem, na výšku, nápis, razítko, samotný strom a ikona, i v inverzních verzích',
+      'Barvy s kódy pro web i tisk',
+      'Písma, která jsou zdarma i pro komerční použití',
+      'Vzor na balicí papír a tašky',
+      'Šest ukázek použití',
+      'Prezentaci v PDF, kde je všechno pohromadě',
+    ],
+    presentation: {
+      title: 'Co je v prezentaci',
+      text: '14 stran v PDF, stejná prezentace, jakou dostane každý klient.',
+      pages: ['Logo', 'Koncept', 'Pět barevných kombinací', 'Varianty s textem', 'Logo ve všech barvách', 'Znak bez textu', 'Písma', 'Vzor', '6 ukázek v praxi'],
+    },
     gallery: [
       { src: 'portfolio/park-logo.jpg', alt: 'Logo Park café' },
       { src: 'portfolio/park-koncept.jpg', alt: 'Koncept: strom, který voní chlebem' },
       { src: 'portfolio/park-barvy.jpg', alt: 'Pět teplých barevných kombinací' },
       { src: 'portfolio/park-varianty.jpg', alt: 'Varianty loga s textem, razítko a inverzní verze' },
+      { src: 'portfolio/park-vsechny-barvy.jpg', alt: 'Logo s textem ve všech pěti barvách' },
+      { src: 'portfolio/park-bez-textu.jpg', alt: 'Strom bez textu a ikony' },
+      { src: 'portfolio/park-pismo.jpg', alt: 'Písma identity' },
+      { src: 'portfolio/park-vzor.jpg', alt: 'Vzor na balicí papír a tašky' },
       { src: 'portfolio/park-vizitky.jpg', alt: 'Vizitky' },
       { src: 'portfolio/park-kelimky.jpg', alt: 'Kelímky na kávu' },
       { src: 'portfolio/park-tasky.jpg', alt: 'Papírové tašky' },
       { src: 'portfolio/park-vyloha.jpg', alt: 'Výloha a stojan před kavárnou' },
       { src: 'portfolio/park-krabice.jpg', alt: 'Krabice na zákusky a nálepky' },
       { src: 'portfolio/park-menu.jpg', alt: 'Menu a cenovky' },
-      { src: 'portfolio/park-vzor.jpg', alt: 'Vzor na balicí papír a tašky' },
-      { src: 'portfolio/park-pismo.jpg', alt: 'Písma identity' },
     ],
   },
 ];
