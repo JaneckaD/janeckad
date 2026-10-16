@@ -2,14 +2,7 @@ import './style.css';
 import { site } from './data/site.js';
 import { projects } from './data/projects.js';
 import { groups, services, bundles } from './data/services.js';
-
-const $ = (sel, root = document) => root.querySelector(sel);
-const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
-const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const finePointer = window.matchMedia('(pointer: fine)').matches;
-const kc = (n) => new Intl.NumberFormat('cs-CZ').format(Math.round(n));
-const escapeHtml = (s = '') =>
-  String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+import { $, $$, reduceMotion, finePointer, kc, escapeHtml, initNav, initReveal, renderProjects, initLightbox, initFooter } from './shared.js';
 
 document.documentElement.classList.add('js');
 
@@ -89,116 +82,6 @@ function initHero() {
   hero.addEventListener('pointerleave', () => { mouse = null; schedule(); });
 }
 
-/* ---------- Navigace ---------- */
-function initNav() {
-  const nav = $('[data-nav]');
-  const links = $$('[data-nav-links] a:not(.nav__menu-cta)');
-  const pill = $('[data-nav-pill]');
-  const toggle = $('[data-nav-toggle]');
-  const darkSections = $$('.work, .contact');
-  const progress = $('[data-progress]');
-  let active = null;
-  let hovered = null;
-
-  // tmavá varianta nad tmavými sekcemi + ukazatel, kolik stránky je přečteno
-  // nejdřív všechno změříme a až potom zapisujeme, jinak by prohlížeč
-  // musel stránku přepočítávat několikrát za jeden snímek
-  const navHalf = () => nav.offsetHeight / 2;
-  let probe = navHalf();
-  window.addEventListener('resize', () => { probe = navHalf(); });
-  const onScroll = () => {
-    const y = window.scrollY;
-    const dark = darkSections.some((sec) => {
-      const r = sec.getBoundingClientRect();
-      return r.top <= probe && r.bottom >= probe;
-    });
-    const max = document.documentElement.scrollHeight - window.innerHeight;
-    nav.classList.toggle('is-scrolled', y > 40);
-    nav.classList.toggle('is-dark', dark);
-    // přímo na proužek, ne jako proměnná na celou lištu (ta by se pak přepočítávala celá)
-    progress.style.transform = `scaleX(${max > 0 ? (y / max).toFixed(4) : 0})`;
-  };
-  onScroll();
-  let scrollFrame = 0;
-  window.addEventListener('scroll', () => {
-    if (!scrollFrame) scrollFrame = requestAnimationFrame(() => { scrollFrame = 0; onScroll(); });
-  }, { passive: true });
-
-  // pilulka jede pod odkazem, na kterém je myš, jinak pod aktuální sekcí
-  const movePill = () => {
-    const target = hovered || active;
-    links.forEach((l) => l.classList.toggle('is-pill', l === target));
-    if (!target) { pill.classList.remove('is-on'); return; }
-    pill.style.width = `${target.offsetWidth}px`;
-    pill.style.transform = `translateX(${target.offsetLeft}px)`;
-    pill.classList.add('is-on');
-  };
-  links.forEach((l) => {
-    l.addEventListener('pointerenter', () => { hovered = l; movePill(); });
-    l.addEventListener('pointerleave', () => { hovered = null; movePill(); });
-  });
-  window.addEventListener('resize', movePill);
-
-  if ('IntersectionObserver' in window) {
-    const sections = links.map((l) => $(l.getAttribute('href'))).filter(Boolean);
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          const link = links.find((l) => l.getAttribute('href') === `#${e.target.id}`);
-          if (e.isIntersecting) active = link;
-          else if (active === link) active = null;
-        }
-        links.forEach((l) => (l === active ? l.setAttribute('aria-current', 'true') : l.removeAttribute('aria-current')));
-        movePill();
-      },
-      { rootMargin: '-45% 0px -50% 0px' },
-    );
-    sections.forEach((sec) => io.observe(sec));
-  }
-
-  // mobilní menu
-  const setOpen = (open) => {
-    nav.classList.toggle('is-open', open);
-    toggle.setAttribute('aria-expanded', String(open));
-    toggle.setAttribute('aria-label', open ? 'Zavřít menu' : 'Otevřít menu');
-  };
-  toggle.addEventListener('click', () => setOpen(!nav.classList.contains('is-open')));
-  $('[data-nav-links]').addEventListener('click', (e) => { if (e.target.closest('a')) setOpen(false); });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
-}
-
-/* ---------- Odhalování nadpisů při scrollu ---------- */
-function initReveal() {
-  const items = $$('[data-reveal]');
-  if (reduceMotion || !('IntersectionObserver' in window)) {
-    items.forEach((el) => el.classList.add('is-in'));
-    return;
-  }
-  const io = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        const el = entry.target;
-        io.unobserve(el);
-        // Prvek přichází shora (scroll nahoru, nebo prohlížeč po obnovení stránky vrátil
-        // pozici doprostřed): ukážeme ho hned, bez animace. Jinak by obsah nad vámi
-        // naskakoval a posouval se proti směru scrollu a stránka by působila, že skáče.
-        if (entry.boundingClientRect.top < 0) {
-          el.classList.add('is-instant', 'is-in');
-          continue;
-        }
-        // sourozenci se odhalí s malým zpožděním za sebou
-        const siblings = $$('[data-reveal]', el.parentElement);
-        el.style.transitionDelay = `${Math.max(0, siblings.indexOf(el)) * 90}ms`;
-        el.classList.add('is-in');
-      }
-    },
-    // nahoře s rezervou, aby se obsah nad obrazovkou připravil dřív, než na něj dojedete
-    { rootMargin: '300px 0px -12% 0px' },
-  );
-  items.forEach((el) => io.observe(el));
-}
-
 /* ---------- Magnetické tlačítko ---------- */
 function initMagnet() {
   if (reduceMotion || !finePointer) return;
@@ -213,132 +96,22 @@ function initMagnet() {
   });
 }
 
-/* ---------- Portfolio ---------- */
-const icons = {
-  gallery: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>',
-  link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>',
-};
-
+/* ---------- Portfolio: na hlavní stránce jen vybrané projekty ---------- */
 function initPortfolio(openGallery) {
-  const list = $('[data-projects]');
-  list.innerHTML = projects
-    .map((p, i) => {
-      const hasGallery = Array.isArray(p.gallery) && p.gallery.length > 0;
-      const tag = hasGallery ? `${icons.gallery} Zobrazit galerii` : `${icons.link} Navštívit web`;
-      const inner = `
-        <div class="project__media">
-          <img src="${escapeHtml(p.cover)}" alt="" loading="lazy" decoding="async" />
-          <span class="project__tag">${tag}</span>
-        </div>
-        <div class="project__info">
-          <h3 class="project__title">${escapeHtml(p.title)}</h3>
-          <span class="project__meta">${escapeHtml(p.category)}, ${escapeHtml(p.year)}</span>
-        </div>
-        <p class="project__desc">${escapeHtml(p.description)}</p>`;
-      const el = hasGallery
-        ? `<button class="project" type="button" data-index="${i}" aria-haspopup="dialog">${inner}</button>`
-        : p.link
-          ? `<a class="project" href="${escapeHtml(p.link)}" target="_blank" rel="noopener">${inner}</a>`
-          : `<div class="project">${inner}</div>`;
-      return `<li data-reveal>${el}</li>`;
-    })
-    .join('');
-
-  list.addEventListener('click', (e) => {
-    const btn = e.target.closest('button[data-index]');
-    if (btn) openGallery(projects[Number(btn.dataset.index)], btn);
-  });
-}
-
-/* ---------- Galerie ---------- */
-function initLightbox() {
-  const dialog = $('[data-lightbox]');
-  const img = $('[data-lb-img]', dialog);
-  const caption = $('[data-lb-caption]', dialog);
-  const thumbs = $('[data-lb-thumbs]', dialog);
-  const link = $('[data-lb-link]', dialog);
-  let current = null;
-  let index = 0;
-  let opener = null;
-
-  const show = (i, dir = 1) => {
-    const items = current.gallery;
-    index = (i + items.length) % items.length;
-    const item = items[index];
-    img.src = item.src;
-    img.alt = item.alt || current.title;
-    caption.textContent = item.alt || '';
-    img.style.setProperty('--dir', dir);
-    img.classList.remove('is-swapping');
-    void img.offsetWidth; // restart animace
-    img.classList.add('is-swapping');
-    $$('button', thumbs).forEach((b, bi) => b.setAttribute('aria-current', String(bi === index)));
-    // na mobilu jsou náhledy v posuvném řádku, aktivní ať je vždy vidět
-    const active = thumbs.children[index];
-    if (active && thumbs.scrollWidth > thumbs.clientWidth) {
-      thumbs.scrollTo({ left: active.offsetLeft - (thumbs.clientWidth - active.offsetWidth) / 2, behavior: 'smooth' });
-    }
-  };
-
-  const open = (project, trigger) => {
-    current = project;
-    opener = trigger;
-    $('[data-lb-title]', dialog).textContent = project.title;
-    $('[data-lb-meta]', dialog).textContent = project.description;
-    link.hidden = !project.link;
-    if (project.link) link.href = project.link;
-    dialog.classList.toggle('lightbox--single', project.gallery.length < 2);
-    thumbs.innerHTML = project.gallery
-      .map((g, i) => `<button type="button" data-thumb="${i}" aria-label="Obrázek ${i + 1}"><img src="${escapeHtml(g.src)}" alt="" /></button>`)
-      .join('');
-    project.gallery.forEach((g) => { const pre = new Image(); pre.decoding = 'async'; pre.src = g.src; });
-    show(0);
-    dialog.showModal();
-    document.body.style.overflow = 'hidden';
-    document.documentElement.classList.add('lb-open');
-  };
-
-  const close = () => {
-    if (!dialog.open || dialog.classList.contains('is-closing')) return;
-    const finish = () => {
-      dialog.classList.remove('is-closing');
-      dialog.close();
-    };
-    if (reduceMotion) return finish();
-    dialog.classList.add('is-closing');
-    setTimeout(finish, 280);
-  };
-
-  dialog.addEventListener('close', () => {
-    document.body.style.overflow = '';
-    document.documentElement.classList.remove('lb-open');
-    opener?.focus();
-  });
-  dialog.addEventListener('cancel', (e) => { e.preventDefault(); close(); });
-  dialog.addEventListener('click', (e) => { if (e.target === dialog) close(); }); // klik mimo obsah
-  $('[data-lb-close]', dialog).addEventListener('click', close);
-  $('[data-lb-prev]', dialog).addEventListener('click', () => show(index - 1, -1));
-  $('[data-lb-next]', dialog).addEventListener('click', () => show(index + 1, 1));
-  thumbs.addEventListener('click', (e) => {
-    const b = e.target.closest('[data-thumb]');
-    if (b) { const i = Number(b.dataset.thumb); show(i, i < index ? -1 : 1); }
-  });
-  dialog.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowLeft') show(index - 1, -1);
-    if (e.key === 'ArrowRight') show(index + 1, 1);
-  });
-
-  // swipe na mobilu
-  let startX = null;
-  img.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
-  img.addEventListener('touchend', (e) => {
-    if (startX === null) return;
-    const dx = e.changedTouches[0].clientX - startX;
-    if (Math.abs(dx) > 40) show(index + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
-    startX = null;
-  });
-
-  return open;
+  const featured = projects.filter((p) => p.featured);
+  const count = projects.length;
+  const word = count === 1 ? 'projekt' : count < 5 ? 'projekty' : 'projektů';
+  // poslední dlaždice vede na stránku se všemi pracemi
+  const more = `
+    <li data-reveal>
+      <a class="work__more" href="portfolio/">
+        <span class="work__more-kicker">${count} ${word} na jednom místě</span>
+        <span class="work__more-title">Celé portfolio</span>
+        <span class="work__more-text">Weby, loga i celé vizuální identity.</span>
+        <span class="work__more-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+    </li>`;
+  renderProjects($('[data-projects]'), featured, openGallery, more);
 }
 
 /* ---------- Skládačka služeb ---------- */
@@ -561,11 +334,6 @@ function initContact() {
   form.addEventListener('input', (e) => {
     if (e.target.getAttribute('aria-invalid') === 'true' && e.target.checkValidity()) e.target.setAttribute('aria-invalid', 'false');
   });
-
-  $('[data-year]').textContent = new Date().getFullYear();
-  $('[data-socials]').innerHTML = site.socials
-    .map((s) => `<a href="${escapeHtml(s.url)}" target="_blank" rel="noopener">${escapeHtml(s.label)}</a>`)
-    .join('');
 }
 
 initHero();
@@ -574,5 +342,6 @@ const openGallery = initLightbox();
 initPortfolio(openGallery);
 initBuilder();
 initContact();
+initFooter();
 initReveal();
 initMagnet();

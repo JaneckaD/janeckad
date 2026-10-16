@@ -302,6 +302,78 @@ section { position: relative; }
 .work__grid { row-gap: clamp(2.5rem, 5vw, 4rem); align-items: start; }
 .work__grid > li:nth-child(4n + 1), .work__grid > li:nth-child(4n + 4) { grid-column: span 7; }
 .work__grid > li:nth-child(4n + 2), .work__grid > li:nth-child(4n + 3) { grid-column: span 5; }
+/* Na stránce Portfolio počítá šířky JS jen z viditelných karet (kvůli filtru) */
+.work__grid--manual > li.is-wide { grid-column: span 7; }
+.work__grid--manual > li.is-narrow { grid-column: span 5; }
+.work .section-head a { color: var(--mint); text-underline-offset: .2em; }
+.work .section-head a:hover { color: var(--paper); }
+
+/* Dlaždice „Celé portfolio“ na konci výběru na hlavní stránce */
+.work__more {
+  position: relative; display: flex; flex-direction: column; justify-content: flex-end; gap: .4rem;
+  aspect-ratio: 3 / 2; padding: clamp(1.4rem, 3vw, 2.4rem); border-radius: 20px; overflow: hidden;
+  background: var(--mint); color: var(--ink); text-decoration: none; isolation: isolate;
+}
+.work__more::before {
+  content: ""; position: absolute; z-index: -1; width: 70%; aspect-ratio: 1; right: -18%; top: -30%; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 209, 102, .9), rgba(255, 209, 102, 0));
+  transition: transform .9s var(--ease);
+}
+.work__more:hover::before, .work__more:focus-visible::before { transform: translate3d(-12%, 14%, 0) scale(1.15); }
+.work__more-kicker { font-weight: 600; font-size: .95rem; color: var(--ink-soft); }
+.work__more-title {
+  font: 800 clamp(2.4rem, 5.5vw, 4.6rem)/.92 var(--display); font-variation-settings: 'wdth' 72; letter-spacing: -.02em;
+}
+.work__more-text { color: var(--ink-soft); max-width: 22rem; }
+.work__more-arrow {
+  position: absolute; top: clamp(1.2rem, 2.5vw, 2rem); right: clamp(1.2rem, 2.5vw, 2rem);
+  display: grid; place-items: center; width: clamp(52px, 6vw, 72px); aspect-ratio: 1; border-radius: 50%;
+  background: var(--ink); color: var(--paper); transition: transform .5s var(--ease);
+}
+.work__more-arrow svg { width: 45%; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.work__more:hover .work__more-arrow, .work__more:focus-visible .work__more-arrow { transform: rotate(-45deg) scale(1.08); }
+
+/* ===== Stránka Portfolio ===== */
+.page-head {
+  position: relative; overflow: hidden; isolation: isolate;
+  padding: clamp(8rem, 16vw, 11rem) var(--gutter) clamp(3rem, 7vw, 5rem);
+}
+.page-head .hero__blobs { width: min(900px, 120vw); right: -18%; top: -40%; }
+.page-head.is-paused .blob { animation-play-state: paused; }
+.page-head__inner { max-width: var(--max); margin: 0 auto; }
+.page-head__back { display: inline-block; margin-bottom: 1.2rem; color: var(--ink-soft); font-weight: 500; text-decoration: none; }
+.page-head__back:hover { color: var(--violet); }
+.page-head__title {
+  font-size: clamp(3.5rem, 14vw, 11.5rem); font-weight: 900; line-height: .88; letter-spacing: -.03em;
+  font-variation-settings: 'wdth' 68;
+}
+.page-head__lead { margin-top: 1.4rem; max-width: 36rem; font-size: clamp(1.1rem, 1.6vw, 1.3rem); color: var(--ink-soft); }
+
+.filters { max-width: var(--max); margin: 0 auto clamp(2rem, 4vw, 3rem); display: flex; flex-wrap: wrap; gap: .6rem; }
+.filter {
+  display: inline-flex; align-items: center; gap: .55rem; padding: .7rem 1.15rem; border-radius: 999px;
+  border: 2px solid rgba(242, 240, 250, .25); background: transparent; color: var(--paper);
+  font: 600 1rem/1 var(--body); cursor: pointer;
+  transition: background .3s var(--ease), border-color .3s var(--ease), color .3s var(--ease), transform .3s var(--ease);
+}
+.filter small {
+  display: grid; place-items: center; min-width: 1.6em; height: 1.6em; padding: 0 .4em; border-radius: 999px;
+  background: rgba(242, 240, 250, .12); font-size: .8rem;
+}
+.filter:hover { border-color: var(--mint); transform: translateY(-2px); }
+.filter[aria-pressed='true'] { background: var(--mint); border-color: var(--mint); color: var(--ink); }
+.filter[aria-pressed='true'] small { background: rgba(31, 22, 64, .12); }
+.work__grid > li.is-shuffled { animation: shuffle .6s var(--ease); }
+@keyframes shuffle { from { opacity: 0; transform: translateY(18px) scale(.98); } }
+
+.work__end {
+  max-width: var(--max); margin: clamp(5rem, 10vw, 8rem) auto 0; padding-top: clamp(3rem, 6vw, 4rem);
+  border-top: 1px dashed rgba(242, 240, 250, .2);
+}
+.work__end p { margin-top: 1rem; max-width: 32rem; font-size: 1.15rem; color: rgba(242, 240, 250, .7); }
+.work__end-cta { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: 2rem; }
+.btn--on-dark { --fg: var(--paper); border-color: rgba(242, 240, 250, .5); }
+.work--page .footer { margin-top: clamp(3rem, 6vw, 4.5rem); }
 
 .project {
   display: block; width: 100%; padding: 0; border: 0; background: none; color: inherit;
@@ -590,6 +662,8 @@ section { position: relative; }
 .lightbox__thumbs button img { width: 100%; height: 100%; object-fit: cover; }
 .lightbox__thumbs button[aria-current='true'] { opacity: 1; border-color: var(--violet); }
 .lightbox__thumbs button:hover { opacity: 1; }
+.lightbox__credit { display: block; margin-top: .15rem; font-size: .8rem; opacity: .75; }
+.lightbox__credit a { color: inherit; text-underline-offset: .15em; }
 .lightbox--single .lightbox__arrow, .lightbox--single .lightbox__thumbs { display: none; }
 
 /* ===== Responzivita ===== */
@@ -621,7 +695,8 @@ section { position: relative; }
   .nav__links .nav__menu-cta { display: block; margin-top: .4rem; background: var(--mint); color: var(--ink); text-align: center; }
   .hero__bottom { grid-template-columns: 1fr; }
   .badge { top: 5.5rem; }
-  .work__grid > li, .work__grid > li:nth-child(n) { grid-column: 1 / -1; margin-top: 0; }
+  .work__grid > li, .work__grid > li:nth-child(n), .work__grid--manual > li[class] { grid-column: 1 / -1; margin-top: 0; }
+  .work__more { aspect-ratio: auto; min-height: 15rem; }
   .form { grid-template-columns: 1fr; }
   .process__steps { grid-template-columns: 1fr; }
   .lightbox__arrow { width: 42px; height: 42px; font-size: 1.6rem; }

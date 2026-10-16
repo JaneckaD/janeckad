@@ -1,6 +1,6 @@
 # Osobní web – David, webař a grafik
 
-Jednostránkový web s portfoliem, galerií projektů a skládačkou služeb s orientační cenou.
+Web s vybranými pracemi, skládačkou služeb s orientační cenou a samostatnou stránkou `/portfolio/` se všemi projekty.
 Postavený na [Vite](https://vitejs.dev), bez dalších knihoven.
 
 ## Spuštění na localhostu (Windows)
@@ -28,13 +28,16 @@ Web se otevře v prohlížeči na `http://localhost:5173`. Změny v souborech se
 | Projekty v portfoliu | `src/data/projects.js` |
 | Obrázky projektů | složka `public/portfolio/` |
 | Služby, ceny, rychlé volby | `src/data/services.js` |
-| Texty sekcí | `index.html` |
+| Texty sekcí | `index.html` (hlavní stránka), `portfolio/index.html` (stránka Portfolio) |
 | Barvy a písma | začátek `src/style.css` |
 
 ### Přidání projektu
 
 Do `src/data/projects.js` zkopíruj jeden blok a uprav ho. Když vyplníš `link`, karta vede rovnou na web.
 Když vyplníš `gallery`, karta otevře galerii (a pokud je i `link`, v galerii bude tlačítko na web).
+
+Každý projekt je na stránce Portfolio. Na hlavní stránce jsou jen ty, které mají `featured: true`.
+Podle `type` (`'web'` nebo `'grafika'`) se na stránce Portfolio filtruje.
 
 Obrázky dávej do `public/portfolio/`, ideálně JPG v poměru 3 : 2 (třeba 1800 × 1200 px).
 
