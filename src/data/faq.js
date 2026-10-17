@@ -32,7 +32,7 @@ export const faq = [
     a: 'Každý web ladím pro mobil, tablet i počítač a nastavím mu základní SEO, aby vás lidé našli ve vyhledávání. U rozsáhlejšího webu ladím SEO pro každou stránku zvlášť.',
   },
   {
-    q: 'Pracujete jen ve Zlíně?',
-    a: 'Jsem ze Zlína, takže se s firmami ze Zlína, Otrokovic a okolí rád potkám osobně. Pracuju ale i na dálku pro klienty z celé České republiky, všechno se dá vyřešit přes e-mail a videohovor.',
+    q: 'Musíme se kvůli zakázce potkat osobně?',
+    a: 'Nemusíme. Pracuju na dálku pro klienty z celé České republiky a všechno se dá vyřešit přes e-mail, telefon nebo videohovor.',
   },
 ];

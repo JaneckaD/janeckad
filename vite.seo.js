@@ -38,7 +38,6 @@ const person = {
   email: `mailto:${site.email}`,
   knowsAbout: ['Tvorba webových stránek', 'Webdesign', 'Logo', 'Vizuální identita', 'Grafický design', ...site.skills],
   worksFor: { '@id': ids.business },
-  homeLocation: { '@type': 'City', name: site.city },
 };
 
 const priceOf = (s) =>
@@ -59,12 +58,7 @@ const business = {
   image: abs('og/davix.jpg'),
   email: site.email,
   founder: { '@id': ids.person },
-  address: { '@type': 'PostalAddress', addressLocality: site.city, addressRegion: site.region, addressCountry: 'CZ' },
-  areaServed: [
-    { '@type': 'City', name: site.city },
-    { '@type': 'AdministrativeArea', name: site.region },
-    { '@type': 'Country', name: 'Česko' },
-  ],
+  areaServed: { '@type': 'Country', name: 'Česko' },
   knowsLanguage: 'cs',
   priceRange: `${Math.min(...services.filter((s) => s.price).map((s) => s.price))}–${Math.max(...services.map((s) => s.priceMax || s.price || 0))} Kč`,
   hasOfferCatalog: {
@@ -147,8 +141,6 @@ function headTags(file, page, html) {
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <meta name="author" content="${escapeHtml(site.name)}" />
     <meta name="theme-color" content="#1f1640" />
-    <meta name="geo.region" content="CZ-72" />
-    <meta name="geo.placename" content="${escapeHtml(site.city)}" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="cs_CZ" />
     <meta property="og:site_name" content="${escapeHtml(site.brand)}" />
