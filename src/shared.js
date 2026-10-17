@@ -10,9 +10,13 @@ export const kc = (n) => new Intl.NumberFormat('cs-CZ').format(Math.round(n));
 export const escapeHtml = (s = '') =>
   String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
+// Kořen webu odvozený od umístění tohoto skriptu (leží ve složce assets/),
+// takže web funguje na vlastní doméně i v podsložce na GitHub Pages.
+export const siteRoot = new URL('../', import.meta.url).href;
+
 // Obrázky z public/ zadáváme bez lomítka na začátku (portfolio/x.jpg).
 // Tady se k nim doplní cesta webu, aby fungovaly na hlavní stránce i na /portfolio/.
-export const asset = (src = '') => (/^([a-z]+:|\/)/i.test(src) ? src : import.meta.env.BASE_URL + src);
+export const asset = (src = '') => (/^([a-z]+:|\/)/i.test(src) ? src : siteRoot + src);
 
 /* ---------- Navigace ---------- */
 export function initNav() {
@@ -261,7 +265,7 @@ export function initLightbox() {
     const svcBox = $('[data-lb-service]', caseBox);
     svcBox.hidden = !svc;
     if (svc) {
-      svcBox.innerHTML = `Odpovídá službě <strong>${escapeHtml(svc.name)}</strong> z nabídky. <a href="${import.meta.env.BASE_URL}#sluzby">Spočítat cenu</a>`;
+      svcBox.innerHTML = `Odpovídá službě <strong>${escapeHtml(svc.name)}</strong> z nabídky. <a href="${siteRoot}#sluzby">Spočítat cenu</a>`;
     }
     const pdf = project.presentation;
     const pdfBox = $('[data-lb-pdf]', caseBox);

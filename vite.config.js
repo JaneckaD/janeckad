@@ -3,10 +3,9 @@ import { fileURLToPath } from 'node:url';
 
 const page = (path) => fileURLToPath(new URL(path, import.meta.url));
 
-// Na GitHub Pages běží web v podsložce (/janeckad/), lokálně v kořeni.
-// Cestu nastavuje automatické nasazení přes proměnnou BASE_PATH.
+// Relativní cesty: stejný build funguje na davix.cz i na janeckad.github.io/janeckad/.
 export default defineConfig({
-  base: process.env.BASE_PATH || '/',
+  base: './',
   build: {
     // web má dvě stránky: hlavní a /portfolio/
     rollupOptions: {

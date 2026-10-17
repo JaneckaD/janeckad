@@ -44,7 +44,13 @@ Obrázky dávej do `public/portfolio/`, ideálně JPG v poměru 3 : 2 (třeba 18
 ## Zveřejnění na internetu (GitHub Pages)
 
 Web se nasazuje automaticky: po každém nahrání změn do větve `claude/personal-website-b5uqoc`
-ho GitHub sám sestaví a zveřejní na **https://janeckad.github.io/janeckad/**.
+ho GitHub sám sestaví a zveřejní na **https://davix.cz** (dřív https://janeckad.github.io/janeckad/,
+ta adresa teď přesměruje na doménu).
 Postup je v souboru `.github/workflows/deploy.yml`, průběh uvidíš na GitHubu v záložce **Actions**.
 
 Jednorázově je potřeba v repozitáři zapnout Pages: **Settings → Pages → Source: GitHub Actions**.
+Doména se nastavuje tamtéž v poli **Custom domain** (`davix.cz`), pak zaškrtnout **Enforce HTTPS**.
+DNS u Wedosu: 4× záznam A na 185.199.108.153, 185.199.109.153, 185.199.110.153, 185.199.111.153
+a CNAME `www` na `janeckad.github.io`.
+
+Web používá relativní cesty, takže stejný build funguje na doméně i v podsložce na github.io.
