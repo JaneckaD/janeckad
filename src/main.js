@@ -106,6 +106,29 @@ function initPortfolio(openGallery) {
   renderProjects($('[data-projects]'), featured, openGallery, moreTile(projects.length));
 }
 
+/* ---------- Co ode mě dostanete: záložky ---------- */
+function initHandover() {
+  const tabs = $$('.handover__tab');
+  const panels = $$('.handover__panel');
+  if (!tabs.length) return;
+  const select = (i, focus = false) => {
+    tabs.forEach((t, n) => {
+      t.setAttribute('aria-selected', String(n === i));
+      t.tabIndex = n === i ? 0 : -1;
+      panels[n].classList.toggle('is-active', n === i);
+    });
+    if (focus) tabs[i].focus();
+  };
+  tabs.forEach((t, i) => t.addEventListener('click', () => select(i)));
+  // šipkami doleva a doprava se dá přepínat i z klávesnice
+  $('.handover__tabs').addEventListener('keydown', (e) => {
+    const i = tabs.indexOf(document.activeElement);
+    if (i < 0 || !['ArrowLeft', 'ArrowRight'].includes(e.key)) return;
+    e.preventDefault();
+    select((i + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length, true);
+  });
+}
+
 /* ---------- Skládačka služeb ---------- */
 const priceLabel = (s) =>
   s.price == null ? 'cena dohodou' : s.priceMax ? `${kc(s.price)} – ${kc(s.priceMax)} Kč` : `${kc(s.price)} Kč`;
@@ -332,6 +355,7 @@ initHero();
 initNav();
 const openGallery = initLightbox();
 initPortfolio(openGallery);
+initHandover();
 initBuilder();
 initContact();
 initFooter();

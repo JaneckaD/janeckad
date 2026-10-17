@@ -27,6 +27,7 @@ Web se otevře v prohlížeči na `http://localhost:5173`. Změny v souborech se
 | Jméno, e-mail, sociální sítě (na e-mail chodí i zprávy z formuláře přes FormSubmit.co) | `src/data/site.js` |
 | Projekty v portfoliu | `src/data/projects.js` |
 | Časté otázky | `src/data/faq.js` |
+| Sekce „Co pro vás udělám“ a „Co ode mě dostanete“ | `src/data/offer.js` (ceny a seznamy se berou ze `services.js`) |
 | Obrázky projektů | složka `public/portfolio/` |
 | Služby, ceny, rychlé volby | `src/data/services.js` |
 | Texty sekcí | `index.html` (hlavní stránka), `portfolio/index.html` (stránka Portfolio) |

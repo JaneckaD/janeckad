@@ -23,14 +23,9 @@ export const asset = (src = '') => (/^([a-z]+:|\/)/i.test(src) ? src : siteRoot 
 export function initNav() {
   const nav = $('[data-nav]');
   const links = $$('[data-nav-links] a:not(.nav__menu-cta)');
-  const pill = $('[data-nav-pill]');
   const toggle = $('[data-nav-toggle]');
   const darkSections = $$('.work, .contact');
   const progress = $('[data-progress]');
-  // na podstránce je aktivní odkaz pevně daný (aria-current="page")
-  const pageLink = links.find((l) => l.getAttribute('aria-current') === 'page') || null;
-  let active = pageLink;
-  let hovered = null;
 
   // tmavá varianta nad tmavými sekcemi + ukazatel, kolik stránky je přečteno
   // nejdřív všechno změříme a až potom zapisujeme, jinak by prohlížeč
@@ -56,26 +51,12 @@ export function initNav() {
     if (!scrollFrame) scrollFrame = requestAnimationFrame(() => { scrollFrame = 0; onScroll(); });
   }, { passive: true });
 
-  // pilulka jede pod odkazem, na kterém je myš, jinak pod aktuální sekcí
-  const movePill = () => {
-    const target = hovered || active;
-    links.forEach((l) => l.classList.toggle('is-pill', l === target));
-    if (!target) { pill.classList.remove('is-on'); return; }
-    pill.style.width = `${target.offsetWidth}px`;
-    pill.style.transform = `translateX(${target.offsetLeft}px)`;
-    pill.classList.add('is-on');
-  };
-  links.forEach((l) => {
-    l.addEventListener('pointerenter', () => { hovered = l; movePill(); });
-    l.addEventListener('pointerleave', () => { hovered = null; movePill(); });
-  });
-  window.addEventListener('resize', movePill);
-  if (pageLink) document.fonts.ready.then(movePill);
-
-  // na hlavní stránce se pilulka posouvá podle sekce, kterou právě čtete
+  // na hlavní stránce se podtrhne odkaz sekce, kterou právě čtete
+  // (na podstránce je aktivní odkaz pevně daný přes aria-current="page")
   const hashLinks = links.filter((l) => l.getAttribute('href').startsWith('#'));
-  if (!pageLink && 'IntersectionObserver' in window) {
+  if (hashLinks.length && 'IntersectionObserver' in window) {
     const sections = hashLinks.map((l) => $(l.getAttribute('href'))).filter(Boolean);
+    let active = null;
     const io = new IntersectionObserver(
       (entries) => {
         for (const e of entries) {
@@ -84,7 +65,6 @@ export function initNav() {
           else if (active === link) active = null;
         }
         hashLinks.forEach((l) => (l === active ? l.setAttribute('aria-current', 'true') : l.removeAttribute('aria-current')));
-        movePill();
       },
       { rootMargin: '-45% 0px -50% 0px' },
     );

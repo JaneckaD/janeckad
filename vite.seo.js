@@ -1,6 +1,7 @@
 // SEO při sestavení webu:
 // - do hlavičky každé stránky doplní canonical, náhledy pro sdílení (Open Graph) a strukturovaná data (JSON-LD)
-// - karty projektů a časté otázky vloží rovnou do HTML, aby je vyhledávače viděly i bez JavaScriptu
+// - karty projektů, časté otázky a sekce Co dělám / Co dostanete vloží rovnou do HTML,
+//   aby je vyhledávače viděly i bez JavaScriptu
 // - vytvoří sitemap.xml a robots.txt
 // - přidá přednostní načtení písem
 // - stránce 404 přepíše cesty na absolutní, protože GitHub Pages ji ukazuje na libovolné adrese
@@ -8,7 +9,9 @@ import { site } from './src/data/site.js';
 import { projects } from './src/data/projects.js';
 import { services } from './src/data/services.js';
 import { faq } from './src/data/faq.js';
+import { areas, handover, promises } from './src/data/offer.js';
 import { escapeHtml, projectCards, moreTile } from './src/cards.js';
+import { areasMarkup, handoverMarkup, promisesMarkup } from './src/sections.js';
 
 const url = site.url.replace(/\/$/, '');
 const abs = (path = '') => url + '/' + path.replace(/^\.?\//, '');
@@ -187,7 +190,10 @@ export default function seo() {
         return html
           .replace('</title>', `</title>${headTags(file, page, html)}`)
           .replace('<ul class="work__grid" data-projects></ul>', `<ul class="work__grid" data-projects>${cards}</ul>`)
-          .replace('<div class="faq__list" data-faq></div>', `<div class="faq__list" data-faq>${faqMarkup()}</div>`);
+          .replace('<div class="faq__list" data-faq></div>', `<div class="faq__list" data-faq>${faqMarkup()}</div>`)
+          .replace('<ul class="areas__list" data-areas></ul>', `<ul class="areas__list" data-areas>${areasMarkup(areas, services)}</ul>`)
+          .replace('<div class="handover__box" data-handover></div>', `<div class="handover__box" data-handover>${handoverMarkup(handover, services)}</div>`)
+          .replace('<ul class="promises" data-promises></ul>', `<ul class="promises" data-promises>${promisesMarkup(promises)}</ul>`);
       },
     },
     generateBundle(_, bundle) {
