@@ -183,7 +183,7 @@ export const projects = [
     featured: false,
     year: 2026,
     description: 'Tohle není skutečný klient, ale zkušební zakázka, na které ukazuju, jak identita ode mě vypadá. Pekárna a kavárna dostala logo ve všech variantách, pět barevných kombinací, písma, vzor na obaly a ukázky na vizitkách, kelímcích, taškách i výloze. Všechno je pohromadě v prezentaci, kterou dostane každý klient.',
-    cover: 'portfolio/park-vizitky.jpg',
+    cover: 'portfolio/park-cover.jpg',
     service: 'identity',
     steps: [
       { title: 'Koncept', from: 0, text: 'Strom, který voní chlebem. Koruna stromu je kulatý bochník a zářez na jeho kůrce je zároveň žilkování listu. Znak tak jedním tvarem říká pekárna i klidné místo pod stromy.' },
