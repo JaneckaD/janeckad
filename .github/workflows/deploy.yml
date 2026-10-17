@@ -39,3 +39,11 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+      # Seznamu, Bingu a dalším vyhledávačům dá vědět, že se web změnil (IndexNow).
+      # Když se to nepovede, nasazení tím neselže.
+      - name: Oznámit změny vyhledávačům
+        continue-on-error: true
+        run: |
+          curl -sS -X POST https://api.indexnow.org/indexnow \
+            -H 'Content-Type: application/json; charset=utf-8' \
+            -d '{"host":"davix.cz","key":"a651d08b062b27f2a9fd1d3913ffba04","keyLocation":"https://davix.cz/a651d08b062b27f2a9fd1d3913ffba04.txt","urlList":["https://davix.cz/","https://davix.cz/portfolio/"]}'

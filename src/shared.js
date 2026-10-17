@@ -1,14 +1,15 @@
 // Věci, které používá hlavní stránka i stránka Portfolio
 import { site } from './data/site.js';
 import { services } from './data/services.js';
+import { escapeHtml, icons, projectCards } from './cards.js';
+
+export { escapeHtml, icons };
 
 export const $ = (sel, root = document) => root.querySelector(sel);
 export const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 export const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 export const finePointer = window.matchMedia('(pointer: fine)').matches;
 export const kc = (n) => new Intl.NumberFormat('cs-CZ').format(Math.round(n));
-export const escapeHtml = (s = '') =>
-  String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
 // Kořen webu odvozený od umístění tohoto skriptu (leží ve složce assets/),
 // takže web funguje na vlastní doméně i v podsložce na GitHub Pages.
@@ -134,36 +135,10 @@ export function initReveal() {
 }
 
 /* ---------- Karty projektů ---------- */
-export const icons = {
-  gallery: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>',
-  link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>',
-};
-
-// Vykreslí projekty do seznamu; klik na projekt s galerií ji otevře
+// Vykreslí projekty do seznamu; klik na projekt s galerií ji otevře.
+// Stejné karty vkládá do HTML už sestavení webu (kvůli vyhledávačům), tady se jen obnoví.
 export function renderProjects(list, items, openGallery, extra = '') {
-  list.innerHTML =
-    items
-      .map((p, i) => {
-        const hasGallery = Array.isArray(p.gallery) && p.gallery.length > 0;
-        const tag = hasGallery ? `${icons.gallery} Zobrazit galerii` : `${icons.link} Navštívit web`;
-        const inner = `
-        <div class="project__media">
-          <img src="${escapeHtml(asset(p.cover))}" alt="" loading="lazy" decoding="async" />
-          <span class="project__tag">${tag}</span>
-        </div>
-        <div class="project__info">
-          <h3 class="project__title">${escapeHtml(p.title)}</h3>
-          <span class="project__meta">${escapeHtml(p.category)}, ${escapeHtml(p.year)}</span>
-        </div>
-        <p class="project__desc">${escapeHtml(p.description)}</p>`;
-        const el = hasGallery
-          ? `<button class="project" type="button" data-index="${i}" aria-haspopup="dialog">${inner}</button>`
-          : p.link
-            ? `<a class="project" href="${escapeHtml(p.link)}" target="_blank" rel="noopener">${inner}</a>`
-            : `<div class="project">${inner}</div>`;
-        return `<li data-reveal data-type="${escapeHtml(p.type || '')}">${el}</li>`;
-      })
-      .join('') + extra;
+  list.innerHTML = projectCards(items, asset, extra);
 
   list.addEventListener('click', (e) => {
     const btn = e.target.closest('button[data-index]');

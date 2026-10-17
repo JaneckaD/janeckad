@@ -3,14 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Portfolio | Davix</title>
-  <meta name="description" content="Všechny moje práce: weby, loga a vizuální identity pro malé firmy a živnostníky." />
+  <title>Portfolio: weby, loga a vizuální identity | Davix</title>
+  <meta name="description" content="Ukázky mých prací: web s objednávkovým systémem pro rozvoz jídla a vizuální identity pro firmy ze Zlínska. Podívejte se, jak probíhal návrh a co klient dostal." />
+  <script>document.documentElement.classList.add('js')</script>
   <link rel="icon" href="/icon-kurzor.svg?v=3" type="image/svg+xml" />
   <link rel="icon" href="/icon-32.png?v=3" sizes="32x32" type="image/png" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@50..150,100..900&family=Onest:wght@400..700&display=swap" rel="stylesheet" />
 </head>
 <body>
   <a class="skip" href="#projekty">Přeskočit na projekty</a>
@@ -52,7 +50,7 @@
       </div>
       <div class="page-head__inner">
         <a class="page-head__back" href="../" data-reveal>← Zpět na hlavní stránku</a>
-        <h1 class="page-head__title" id="page-title" data-reveal>Portfolio</h1>
+        <h1 class="page-head__title" id="page-title" data-reveal>Portfolio<span class="sr-only">: weby, loga a vizuální identity</span></h1>
         <p class="page-head__lead" data-reveal>
           Všechno, co jsem zatím navrhl a postavil: weby, loga i&nbsp;celé vizuální identity.
           Klikněte na projekt a prohlédněte si ho zblízka.
@@ -60,7 +58,8 @@
       </div>
     </section>
 
-    <section class="work work--page" id="projekty" aria-label="Projekty">
+    <section class="work work--page" id="projekty" aria-labelledby="projekty-title">
+      <h2 class="sr-only" id="projekty-title">Všechny projekty</h2>
       <div class="filters" role="group" aria-label="Filtrovat projekty" data-filters></div>
       <ul class="work__grid" data-projects></ul>
 
@@ -74,7 +73,7 @@
       </div>
 
       <footer class="footer">
-        <span>© <span data-year></span> David</span>
+        <span>© <span data-year>2026</span> Davix · David, webař a grafik ze Zlína · <a href="mailto:davix.designstudio@gmail.com">davix.designstudio@gmail.com</a></span>
         <span class="footer__links" data-socials></span>
       </footer>
     </section>
@@ -88,7 +87,7 @@
         <h3 id="lb-title" data-lb-title></h3>
         <p class="lightbox__desc" data-lb-meta></p>
         <div class="lightbox__actions">
-          <a class="btn btn--small" data-lb-link target="_blank" rel="noopener" hidden>Navštívit web</a>
+          <a class="btn btn--small" href="#" data-lb-link target="_blank" rel="noopener" hidden>Navštívit web</a>
           <button class="lightbox__close" type="button" data-lb-close aria-label="Zavřít galerii">✕</button>
         </div>
       </div>

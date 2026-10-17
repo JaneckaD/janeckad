@@ -26,6 +26,7 @@ Web se otevře v prohlížeči na `http://localhost:5173`. Změny v souborech se
 | --- | --- |
 | Jméno, e-mail, sociální sítě (na e-mail chodí i zprávy z formuláře přes FormSubmit.co) | `src/data/site.js` |
 | Projekty v portfoliu | `src/data/projects.js` |
+| Časté otázky | `src/data/faq.js` |
 | Obrázky projektů | složka `public/portfolio/` |
 | Služby, ceny, rychlé volby | `src/data/services.js` |
 | Texty sekcí | `index.html` (hlavní stránka), `portfolio/index.html` (stránka Portfolio) |
@@ -54,3 +55,16 @@ DNS u Wedosu: 4× záznam A na 185.199.108.153, 185.199.109.153, 185.199.110.153
 a CNAME `www` na `janeckad.github.io`.
 
 Web používá relativní cesty, takže stejný build funguje na doméně i v podsložce na github.io.
+
+## SEO (vyhledávače)
+
+Většinu dělá sestavení webu samo (`vite.seo.js`), takže stačí upravovat texty a data:
+
+- **Titulek a popis stránky** pro Google jsou v `<title>` a `<meta name="description">` v `index.html` a `portfolio/index.html`.
+  Z nich se odvodí i náhled při sdílení na Facebooku, WhatsAppu a jinde (obrázky jsou v `public/og/`).
+- **Strukturovaná data** (kdo jsi, kde působíš, služby s cenami, projekty, časté otázky) se skládají z `src/data/`.
+  Adresa webu a město jsou v `src/data/site.js`.
+- **Karty projektů a časté otázky** se vkládají přímo do HTML, takže je vyhledávače vidí i bez JavaScriptu.
+- **`sitemap.xml` a `robots.txt`** se vytvoří při každém sestavení.
+- Po každém nasazení se změny ohlásí přes IndexNow (Seznam, Bing). Klíč je soubor `public/*.txt`, nemaž ho.
+- Písma jsou uložená ve `src/fonts/`, web je nestahuje od Googlu.

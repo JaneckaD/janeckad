@@ -2,6 +2,7 @@ import './style.css';
 import { site } from './data/site.js';
 import { projects } from './data/projects.js';
 import { groups, services, bundles } from './data/services.js';
+import { moreTile } from './cards.js';
 import { $, $$, reduceMotion, finePointer, kc, escapeHtml, initNav, initReveal, renderProjects, initLightbox, initFooter } from './shared.js';
 
 document.documentElement.classList.add('js');
@@ -10,9 +11,12 @@ document.documentElement.classList.add('js');
 function initHero() {
   const nameEl = $('[data-name]');
   const letters = [...nameEl.textContent.trim()];
+  // Písmena se kreslí přes CSS (data-ch), takže v textu stránky zůstane jméno jen jednou
+  // a vyhledávače i čtečky ho dostanou celé z neviditelného textu
   nameEl.innerHTML = letters
-    .map((ch, i) => `<span class="ch" style="--i:${i}" aria-hidden="true">${escapeHtml(ch)}</span>`)
+    .map((ch, i) => `<span class="ch" style="--i:${i}" data-ch="${escapeHtml(ch)}" aria-hidden="true"></span>`)
     .join('');
+  nameEl.nextElementSibling.prepend(letters.join(''));
 
   requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.add('is-loaded')));
 
@@ -99,19 +103,7 @@ function initMagnet() {
 /* ---------- Portfolio: na hlavní stránce jen vybrané projekty ---------- */
 function initPortfolio(openGallery) {
   const featured = projects.filter((p) => p.featured);
-  const count = projects.length;
-  const word = count === 1 ? 'projekt' : count < 5 ? 'projekty' : 'projektů';
-  // poslední dlaždice vede na stránku se všemi pracemi
-  const more = `
-    <li data-reveal>
-      <a class="work__more" href="portfolio/">
-        <span class="work__more-kicker">${count} ${word} na jednom místě</span>
-        <span class="work__more-title">Celé portfolio</span>
-        <span class="work__more-text">Weby, loga i celé vizuální identity.</span>
-        <span class="work__more-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-      </a>
-    </li>`;
-  renderProjects($('[data-projects]'), featured, openGallery, more);
+  renderProjects($('[data-projects]'), featured, openGallery, moreTile(projects.length));
 }
 
 /* ---------- Skládačka služeb ---------- */
