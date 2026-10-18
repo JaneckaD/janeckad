@@ -9,10 +9,15 @@ export const site = {
   // Kontaktní e-mail. Na něj chodí i zprávy z formuláře (přes službu FormSubmit.co, zdarma).
   // Po první odeslané zprávě přijde e-mail „Activate Form“ – stačí v něm jednou kliknout na tlačítko.
   email: 'davix.designstudio@gmail.com',
+  // Telefon: zobrazí se v patičce a u kontaktu (phoneHref je stejné číslo bez mezer pro odkaz tel:)
+  phone: '+420 737 402 473',
+  phoneHref: '+420737402473',
   // Tip: po aktivaci pošle FormSubmit náhodný kód. Když ho dáš sem, e-mail nebude vidět v kódu odesílání.
   formTarget: '',
+  // Sociální sítě v patičce. Dokud je url prázdné, ukáže se ikonka s popiskem „brzy“.
+  // Až budeš mít profil, stačí doplnit adresu, třeba url: 'https://instagram.com/tvujprofil'.
   socials: [
-    // { label: 'Instagram', url: 'https://instagram.com/...' },
-    // { label: 'Behance', url: 'https://behance.net/...' },
+    { label: 'Instagram', icon: 'instagram', url: '' },
+    { label: 'LinkedIn', icon: 'linkedin', url: '' },
   ],
 };

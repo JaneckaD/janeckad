@@ -60,6 +60,7 @@ const business = {
   logo: abs('icon-512.png'),
   image: abs('og/david-janecka.jpg'),
   email: site.email,
+  telephone: site.phone,
   founder: { '@id': ids.person },
   areaServed: { '@type': 'Country', name: 'Česko' },
   knowsLanguage: 'cs',
@@ -168,8 +169,13 @@ function v2Page(html, file, page, asset) {
     .replace('<ul class="refs__list" data-refs></ul>', `<ul class="refs__list" data-refs>${v2.refsMarkup(projects)}</ul>`)
     .replace('<b data-count></b>', `<b>${projects.length}</b>`)
     .replace(/<b data-price="([\w-]+)"><\/b>/g, (_, id) => `<b>${kc(services.find((s) => s.id === id).price)}&nbsp;Kč</b>`);
-  return v2.fillIcons(html);
+  return v2.fillIcons(footer(html));
 }
+
+// patička: odkazy podle toho, kde stránka leží
+const footerPaths = { index: ['', 'portfolio/'], portfolio: ['../', './'], 404: ['/', '/portfolio/'] };
+const footer = (html) =>
+  html.replace(/<footer class="ft" data-footer="(\w+)"><\/footer>/, (_, key) => v2.footerMarkup(site, ...footerPaths[key]));
 
 export default function seo() {
   let root = '';
@@ -184,7 +190,7 @@ export default function seo() {
       handler(html, ctx) {
         const file = ctx.filename.replace(/\\/g, '/').replace(root, '');
         // 404 nemá vlastní SEO, jen ikonky a logo
-        if (file === '404.html') return v2.fillIcons(html);
+        if (file === '404.html') return v2.fillIcons(footer(html));
         const page = PAGES[file];
         if (!page) return html;
         const asset = (src) => page.prefix + src;

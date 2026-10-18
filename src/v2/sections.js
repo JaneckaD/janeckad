@@ -175,3 +175,61 @@ export function refsMarkup(projects) {
 
 // Logo: d a j z tenké linky, ocásek j podtrhuje obě písmena, tečka nad j je v barvě
 export const logoMark = `<svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><g class="mark__lines"><circle cx="20" cy="34" r="9" /><path d="M29 12v31" /><path d="M40 26v21a8 8 0 0 1-8 8H12" /></g><circle class="mark__dot" cx="40" cy="17.5" r="2.8" /></svg>`;
+
+// Patička: stejná na všech stránkách, vkládá se při sestavení (vite.seo.js).
+// home = cesta k hlavní stránce ('' na hlavní, '../' v portfoliu, '/' na stránce 404)
+export function footerMarkup(site, home, portfolio) {
+  const h = (hash) => `${home}${hash}`;
+  const socials = site.socials
+    .map((s) =>
+      s.url
+        ? `<a class="soc" href="${escapeHtml(s.url)}" target="_blank" rel="noopener" aria-label="${escapeHtml(s.label)}">${icon(s.icon)}<span>${escapeHtml(s.label)}</span></a>`
+        : `<span class="soc soc--soon" title="${escapeHtml(s.label)} připravuji">${icon(s.icon)}<span>${escapeHtml(s.label)}</span><small>brzy</small></span>`,
+    )
+    .join('');
+  return `<footer class="ft">
+    <div class="wrap">
+      <div class="ft__cta">
+        <h2>Máte nápad? <em>Pojďme na to.</em></h2>
+        <div class="ft__contact">
+          <a class="ft__pill" href="mailto:${escapeHtml(site.email)}">${icon('mail')}<span><small>E-mail</small>${escapeHtml(site.email)}</span></a>
+          <a class="ft__pill" href="tel:${escapeHtml(site.phoneHref)}">${icon('phone')}<span><small>Telefon</small>${escapeHtml(site.phone)}</span></a>
+        </div>
+      </div>
+      <div class="ft__top">
+        <div class="ft__brand">
+          <a class="logo" href="${home || '#top'}" aria-label="David Janečka, hlavní stránka"><i data-logo></i><span class="logo__name">David Janečka</span></a>
+          <p>Weby, loga a vizuální identity na míru pro malé firmy a živnostníky. Od návrhu po spuštění.</p>
+          <div class="ft__socials" aria-label="Sociální sítě">${socials}</div>
+        </div>
+        <nav class="ft__col" aria-label="Stránka">
+          <h3>Stránka</h3>
+          <a href="${h('#sluzby')}">Služby</a>
+          <a href="${h('#prace')}">Práce</a>
+          <a href="${h('#cenik')}">Ceník a kalkulačky</a>
+          <a href="${h('#postup')}">Postup</a>
+          <a href="${h('#o-mne')}">O mně</a>
+          <a href="${h('#otazky')}">Otázky</a>
+        </nav>
+        <nav class="ft__col" aria-label="Služby">
+          <h3>Služby</h3>
+          <a href="${h('#cenik')}">Weby a e-shopy</a>
+          <a href="${h('#cenik')}">Loga a identity</a>
+          <a href="${h('#cenik')}">Sociální sítě</a>
+          <a href="${h('#co-dostanete')}">Co ode mě dostanete</a>
+          <a href="${portfolio}">Celé portfolio</a>
+        </nav>
+        <div class="ft__col">
+          <h3>Kontakt</h3>
+          <a href="mailto:${escapeHtml(site.email)}">${escapeHtml(site.email)}</a>
+          <a href="tel:${escapeHtml(site.phoneHref)}">${escapeHtml(site.phone)}</a>
+          <a href="${h('#kontakt')}">Napsat zprávu</a>
+        </div>
+      </div>
+      <div class="ft__bottom">
+        <span>© <span data-year>2026</span> David Janečka, webař a grafik</span>
+        <button class="ft__up" type="button" data-top>Nahoru ${icon('arrowUp')}</button>
+      </div>
+    </div>
+  </footer>`;
+}

@@ -25,9 +25,8 @@ export function initNav() {
   const links = $$('[data-nav-links] a:not(.nav__menu-cta)');
   const toggle = $('[data-nav-toggle]');
   const darkSections = $$('.work, .contact');
-  const progress = $('[data-progress]');
 
-  // tmavá varianta nad tmavými sekcemi + ukazatel, kolik stránky je přečteno
+  // tmavá varianta nad tmavými sekcemi
   // nejdřív všechno změříme a až potom zapisujeme, jinak by prohlížeč
   // musel stránku přepočítávat několikrát za jeden snímek
   const navHalf = () => nav.offsetHeight / 2;
@@ -39,11 +38,8 @@ export function initNav() {
       const r = sec.getBoundingClientRect();
       return r.top <= probe && r.bottom >= probe;
     });
-    const max = document.documentElement.scrollHeight - window.innerHeight;
     nav.classList.toggle('is-scrolled', y > 40);
     nav.classList.toggle('is-dark', dark);
-    // přímo na proužek, ne jako proměnná na celou lištu (ta by se pak přepočítávala celá)
-    progress.style.transform = `scaleX(${max > 0 ? (y / max).toFixed(4) : 0})`;
   };
   onScroll();
   let scrollFrame = 0;
@@ -309,7 +305,6 @@ export function initLightbox() {
 /* ---------- Patička ---------- */
 export function initFooter() {
   $('[data-year]').textContent = new Date().getFullYear();
-  $('[data-socials]').innerHTML = site.socials
-    .map((s) => `<a href="${escapeHtml(s.url)}" target="_blank" rel="noopener">${escapeHtml(s.label)}</a>`)
-    .join('');
+  // tlačítko Nahoru v patičce
+  $('[data-top]')?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' }));
 }
