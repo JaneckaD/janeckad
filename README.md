@@ -29,14 +29,14 @@ Web se otevře v prohlížeči na `http://localhost:5173`. Změny v souborech se
 | Projekty v portfoliu | `src/data/projects.js` |
 | Časté otázky | `src/data/faq.js` |
 | Sekce „Co pro vás udělám“ a „Co ode mě dostanete“ | `src/data/offer.js` (ceny a seznamy se berou ze `services.js`) |
-| Obrázky projektů | složka `public/portfolio/` |
+| Obrázky projektů | složka `public/portfolio/`; malé náhledy do galerie se vytvoří příkazem `python scripts/nahledy.py` |
 | Služby, ceny, rychlé volby | `src/data/services.js` |
 | Texty sekcí | `index.html` (hlavní stránka), `portfolio/index.html` (stránka Portfolio), `404.html` |
 | Barvy (Kobalt: 4 barvy `--c1` až `--c4`) a písma | začátek `src/v2/style.css` |
 | Tenké ikonky | `src/v2/icons.js` (Lucide) |
 | Logo „dj“ (značka) | `logoMark` v `src/v2/sections.js`, v HTML stačí `<i data-logo></i>` |
 | Ikonka v záložce a ikony aplikace | `public/favicon.svg`, `favicon.ico`, `icon-*.png`, `apple-touch-icon.png` |
-| Mobil v úvodu | rám `public/mockup/telefon.webp` (z PSD), snímek webu `public/mockup/web-mobil.webp` (585 px široký snímek mobilní verze; po větší změně úvodu ho vyfoť znovu) |
+| Mobil v úvodu | rám `public/mockup/telefon.webp` (z PSD, se stínem), tvar displeje `public/mockup/displej-maska.png`, obsah displeje `public/mockup/web-mobil.webp` (585 px široký obrázek, který se v displeji pomalu posouvá) |
 
 Vzhled je tenký a minimalistický, písma Bricolage Grotesque (nadpisy, zvýrazněná slova jsou zúžená) a Hanken Grotesk.
 Displej mobilu v úvodu je obyčejný blok, který `matrix3d` v `src/v2/style.css` zkosí přesně do displeje z PSD.
