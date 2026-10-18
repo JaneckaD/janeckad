@@ -10,8 +10,7 @@ import { projects } from './src/data/projects.js';
 import { services } from './src/data/services.js';
 import { faq } from './src/data/faq.js';
 import { areas, handover, promises } from './src/data/offer.js';
-import { escapeHtml, projectCards, moreTile } from './src/cards.js';
-import { areasMarkup, handoverMarkup, promisesMarkup } from './src/sections.js';
+import { escapeHtml, projectCards } from './src/cards.js';
 import * as v2 from './src/v2/sections.js';
 
 const url = site.url.replace(/\/$/, '');
@@ -20,19 +19,16 @@ const ld = (data) => `<script type="application/ld+json">${JSON.stringify(data).
 
 // stránky webu: soubor → adresa, obrázek pro sdílení a předpona cest k obrázkům
 const PAGES = {
-  'index.html': { path: '', image: 'og/davix.jpg', prefix: '' },
+  'index.html': { path: '', image: 'og/david-janecka.jpg', prefix: '' },
   'portfolio/index.html': { path: 'portfolio/', image: 'og/portfolio.jpg', prefix: '../' },
-  // nová verze webu na zkoušku: vyhledávače ji nemají indexovat ani mít v mapě webu
-  'nova-verze/index.html': { path: 'nova-verze/', image: 'og/davix.jpg', prefix: '../', v2: true, noindex: true, brand: 'David Janečka' },
-  'nova-verze/portfolio/index.html': { path: 'nova-verze/portfolio/', image: 'og/portfolio.jpg', prefix: '../../', v2: true, noindex: true, brand: 'David Janečka' },
 };
 
-// které písmo stáhnout přednostně: stará verze Anybody a Onest, nová Bricolage Grotesque a Hanken Grotesk (bez latin-ext)
-const preloadFonts = { old: /^assets\/(anybody|onest)-/, v2: /^assets\/(bricolage-grotesque-latin-wdth|hanken-grotesk-latin-wght)/ };
+// které písmo stáhnout přednostně: Bricolage Grotesque a Hanken Grotesk (bez latin-ext)
+const preloadFonts = /^assets\/(bricolage-grotesque-latin-wdth|hanken-grotesk-latin-wght)/;
 
 const ids = {
   website: abs('#web'),
-  business: abs('#davix'),
+  business: abs('#sluzby-david'),
   person: abs('#david'),
 };
 
@@ -58,11 +54,11 @@ const business = {
   '@type': 'ProfessionalService',
   '@id': ids.business,
   name: site.brand,
-  alternateName: `${site.brand} – ${site.name}, webař a grafik`,
+  alternateName: `${site.name}, webař a grafik`,
   description: 'Tvorba webových stránek, e-shopů, log a vizuálních identit pro malé firmy a živnostníky.',
   url: abs(),
   logo: abs('icon-512.png'),
-  image: abs('og/davix.jpg'),
+  image: abs('og/david-janecka.jpg'),
   email: site.email,
   founder: { '@id': ids.person },
   areaServed: { '@type': 'Country', name: 'Česko' },
@@ -128,38 +124,15 @@ function structuredData(file, page, title, description) {
   return ld({ '@context': 'https://schema.org', '@graph': graph });
 }
 
-const faqMarkup = () =>
-  faq
-    .map(
-      (f) => `
-        <details class="faq__item" data-reveal>
-          <summary><h3>${escapeHtml(f.q)}</h3><span class="faq__icon" aria-hidden="true"></span></summary>
-          <p>${escapeHtml(f.a)}</p>
-        </details>`,
-    )
-    .join('');
-
 function headTags(file, page, html) {
   const title = (html.match(/<title>([^<]*)<\/title>/) || [])[1] || site.brand;
   const description = (html.match(/<meta name="description" content="([^"]*)"/) || [])[1] || '';
   const image = abs(page.image);
-  if (page.noindex) {
-    return `
-    <meta name="robots" content="noindex, follow" />
-    <meta name="theme-color" content="#f7f7f4" />
-    <meta property="og:type" content="website" />
-    <meta property="og:locale" content="cs_CZ" />
-    <meta property="og:site_name" content="${escapeHtml(page.brand || site.brand)}" />
-    <meta property="og:title" content="${title}" />
-    <meta property="og:description" content="${description}" />
-    <meta property="og:image" content="${image}" />
-  `;
-  }
   return `
     <link rel="canonical" href="${abs(page.path)}" />
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <meta name="author" content="${escapeHtml(site.name)}" />
-    <meta name="theme-color" content="#1f1640" />
+    <meta name="theme-color" content="#f6f8fb" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="cs_CZ" />
     <meta property="og:site_name" content="${escapeHtml(site.brand)}" />
@@ -179,18 +152,18 @@ function headTags(file, page, html) {
   `;
 }
 
-// Nová verze webu: sekce, ikonky a reference
+// Sekce, ikonky a reference vložené rovnou do HTML
 function v2Page(html, file, page, asset) {
   const kc = (n) => new Intl.NumberFormat('cs-CZ').format(n).replace(/\s/g, '&nbsp;');
   const featured = projects.filter((p) => p.featured);
-  const cards = file === 'nova-verze/index.html' ? projectCards(featured, asset) : projectCards(projects, asset);
+  const cards = file === 'index.html' ? projectCards(featured, asset) : projectCards(projects, asset);
   html = html
     .replace('</title>', `</title>${headTags(file, page, html)}`)
     .replace('<ul class="work" data-projects></ul>', `<ul class="work" data-projects>${cards}</ul>`)
     .replace('<ul class="work work--all" data-projects></ul>', `<ul class="work work--all" data-projects>${cards}</ul>`)
     .replace('<ul class="areas" data-areas></ul>', `<ul class="areas" data-areas>${v2.areasMarkup(areas, services)}</ul>`)
     .replace('<div class="ho" data-handover></div>', `<div class="ho" data-handover>${v2.handoverMarkup(handover, services)}</div>`)
-    .replace('<ul class="promises" data-promises></ul>', `<ul class="promises" data-promises>${v2.promisesMarkup(promises.map((p) => (p.title === 'Rychlá odpověď' ? { title: 'Cena předem', text: 'Cenu znáte dřív, než začnu. Žádné skryté poplatky navíc.' } : p)))}</ul>`)
+    .replace('<ul class="promises" data-promises></ul>', `<ul class="promises" data-promises>${v2.promisesMarkup(promises)}</ul>`)
     .replace('<div class="faq__list" data-faq></div>', `<div class="faq__list" data-faq>${v2.faqMarkup(faq)}</div>`)
     .replace('<ul class="refs__list" data-refs></ul>', `<ul class="refs__list" data-refs>${v2.refsMarkup(projects)}</ul>`)
     .replace('<b data-count></b>', `<b>${projects.length}</b>`)
@@ -210,21 +183,12 @@ export default function seo() {
       order: 'post',
       handler(html, ctx) {
         const file = ctx.filename.replace(/\\/g, '/').replace(root, '');
+        // 404 nemá vlastní SEO, jen ikonky a logo
+        if (file === '404.html') return v2.fillIcons(html);
         const page = PAGES[file];
         if (!page) return html;
         const asset = (src) => page.prefix + src;
-        if (page.v2) return v2Page(html, file, page, asset);
-        const cards =
-          file === 'index.html'
-            ? projectCards(projects.filter((p) => p.featured), asset, moreTile(projects.length))
-            : projectCards(projects, asset);
-        return html
-          .replace('</title>', `</title>${headTags(file, page, html)}`)
-          .replace('<ul class="work__grid" data-projects></ul>', `<ul class="work__grid" data-projects>${cards}</ul>`)
-          .replace('<div class="faq__list" data-faq></div>', `<div class="faq__list" data-faq>${faqMarkup()}</div>`)
-          .replace('<ul class="areas__list" data-areas></ul>', `<ul class="areas__list" data-areas>${areasMarkup(areas, services)}</ul>`)
-          .replace('<div class="handover__box" data-handover></div>', `<div class="handover__box" data-handover>${handoverMarkup(handover, services)}</div>`)
-          .replace('<ul class="promises" data-promises></ul>', `<ul class="promises" data-promises>${promisesMarkup(promises)}</ul>`);
+        return v2Page(html, file, page, asset);
       },
     },
     generateBundle(_, bundle) {
@@ -232,7 +196,6 @@ export default function seo() {
       const images = (list) =>
         list.map((p) => `\n    <image:image><image:loc>${abs(p.cover)}</image:loc><image:title>${escapeHtml(p.title)}</image:title></image:image>`).join('');
       const urls = Object.values(PAGES)
-        .filter((page) => !page.noindex)
         .map(
           (page) => `
   <url>
@@ -250,17 +213,11 @@ export default function seo() {
 
       // písma potřebná hned při načtení stáhne prohlížeč přednostně
       const fonts = Object.keys(bundle).filter((f) => f.endsWith('.woff2'));
-      const pages = {
-        'index.html': ['./', 'old'],
-        'portfolio/index.html': ['../', 'old'],
-        '404.html': ['./', 'old'],
-        'nova-verze/index.html': ['../', 'v2'],
-        'nova-verze/portfolio/index.html': ['../../', 'v2'],
-      };
-      for (const [file, [prefix, set]] of Object.entries(pages)) {
+      const pages = { 'index.html': './', 'portfolio/index.html': '../', '404.html': './' };
+      for (const [file, prefix] of Object.entries(pages)) {
         const html = bundle[file];
         if (!html) continue;
-        const preload = fonts.filter((f) => preloadFonts[set].test(f)).map((f) => `<link rel="preload" href="${prefix}${f}" as="font" type="font/woff2" crossorigin />`).join('\n  ');
+        const preload = fonts.filter((f) => preloadFonts.test(f)).map((f) => `<link rel="preload" href="${prefix}${f}" as="font" type="font/woff2" crossorigin />`).join('\n  ');
         html.source = String(html.source).replace('<link rel="icon"', `${preload}\n  <link rel="icon"`);
       }
 

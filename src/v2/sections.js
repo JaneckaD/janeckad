@@ -37,7 +37,9 @@ export function areasMarkup(areas, services) {
     .join('');
 }
 
-const fileIcon = { web: 'globe', device: 'monitorSmartphone', login: 'keyRound', mail: 'mail', svg: 'shapes', png: 'image', pdf: 'fileText' };
+const fileIcon = { web: 'globe', device: 'monitorSmartphone', login: 'keyRound', mail: 'mail', svg: 'shapes', png: 'image', pdf: 'fileText', zip: 'layers', link: 'arrowUpRight', user: 'userRound' };
+// zástupná značka do ukázky barevných kombinací
+const sampleMark = '<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="15" cy="20" r="9" fill="currentColor" /><rect x="22" y="11" width="7" height="18" rx="3.5" fill="currentColor" opacity=".55" /></svg>';
 const tabIcon = ['codeXml', 'penTool', 'layoutTemplate'];
 
 export function handoverMarkup(handover, services) {
@@ -62,25 +64,41 @@ export function handoverMarkup(handover, services) {
           return `<li><span>${escapeHtml(svc.name)}</span><strong>${price}</strong></li>`;
         })
         .join('');
+      let n = 0;
+      const count = h.folder.reduce((a, d) => a + d.files.length, 0);
       const files = h.folder
         .map(
-          (f, n) => `
-            <li class="file" style="--i:${n}">
-              <span class="file__ico">${icon(fileIcon[f.kind] || 'fileText')}</span>
-              <span class="file__text"><strong>${escapeHtml(f.name)}</strong><small>${escapeHtml(f.note)}</small></span>
-              ${['svg', 'png', 'pdf'].includes(f.kind) ? `<span class="file__ext">${f.kind}</span>` : ''}
+          (d) => `
+            <li class="dir" style="--i:${n++}">
+              <span class="dir__head">${icon('folderOpen')}<strong>${escapeHtml(d.name)}</strong><small>${escapeHtml(d.note)}</small></span>
+              <ul class="dir__files">${d.files
+                .map(
+                  (f) => `
+                <li class="file" style="--i:${n++}">
+                  <span class="file__ico">${icon(fileIcon[f.kind] || 'fileText')}</span>
+                  <span class="file__text"><strong>${escapeHtml(f.name)}</strong><small>${escapeHtml(f.note)}</small></span>
+                  ${['svg', 'png', 'pdf', 'zip'].includes(f.kind) ? `<span class="file__ext">${f.kind}</span>` : ''}
+                </li>`,
+                )
+                .join('')}</ul>
             </li>`,
         )
         .join('');
+      const swatches = h.swatches
+        ? `<p class="combos__label">Ukázka: jedno logo ve čtyřech barevných kombinacích</p><div class="combos" aria-label="Ukázka barevných kombinací loga">${h.swatches
+            .map(([bg, fg, label]) => `<span class="combo" style="--bg-c:${bg};--fg-c:${fg}"><span class="combo__tile">${sampleMark}</span><small>${escapeHtml(label)}</small></span>`)
+            .join('')}</div>`
+        : '';
       return `
         <div class="ho__panel${i === 0 ? ' is-active' : ''}" role="tabpanel" id="ho-panel-${i}" aria-labelledby="ho-tab-${i}">
           <div class="ho__folder">
-            <div class="ho__folder-head">${icon('folderOpen')}<span>predani-${escapeHtml(h.label.toLowerCase().split(' ')[0].normalize('NFD').replace(/[̀-ͯ]/g, ''))}</span><small>${h.folder.length} položky</small></div>
+            <div class="ho__folder-head">${icon('folderOpen')}<span>predani-${escapeHtml(h.label.toLowerCase().split(' ')[0].normalize('NFD').replace(/[̀-ͯ]/g, ''))}</span><small>${count} ${count < 5 ? 'položky' : 'položek'}</small></div>
             <ul class="files" aria-label="Co vám předám">${files}</ul>
           </div>
           <div class="ho__detail">
             <p class="ho__lead">${escapeHtml(h.lead)}</p>
             <ul class="ticks ticks--cols">${items.join('')}</ul>
+            ${swatches}
             <div class="ho__foot">
               <ul class="ho__prices">${prices}</ul>
               <a class="btn btn--ghost btn--sm" href="#sluzby">Spočítat cenu ${icon('arrowRight')}</a>

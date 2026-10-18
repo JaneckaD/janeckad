@@ -1,6 +1,7 @@
-# Osobní web – David, webař a grafik
+# Osobní web – David Janečka, webař a grafik
 
-Web s vybranými pracemi, skládačkou služeb s orientační cenou a samostatnou stránkou `/portfolio/` se všemi projekty.
+Web s vybranými pracemi, třemi kalkulačkami ceny (skládačka, průvodce „Co potřebuji?“, podle rozpočtu)
+a samostatnou stránkou `/portfolio/` se všemi projekty.
 Postavený na [Vite](https://vitejs.dev), bez dalších knihoven.
 
 ## Spuštění na localhostu (Windows)
@@ -30,29 +31,16 @@ Web se otevře v prohlížeči na `http://localhost:5173`. Změny v souborech se
 | Sekce „Co pro vás udělám“ a „Co ode mě dostanete“ | `src/data/offer.js` (ceny a seznamy se berou ze `services.js`) |
 | Obrázky projektů | složka `public/portfolio/` |
 | Služby, ceny, rychlé volby | `src/data/services.js` |
-| Texty sekcí | `index.html` (hlavní stránka), `portfolio/index.html` (stránka Portfolio) |
-| Barvy a písma | začátek `src/style.css` |
-
-### Nová verze webu (na zkoušku)
-
-Na adrese **/nova-verze/** běží přepracovaný web pod jménem **David Janečka** (odkaz „Nová verze“ je dole v patičce).
-Obsah bere ze stejných souborů v `src/data/`, takže ceny, projekty i otázky jsou všude stejné.
-Vzhled je tenký a minimalistický (styl Minimalism & Swiss ze skillu ui-ux-pro-max), písma Bricolage Grotesque
-(nadpisy, zvýrazněná slova jsou zúžená) a Hanken Grotesk. V úvodu je nakloněný mobil s ukázkou webu, v ceníku tři
-kalkulačky: skládačka, průvodce „Co potřebuji?“ a výběr podle rozpočtu.
-
-| Co | Soubor |
-| --- | --- |
-| Texty sekcí | `nova-verze/index.html`, `nova-verze/portfolio/index.html` |
-| Barvy všech 10 variant (každá má 4 barvy `--c1` až `--c4`) a písma | začátek `src/v2/style.css` |
+| Texty sekcí | `index.html` (hlavní stránka), `portfolio/index.html` (stránka Portfolio), `404.html` |
+| Barvy (Kobalt: 4 barvy `--c1` až `--c4`) a písma | začátek `src/v2/style.css` |
 | Tenké ikonky | `src/v2/icons.js` (Lucide) |
 | Logo „dj“ (značka) | `logoMark` v `src/v2/sections.js`, v HTML stačí `<i data-logo></i>` |
-| Ikonka v záložce | `public/nova-verze/favicon.svg` a PNG vedle |
-| Obrázek webu v mobilu | `public/nova-verze/mockup/web-mobil.webp` (585 px široký snímek mobilní verze; po větší změně úvodu ho vyfoťte znovu) |
+| Ikonka v záložce a ikony aplikace | `public/favicon.svg`, `favicon.ico`, `icon-*.png`, `apple-touch-icon.png` |
+| Mobil v úvodu | rám `public/mockup/telefon.webp` (z PSD), snímek webu `public/mockup/web-mobil.webp` (585 px široký snímek mobilní verze; po větší změně úvodu ho vyfoť znovu) |
 
-Barevnou variantu jde vybrat tlačítkem „Barvy“ vpravo dole nebo v adrese: `?barvy=tisk`, `atelier`, `terakota`,
-`vyprava`, `kobalt`, `zahrada`, `ruze`, `citron`, `salvej` nebo `noc`.
-Vyhledávače novou verzi zatím neindexují (noindex), aby se nepletla s hlavní stránkou.
+Vzhled je tenký a minimalistický, písma Bricolage Grotesque (nadpisy, zvýrazněná slova jsou zúžená) a Hanken Grotesk.
+Displej mobilu v úvodu je obyčejný blok, který `matrix3d` v `src/v2/style.css` zkosí přesně do displeje z PSD.
+Stará adresa `/nova-verze/` jen přesměruje na hlavní stránku.
 
 ### Přidání projektu
 
@@ -85,8 +73,8 @@ Většinu dělá sestavení webu samo (`vite.seo.js`), takže stačí upravovat 
 - **Titulek a popis stránky** pro Google jsou v `<title>` a `<meta name="description">` v `index.html` a `portfolio/index.html`.
   Z nich se odvodí i náhled při sdílení na Facebooku, WhatsAppu a jinde (obrázky jsou v `public/og/`).
 - **Strukturovaná data** (kdo jsi, kde působíš, služby s cenami, projekty, časté otázky) se skládají z `src/data/`.
-  Adresa webu a město jsou v `src/data/site.js`.
+  Adresa webu je v `src/data/site.js`.
 - **Karty projektů a časté otázky** se vkládají přímo do HTML, takže je vyhledávače vidí i bez JavaScriptu.
 - **`sitemap.xml` a `robots.txt`** se vytvoří při každém sestavení.
 - Po každém nasazení se změny ohlásí přes IndexNow (Seznam, Bing). Klíč je soubor `public/*.txt`, nemaž ho.
-- Písma jsou uložená ve `src/fonts/`, web je nestahuje od Googlu.
+- Písma jsou uložená ve `src/v2/fonts/`, web je nestahuje od Googlu.

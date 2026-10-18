@@ -2,7 +2,6 @@
 import './style.css';
 import { projects } from '../data/projects.js';
 import { $, $$, reduceMotion, escapeHtml, initNav, initReveal, renderProjects, initLightbox, initFooter } from '../shared.js';
-import { initSwatch } from './common.js';
 
 const filters = [
   { id: 'vse', label: 'Vše', match: () => true },
@@ -41,7 +40,6 @@ function initGrid(openGallery) {
   });
 }
 
-initSwatch();
 initNav();
 initGrid(initLightbox());
 initFooter();

@@ -14,8 +14,6 @@ export default defineConfig({
         main: page('./index.html'),
         portfolio: page('./portfolio/index.html'),
         notfound: page('./404.html'),
-        nova: page('./nova-verze/index.html'),
-        novaPortfolio: page('./nova-verze/portfolio/index.html'),
       },
     },
   },

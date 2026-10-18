@@ -3,109 +3,128 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Portfolio | Davix</title>
-  <meta name="description" content="Ukázky mých prací: web s objednávkovým systémem pro rozvoz jídla a vizuální identity pro malé firmy. Podívejte se, jak probíhal návrh a co klient dostal." />
+  <title>Portfolio | David Janečka</title>
+  <meta name="description" content="Ukázky mých prací: weby a vizuální identity pro malé firmy. Podívejte se, jak probíhal návrh a co klient dostal." />
   <script>document.documentElement.classList.add('js')</script>
-  <link rel="icon" href="/icon-kurzor.svg?v=3" type="image/svg+xml" />
-  <link rel="icon" href="/icon-32.png?v=3" sizes="32x32" type="image/png" />
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3" />
+  <link rel="icon" href="/favicon.svg?v=4" type="image/svg+xml" />
+  <link rel="icon" href="/icon-32.png?v=4" sizes="32x32" type="image/png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=4" />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
 </head>
-<body>
+<body data-pricing="../#cenik">
   <a class="skip" href="#projekty">Přeskočit na projekty</a>
 
-  <header class="nav" data-nav>
-    <div class="nav__bar">
-      <a class="nav__logo" href="../" aria-label="Davix, hlavní stránka">
-        <svg class="nav__mark" viewBox="0 0 48 48" aria-hidden="true">
-          <circle class="nav__mark-bg" cx="24" cy="24" r="24" />
-          <g transform="translate(-0.5 0.25)">
-            <circle class="nav__mark-bowl" cx="22" cy="27" r="7" />
-            <path class="nav__mark-cursor" d="M30.5 12v23.5M27 12h7M27 35.5h7" />
-          </g>
-        </svg>
-        <span class="nav__word" aria-hidden="true">Davix</span>
-      </a>
-      <nav class="nav__links" id="menu" aria-label="Hlavní navigace" data-nav-links>
-        <a href="../#co-delam">Co dělám</a>
-        <a href="./" aria-current="page">Portfolio</a>
-        <a href="../#sluzby">Ceny</a>
+  <header class="hd" data-nav>
+    <div class="hd__bar">
+      <a class="logo" href="../" aria-label="David Janečka, hlavní stránka"><i data-logo></i><span class="logo__name">David Janečka</span></a>
+      <nav class="hd__links" id="menu" aria-label="Hlavní navigace" data-nav-links>
+        <a href="../#sluzby">Služby</a>
+        <a href="./" aria-current="page">Práce</a>
+        <a href="../#cenik">Ceník</a>
         <a href="../#postup">Postup</a>
         <a href="../#o-mne">O mně</a>
-        <a class="nav__menu-cta" href="../#kontakt">Napsat mi</a>
+        <a href="../#otazky">Otázky</a>
+        <a class="hd__menu-cta nav__menu-cta" href="../#kontakt">Napište mi</a>
       </nav>
-      <div class="nav__end">
-        <span class="nav__status"><i aria-hidden="true"></i>Volno na nové projekty</span>
-        <a class="nav__cta" href="../#kontakt">Napsat mi</a>
-        <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="menu" aria-label="Otevřít menu" data-nav-toggle>
+      <div class="hd__end">
+        <a class="icon-btn" href="mailto:davix.designstudio@gmail.com" aria-label="Napsat e-mail" data-mail></a>
+        <a class="btn btn--ink btn--sm hd__cta" href="../#kontakt">Napište mi</a>
+        <button class="hd__toggle" type="button" aria-expanded="false" aria-controls="menu" aria-label="Otevřít menu" data-nav-toggle>
           <span></span><span></span>
         </button>
       </div>
-      <span class="nav__progress" aria-hidden="true" data-progress></span>
+      <span class="hd__progress" aria-hidden="true" data-progress></span>
     </div>
   </header>
 
   <main id="top">
-    <section class="page-head" aria-labelledby="page-title" data-page-head>
-      <div class="hero__blobs" aria-hidden="true">
-        <span class="blob blob--a"></span>
-        <span class="blob blob--b"></span>
-        <span class="blob blob--c"></span>
-      </div>
-      <div class="page-head__inner">
-        <a class="page-head__back" href="../" data-reveal>← Zpět na hlavní stránku</a>
-        <h1 class="page-head__title" id="page-title" data-reveal>Portfolio<span class="sr-only">: weby, loga a vizuální identity</span></h1>
-        <p class="page-head__lead" data-reveal>
-          Všechno, co jsem zatím navrhl a postavil: weby, loga i&nbsp;celé vizuální identity.
-          Klikněte na projekt a prohlédněte si ho zblízka.
-        </p>
+    <section class="page-head" aria-labelledby="page-title">
+      <div class="wrap">
+        <a class="link-back" href="../" data-reveal><span data-icon="arrowLeft"></span>Zpět na hlavní stránku</a>
+        <div class="head">
+          <p class="eyebrow" data-reveal>Portfolio</p>
+          <h1 id="page-title" data-reveal>Všechny moje <em>práce</em></h1>
+          <p class="head__lead" data-reveal>Všechno, co jsem zatím navrhl a postavil: weby, loga i&nbsp;celé vizuální identity. Klikněte na projekt a prohlédněte si ho zblízka.</p>
+        </div>
+        <div class="filters" role="group" aria-label="Filtrovat projekty" data-filters></div>
       </div>
     </section>
 
-    <section class="work work--page" id="projekty" aria-labelledby="projekty-title">
-      <h2 class="sr-only" id="projekty-title">Všechny projekty</h2>
-      <div class="filters" role="group" aria-label="Filtrovat projekty" data-filters></div>
-      <ul class="work__grid" data-projects></ul>
+    <section class="sec sec--tight" id="projekty" aria-labelledby="projekty-title">
+      <div class="wrap">
+        <h2 class="sr-only" id="projekty-title">Všechny projekty</h2>
+        <ul class="work work--all" data-projects></ul>
 
-      <div class="work__end">
-        <h2 data-reveal>Líbí se vám, co vidíte?</h2>
-        <p data-reveal>Napište mi, s čím vám můžu pomoct, nebo si nejdřív spočítejte, kolik by to stálo.</p>
-        <div class="work__end-cta" data-reveal>
-          <a class="btn btn--light" href="../#kontakt">Napsat mi</a>
-          <a class="btn btn--ghost btn--on-dark" href="../#sluzby">Spočítat cenu</a>
+        <div class="cta-band" data-reveal>
+          <div>
+            <h2>Líbí se vám, co <em>vidíte?</em></h2>
+            <p>Napište mi, s čím vám můžu pomoct, nebo si nejdřív spočítejte, kolik by to stálo.</p>
+          </div>
+          <div class="cta-band__btns">
+            <a class="btn btn--accent" href="../#kontakt">Napsat mi <span data-icon="arrowRight"></span></a>
+            <a class="btn btn--ghost" href="../#cenik">Spočítat cenu</a>
+          </div>
         </div>
       </div>
-
-      <footer class="footer">
-        <span>© <span data-year>2026</span> Davix · David, webař a grafik · <a href="mailto:davix.designstudio@gmail.com">davix.designstudio@gmail.com</a></span>
-        <span class="footer__links" data-socials></span>
-        <a class="footer__new" href="../nova-verze/portfolio/">Nová verze ✦</a>
-      </footer>
     </section>
   </main>
 
+  <footer class="ft">
+    <div class="wrap">
+      <div class="ft__top">
+        <div class="ft__brand">
+          <a class="logo" href="../" aria-label="David Janečka, hlavní stránka"><i data-logo></i><span class="logo__name">David Janečka</span></a>
+          <p>Weby, loga a vizuální identity na míru pro malé firmy a živnostníky.</p>
+        </div>
+        <nav class="ft__col" aria-label="Stránka">
+          <h3>Stránka</h3>
+          <a href="../#sluzby">Služby</a>
+          <a href="../#prace">Práce</a>
+          <a href="../#postup">Postup</a>
+          <a href="../#o-mne">O mně</a>
+          <a href="../#otazky">Otázky</a>
+        </nav>
+        <nav class="ft__col" aria-label="Služby">
+          <h3>Služby</h3>
+          <a href="../#cenik">Weby a e-shopy</a>
+          <a href="../#cenik">Loga a identity</a>
+          <a href="../#cenik">Sociální sítě</a>
+          <a href="./">Celé portfolio</a>
+        </nav>
+        <div class="ft__col">
+          <h3>Kontakt</h3>
+          <a href="mailto:davix.designstudio@gmail.com">davix.designstudio@gmail.com</a>
+        </div>
+      </div>
+      <div class="ft__bottom">
+        <span>© <span data-year>2026</span> David Janečka, webař a grafik</span>
+        <span class="ft__links" data-socials></span>
+      </div>
+    </div>
+  </footer>
+
+
   <!-- GALERIE -->
   <dialog class="lightbox" data-lightbox aria-labelledby="lb-title">
-    <!-- obsah se posouvá uvnitř okna, aby posuvník nepřečníval přes zaoblené rohy -->
     <div class="lightbox__body" data-lb-body>
       <div class="lightbox__head">
         <h3 id="lb-title" data-lb-title></h3>
         <p class="lightbox__desc" data-lb-meta></p>
         <div class="lightbox__actions">
-          <a class="btn btn--small" href="#" data-lb-link target="_blank" rel="noopener" hidden>Navštívit web</a>
-          <button class="lightbox__close" type="button" data-lb-close aria-label="Zavřít galerii">✕</button>
+          <a class="btn btn--accent btn--sm" href="#" data-lb-link target="_blank" rel="noopener" hidden>Navštívit web</a>
+          <button class="lightbox__close" type="button" data-lb-close aria-label="Zavřít galerii"></button>
         </div>
       </div>
       <div class="lightbox__chapters" role="group" aria-label="Části projektu" data-lb-chapters hidden></div>
       <div class="lightbox__stage">
-        <button class="lightbox__arrow lightbox__arrow--prev" type="button" data-lb-prev aria-label="Předchozí obrázek">‹</button>
+        <button class="lightbox__arrow lightbox__arrow--prev" type="button" data-lb-prev aria-label="Předchozí obrázek"></button>
         <figure class="lightbox__figure">
           <img data-lb-img alt="" />
           <figcaption data-lb-caption></figcaption>
         </figure>
-        <button class="lightbox__arrow lightbox__arrow--next" type="button" data-lb-next aria-label="Další obrázek">›</button>
+        <button class="lightbox__arrow lightbox__arrow--next" type="button" data-lb-next aria-label="Další obrázek"></button>
       </div>
       <div class="lightbox__thumbs" data-lb-thumbs></div>
-      <!-- u projektů s postupem (steps v projects.js): jak to probíhalo, co klient dostane, co je v prezentaci -->
       <div class="case" data-lb-case hidden>
         <section class="case__steps">
           <h4 data-lb-steps-title>Jak to probíhalo</h4>
@@ -123,6 +142,6 @@
     </div>
   </dialog>
 
-  <script type="module" src="/src/portfolio.js"></script>
+  <script type="module" src="/src/v2/portfolio.js"></script>
 </body>
 </html>

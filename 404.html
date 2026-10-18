@@ -3,32 +3,90 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Stránka nenalezena | Davix</title>
+  <title>Stránka nenalezena | David Janečka</title>
   <meta name="robots" content="noindex" />
-  <link rel="icon" href="/icon-kurzor.svg?v=3" type="image/svg+xml" />
-  <link rel="icon" href="/icon-32.png?v=3" sizes="32x32" type="image/png" />
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3" />
+  <script>document.documentElement.classList.add('js')</script>
+  <link rel="icon" href="/favicon.svg?v=4" type="image/svg+xml" />
+  <link rel="icon" href="/icon-32.png?v=4" sizes="32x32" type="image/png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=4" />
 </head>
 <body>
   <!-- GitHub Pages ukáže tuhle stránku na každé adrese, která neexistuje -->
-  <main>
-    <section class="page-head page-head--404">
-      <div class="hero__blobs" aria-hidden="true">
-        <span class="blob blob--a"></span>
-        <span class="blob blob--b"></span>
-        <span class="blob blob--c"></span>
+  <a class="skip" href="#top">Přeskočit na obsah</a>
+
+  <header class="hd" data-nav>
+    <div class="hd__bar">
+      <a class="logo" href="/" aria-label="David Janečka, hlavní stránka"><i data-logo></i><span class="logo__name">David Janečka</span></a>
+      <nav class="hd__links" id="menu" aria-label="Hlavní navigace" data-nav-links>
+        <a href="/#sluzby">Služby</a>
+        <a href="/portfolio/">Práce</a>
+        <a href="/#cenik">Ceník</a>
+        <a href="/#postup">Postup</a>
+        <a href="/#o-mne">O mně</a>
+        <a href="/#otazky">Otázky</a>
+        <a class="hd__menu-cta nav__menu-cta" href="/#kontakt">Napište mi</a>
+      </nav>
+      <div class="hd__end">
+        <a class="icon-btn" href="mailto:davix.designstudio@gmail.com" aria-label="Napsat e-mail" data-mail></a>
+        <a class="btn btn--ink btn--sm hd__cta" href="/#kontakt">Napište mi</a>
+        <button class="hd__toggle" type="button" aria-expanded="false" aria-controls="menu" aria-label="Otevřít menu" data-nav-toggle>
+          <span></span><span></span>
+        </button>
       </div>
-      <div class="page-head__inner">
-        <a class="page-head__back" href="/">← Zpět na hlavní stránku</a>
-        <h1 class="page-head__title">404</h1>
-        <p class="page-head__lead">Tahle stránka tu není. Možná se přesunula, nebo je v odkazu překlep.</p>
-        <div class="page-head__cta">
-          <a class="btn" href="/">Na hlavní stránku</a>
-          <a class="btn btn--ghost" href="/portfolio/">Prohlédnout portfolio</a>
+      <span class="hd__progress" aria-hidden="true" data-progress></span>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="page-head page-head--404" aria-labelledby="page-title">
+      <div class="wrap">
+        <div class="head">
+          <p class="eyebrow">Chyba 404</p>
+          <h1 id="page-title">Tahle stránka <em>tu není</em></h1>
+          <p class="head__lead">Možná se přesunula, nebo je v odkazu překlep. Zkuste to přes hlavní stránku.</p>
+        </div>
+        <div class="hero__cta">
+          <a class="btn btn--accent" href="/">Na hlavní stránku <span data-icon="arrowRight"></span></a>
+          <a class="btn btn--ghost" href="/portfolio/">Prohlédnout práce</a>
         </div>
       </div>
     </section>
   </main>
-  <script type="module" src="/src/notfound.js"></script>
+
+  <footer class="ft">
+    <div class="wrap">
+      <div class="ft__top">
+        <div class="ft__brand">
+          <a class="logo" href="/" aria-label="David Janečka, hlavní stránka"><i data-logo></i><span class="logo__name">David Janečka</span></a>
+          <p>Weby, loga a vizuální identity na míru pro malé firmy a živnostníky.</p>
+        </div>
+        <nav class="ft__col" aria-label="Stránka">
+          <h3>Stránka</h3>
+          <a href="/#sluzby">Služby</a>
+          <a href="/#prace">Práce</a>
+          <a href="/#postup">Postup</a>
+          <a href="/#o-mne">O mně</a>
+          <a href="/#otazky">Otázky</a>
+        </nav>
+        <nav class="ft__col" aria-label="Služby">
+          <h3>Služby</h3>
+          <a href="/#cenik">Weby a e-shopy</a>
+          <a href="/#cenik">Loga a identity</a>
+          <a href="/#cenik">Sociální sítě</a>
+          <a href="/portfolio/">Celé portfolio</a>
+        </nav>
+        <div class="ft__col">
+          <h3>Kontakt</h3>
+          <a href="mailto:davix.designstudio@gmail.com">davix.designstudio@gmail.com</a>
+        </div>
+      </div>
+      <div class="ft__bottom">
+        <span>© <span data-year>2026</span> David Janečka, webař a grafik</span>
+        <span class="ft__links" data-socials></span>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="/src/v2/notfound.js"></script>
 </body>
 </html>

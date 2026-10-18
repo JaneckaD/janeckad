@@ -1,11 +1,11 @@
 {
-  "name": "Davix – weby, loga a vizuální identity",
-  "short_name": "Davix",
+  "name": "David Janečka – weby, loga a grafika",
+  "short_name": "David Janečka",
   "lang": "cs",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f2f0fa",
-  "theme_color": "#1f1640",
+  "background_color": "#f6f8fb",
+  "theme_color": "#f6f8fb",
   "icons": [
     { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }

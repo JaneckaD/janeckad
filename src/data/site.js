@@ -1,7 +1,7 @@
 // Základní údaje o tobě – uprav podle sebe.
 export const site = {
-  name: 'David',
-  brand: 'Davix',
+  name: 'David Janečka',
+  brand: 'David Janečka',
   role: 'Junior webař a grafik',
   // Adresa webu: používá se pro vyhledávače (canonical, mapa webu, strukturovaná data)
   url: 'https://davix.cz',
