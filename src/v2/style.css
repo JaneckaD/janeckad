@@ -144,7 +144,7 @@ em { font-style: normal; font-stretch: 75%; color: var(--accent-text); }
 .logo__name { font: 400 1.14rem/1 var(--display); letter-spacing: -.03em; white-space: nowrap; }
 
 /* ===== Hlavička ===== */
-.hd { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, var(--bg) 92%, transparent); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+.hd { position: sticky; top: 0; z-index: 50; background: var(--bg); }
 .hd::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--line); opacity: 0; transition: opacity .3s; }
 .hd.is-scrolled::after { opacity: 1; }
 .hd__bar {
@@ -214,20 +214,27 @@ em { font-style: normal; font-stretch: 75%; color: var(--accent-text); }
 }
 @keyframes phone-in { from { opacity: 0; transform: translate3d(30px, 50px, 0) rotate(4deg); } }
 .phone__inner { position: absolute; left: 0; top: 0; width: 931px; height: 1702px; transform: scale(var(--k)); transform-origin: 0 0; }
+/* displej je ořezaný maskou přesně podle tvaru z PSD (zaoblené rohy i výřez) */
+.phone__clip { position: absolute; left: 0; top: 0; width: 931px; height: 1702px; -webkit-mask: url('/mockup/displej-maska.png') 0 0 / 100% 100% no-repeat; mask: url('/mockup/displej-maska.png') 0 0 / 100% 100% no-repeat; }
 .phone__screen {
-  position: absolute; left: 0; top: 0; width: 390px; height: 844px; overflow: hidden; background: var(--bg);
+  position: absolute; left: 0; top: 0; width: 390px; height: 844px; overflow: hidden; background: #f6f8fb;
   transform-origin: 0 0;
-  transform: matrix3d(1.72882, 0.219788, 0, 0.000289598, 0.296671, 1.85909, 0, -3.74821e-05, 0, 0, 1, 0, 65.2, 32.7, 0, 1);
+  transform: matrix3d(1.87489, 0.261052, 0, 0.000328129, 0.312081, 1.96866, 0, -7.22023e-06, 0, 0, 1, 0, 33.3125, -5.46349, 0, 1);
 }
-.phone__screen::after { content: ''; position: absolute; inset: 0; background: linear-gradient(118deg, transparent 52%, rgba(255, 255, 255, .16) 52.2%, rgba(255, 255, 255, .05)); pointer-events: none; }
-.phone__shot { display: block; width: 100%; height: auto; animation: scroll-shot 26s cubic-bezier(.45, 0, .55, 1) infinite alternate 1.6s; }
+.phone__screen::after { content: ''; position: absolute; inset: 0; background: linear-gradient(118deg, transparent 55%, rgba(255, 255, 255, .14) 55.2%, rgba(255, 255, 255, .04)); pointer-events: none; }
+.phone__shot { display: block; width: 100%; height: auto; will-change: transform; animation: scroll-shot 24s cubic-bezier(.45, 0, .55, 1) infinite alternate 1.6s; }
+.phone.is-paused .phone__shot { animation-play-state: paused; }
 @keyframes scroll-shot { 0%, 8% { transform: translateY(0); } 92%, 100% { transform: translateY(calc(-100% + 844px)); } }
-.phone__frame { position: absolute; left: 0; top: 0; width: 931px; height: 1702px; max-width: none; filter: drop-shadow(-30px 60px 50px rgba(10, 14, 40, .28)); }
+/* stavový řádek telefonu zůstává nahoře, obsah pod ním jede */
+.phone__bar { position: absolute; z-index: 1; left: 0; right: 0; top: 0; height: 50px; padding: 16px 28px 0 34px; display: flex; justify-content: space-between; font: 600 15px/1 var(--sans); color: #0f172a; background: linear-gradient(#f6f8fb 62%, rgba(246, 248, 251, 0)); }
+.phone__bar i { display: flex; gap: 5px; align-items: center; }
+.phone__bar i::before { content: ''; width: 17px; height: 10px; background: linear-gradient(90deg, #0f172a 0 3px, transparent 3px 4.5px, #0f172a 4.5px 7.5px, transparent 7.5px 9px, #0f172a 9px 12px, transparent 12px 13.5px, #0f172a 13.5px); clip-path: polygon(0 70%, 25% 70%, 25% 45%, 50% 45%, 50% 20%, 75% 20%, 75% 0, 100% 0, 100% 100%, 0 100%); }
+.phone__bar i::after { content: ''; width: 24px; height: 11px; border-radius: 3px; border: 1.5px solid #0f172a; box-shadow: inset 0 0 0 1.5px #f6f8fb, inset 16px 0 0 #0f172a; opacity: .9; }
+.phone__frame { position: absolute; left: -120px; top: -120px; width: 1171px; height: 1942px; max-width: none; }
 
 .float {
   position: absolute; z-index: 2; display: inline-flex; align-items: center; gap: .55rem;
-  padding: .55rem 1rem .55rem .55rem; border-radius: 999px; background: color-mix(in srgb, var(--card) 88%, transparent);
-  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  padding: .55rem 1rem .55rem .55rem; border-radius: 999px; background: var(--card);
   border: 1px solid var(--line); box-shadow: var(--shadow); font-size: .86rem; font-weight: 500; white-space: nowrap;
   transition: translate .8s var(--ease); animation: intro-card 1s var(--ease) both;
 }
@@ -392,7 +399,7 @@ li:nth-child(4) > .ref .ref__ico { background: var(--soft-4); color: var(--ink);
 .avatar .mark__lines { stroke-width: 2.4; }
 .about__card {
   position: absolute; right: -6%; bottom: 8%; display: grid; padding: .8rem 1.2rem; border-radius: 18px;
-  background: color-mix(in srgb, var(--card) 90%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  background: var(--card);
   border: 1px solid var(--line); box-shadow: var(--shadow);
 }
 .about__card strong { font: 400 1.1rem var(--display); letter-spacing: -.02em; }
@@ -631,7 +638,7 @@ li:nth-child(4) > .ref .ref__ico { background: var(--soft-4); color: var(--ink);
   margin: auto; padding: 0; border: 1px solid var(--line); border-radius: 26px; background: var(--card); color: var(--ink);
 }
 .pkg[open] { animation: lb-in .45s var(--ease); }
-.pkg::backdrop { background: color-mix(in srgb, var(--ink) 45%, transparent); backdrop-filter: blur(3px); animation: fade .3s ease; }
+.pkg::backdrop { background: color-mix(in srgb, var(--ink) 50%, transparent); animation: fade .3s ease; }
 .pkg__inner { position: relative; padding: clamp(1.4rem, 4vw, 2rem); }
 .pkg__close { position: absolute; top: 1rem; right: 1rem; }
 .pkg h3 { margin: 0 3rem 1.1rem 0; font-size: clamp(1.5rem, 4vw, 1.9rem); }
@@ -692,7 +699,7 @@ li:nth-child(4) > .ref .ref__ico { background: var(--soft-4); color: var(--ink);
 }
 .lightbox[open] { display: flex; animation: lb-in .5s var(--ease); }
 .lightbox.is-closing { animation: lb-out .3s var(--ease) forwards; }
-.lightbox::backdrop { background: color-mix(in srgb, var(--ink) 55%, transparent); backdrop-filter: blur(4px); animation: fade .4s ease; }
+.lightbox::backdrop { background: color-mix(in srgb, var(--ink) 62%, transparent); animation: fade .4s ease; }
 .lightbox.is-closing::backdrop { animation: fade .3s ease reverse forwards; }
 @keyframes lb-in { from { opacity: 0; transform: translate3d(0, 30px, 0) scale(.985); } }
 @keyframes lb-out { to { opacity: 0; transform: translate3d(0, 24px, 0); } }

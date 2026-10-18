@@ -127,6 +127,9 @@ export function renderProjects(list, items, openGallery, extra = '') {
 }
 
 /* ---------- Galerie ---------- */
+// malé náhledy galerie (240 px webp) leží v portfolio/nahled/, vytváří je scripts/nahledy.py
+const thumbOf = (src) => src.replace(/^(.*\/)?([^/]+)\.jpg$/, (_, dir = '', name) => `${dir}nahled/${name}.webp`);
+
 export function initLightbox() {
   const dialog = $('[data-lightbox]');
   const img = $('[data-lb-img]', dialog);
@@ -156,6 +159,11 @@ export function initLightbox() {
     void img.offsetWidth; // restart animace
     img.classList.add('is-swapping');
     $$('button', thumbs).forEach((b, bi) => b.setAttribute('aria-current', String(bi === index)));
+    // dopředu se stáhne jen sousední obrázek, ne celá galerie najednou (to otevření zbytečně brzdilo)
+    [index + 1, index - 1].forEach((n) => {
+      const next = items[(n + items.length) % items.length];
+      if (next) { const pre = new Image(); pre.decoding = 'async'; pre.src = asset(next.src); }
+    });
     // u projektu s postupem se zvýrazní krok, ke kterému obrázek patří
     if (current.steps) {
       const step = current.steps.reduce((acc, st, si) => (st.from <= index ? si : acc), 0);
@@ -181,9 +189,8 @@ export function initLightbox() {
     if (project.link) link.href = project.link;
     dialog.classList.toggle('lightbox--single', project.gallery.length < 2);
     thumbs.innerHTML = project.gallery
-      .map((g, i) => `<button type="button" data-thumb="${i}" aria-label="Obrázek ${i + 1}"><img src="${escapeHtml(asset(g.src))}" alt="" /></button>`)
+      .map((g, i) => `<button type="button" data-thumb="${i}" aria-label="Obrázek ${i + 1}"><img src="${escapeHtml(asset(thumbOf(g.src)))}" alt="" width="240" height="160" loading="lazy" decoding="async" /></button>`)
       .join('');
-    project.gallery.forEach((g) => { const pre = new Image(); pre.decoding = 'async'; pre.src = asset(g.src); });
     renderCase(project);
     body.scrollTop = 0;
     show(0);

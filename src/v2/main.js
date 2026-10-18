@@ -133,6 +133,17 @@ initBudget(selectTool);
 initContact();
 initFooter();
 initReveal();
+// mobil v úvodu se posouvá jen když je vidět a není otevřené okno
+const phone = $('.phone');
+if (phone) {
+  let visible = true;
+  const sync = () => phone.classList.toggle('is-paused', !visible || document.documentElement.classList.contains('lb-open') || !!$('dialog[open]'));
+  new IntersectionObserver(([e]) => { visible = e.isIntersecting; sync(); }).observe(phone);
+  new MutationObserver(sync).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+  document.addEventListener('toggle', sync, true);
+  $$('dialog').forEach((d) => { d.addEventListener('close', sync); new MutationObserver(sync).observe(d, { attributes: true, attributeFilter: ['open'] }); });
+}
+
 initTilt($('.hero__visual'), [
   [$('.phone'), 10],
   [$('.float--a'), -22],
