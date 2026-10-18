@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="cs" data-barvy="a">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio | Davix (nová verze)</title>
+  <meta name="description" content="Ukázky mých prací: weby a vizuální identity pro malé firmy. Podívejte se, jak probíhal návrh a co klient dostal." />
+  <!-- barevná varianta: ?barvy=a / ?barvy=b v adrese, jinak poslední zvolená -->
+  <script>(function(){var d=document.documentElement,v=new URLSearchParams(location.search).get('barvy');d.classList.add('js');try{v=v||localStorage.getItem('davix-barvy')}catch(e){}d.dataset.barvy=v==='b'?'b':'a'})()</script>
+  <link rel="icon" href="/icon-kurzor.svg?v=3" type="image/svg+xml" />
+  <link rel="icon" href="/icon-32.png?v=3" sizes="32x32" type="image/png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3" />
+</head>
+<body data-pricing="../#sluzby">
+  <a class="skip" href="#projekty">Přeskočit na projekty</a>
+
+  <header class="hd" data-nav>
+    <div class="hd__bar">
+      <a class="brand" href="../" aria-label="Davix, hlavní stránka">
+        <svg class="brand__mark" viewBox="0 0 48 48" aria-hidden="true">
+          <rect class="brand__bg" width="48" height="48" rx="14" />
+          <g transform="translate(-0.5 0.25)">
+            <circle class="brand__bowl" cx="22" cy="27" r="7" />
+            <path class="brand__cursor" d="M30.5 12v23.5M27 12h7M27 35.5h7" />
+          </g>
+        </svg>
+        <span class="brand__word">Davix<small>webař a grafik</small></span>
+      </a>
+      <nav class="hd__links" id="menu" aria-label="Hlavní navigace" data-nav-links>
+        <a href="../#co-delam">Co dělám</a>
+        <a href="./" aria-current="page">Práce</a>
+        <a href="../#co-dostanete">Co dostanete</a>
+        <a href="../#sluzby">Ceník</a>
+        <a href="../#postup">Postup</a>
+        <a href="../#o-mne">O mně</a>
+        <a class="hd__menu-cta nav__menu-cta" href="../#kontakt">Probrat projekt</a>
+      </nav>
+      <div class="hd__end">
+        <span class="status"><i aria-hidden="true"></i>Volno na projekty</span>
+        <a class="icon-btn" href="mailto:davix.designstudio@gmail.com" aria-label="Napsat e-mail" data-mail></a>
+        <a class="btn btn--accent btn--arrow hd__cta" href="../#kontakt"><span>Probrat projekt</span><i data-arrow></i></a>
+        <button class="hd__toggle" type="button" aria-expanded="false" aria-controls="menu" aria-label="Otevřít menu" data-nav-toggle>
+          <span></span><span></span>
+        </button>
+      </div>
+      <span class="hd__progress" aria-hidden="true" data-progress></span>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="page-head" aria-labelledby="page-title">
+      <span class="hero__mark" aria-hidden="true">portfolio</span>
+      <div class="wrap">
+        <a class="link-back" href="../" data-reveal><span data-icon="arrowLeft"></span>Zpět na hlavní stránku</a>
+        <p class="label" data-reveal>Portfolio</p>
+        <h1 id="page-title" data-reveal>Všechny moje <em>práce</em></h1>
+        <p class="page-head__lead" data-reveal>Všechno, co jsem zatím navrhl a postavil: weby, loga i&nbsp;celé vizuální identity. Klikněte na projekt a prohlédněte si ho zblízka.</p>
+        <div class="filters" role="group" aria-label="Filtrovat projekty" data-filters></div>
+      </div>
+    </section>
+
+    <section class="sec sec--tight" id="projekty" aria-labelledby="projekty-title">
+      <div class="wrap">
+        <h2 class="sr-only" id="projekty-title">Všechny projekty</h2>
+        <ul class="work work--all" data-projects></ul>
+
+        <div class="cta-band" data-reveal>
+          <div>
+            <h2>Líbí se vám, co <em>vidíte?</em></h2>
+            <p>Napište mi, s čím vám můžu pomoct, nebo si nejdřív spočítejte, kolik by to stálo.</p>
+          </div>
+          <div class="cta-band__btns">
+            <a class="btn btn--accent btn--arrow" href="../#kontakt"><span>Napsat mi</span><i data-arrow></i></a>
+            <a class="btn btn--ghost" href="../#sluzby">Spočítat cenu</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="ft">
+    <div class="wrap">
+      <div class="ft__top">
+        <div class="ft__brand">
+          <a class="brand" href="../" aria-label="Davix, hlavní stránka">
+            <svg class="brand__mark" viewBox="0 0 48 48" aria-hidden="true">
+              <rect class="brand__bg" width="48" height="48" rx="14" />
+              <g transform="translate(-0.5 0.25)">
+                <circle class="brand__bowl" cx="22" cy="27" r="7" />
+                <path class="brand__cursor" d="M30.5 12v23.5M27 12h7M27 35.5h7" />
+              </g>
+            </svg>
+            <span class="brand__word">Davix<small>webař a grafik</small></span>
+          </a>
+          <p>Weby, loga a vizuální identity na míru pro malé firmy a živnostníky.</p>
+        </div>
+        <nav class="ft__col" aria-label="Stránka">
+          <h3>Stránka</h3>
+          <a href="../#co-delam">Co dělám</a>
+          <a href="../#prace">Práce</a>
+          <a href="../#postup">Postup</a>
+          <a href="../#o-mne">O mně</a>
+        </nav>
+        <nav class="ft__col" aria-label="Služby">
+          <h3>Služby</h3>
+          <a href="../#sluzby">Weby a e-shopy</a>
+          <a href="../#sluzby">Loga a identity</a>
+          <a href="../#sluzby">Sociální sítě</a>
+          <a href="./">Celé portfolio</a>
+        </nav>
+        <div class="ft__col">
+          <h3>Kontakt</h3>
+          <a href="mailto:davix.designstudio@gmail.com">davix.designstudio@gmail.com</a>
+          <span class="status status--sm"><i aria-hidden="true"></i>Volno na nové projekty</span>
+        </div>
+      </div>
+      <p class="ft__word" aria-hidden="true">davix</p>
+      <div class="ft__bottom">
+        <span>© <span data-year>2026</span> Davix · David, webař a grafik</span>
+        <span class="ft__links" data-socials></span>
+        <a class="ft__old" href="../../portfolio/">Původní verze webu</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- PŘEPÍNAČ BAREV (jen v nové verzi, než se vybere jedna) -->
+  <div class="swatch" role="group" aria-label="Barevná varianta">
+    <span class="swatch__label">Barvy</span>
+    <button type="button" data-barvy-set="a" aria-pressed="true"><i class="swatch__dot swatch__dot--a"></i>A<span class="swatch__name"> Mlha a korál</span></button>
+    <button type="button" data-barvy-set="b" aria-pressed="false"><i class="swatch__dot swatch__dot--b"></i>B<span class="swatch__name"> Levandule a indigo</span></button>
+  </div>
+
+  <!-- GALERIE -->
+  <dialog class="lightbox" data-lightbox aria-labelledby="lb-title">
+    <div class="lightbox__body" data-lb-body>
+      <div class="lightbox__head">
+        <h3 id="lb-title" data-lb-title></h3>
+        <p class="lightbox__desc" data-lb-meta></p>
+        <div class="lightbox__actions">
+          <a class="btn btn--accent btn--sm" href="#" data-lb-link target="_blank" rel="noopener" hidden>Navštívit web</a>
+          <button class="lightbox__close" type="button" data-lb-close aria-label="Zavřít galerii"></button>
+        </div>
+      </div>
+      <div class="lightbox__chapters" role="group" aria-label="Části projektu" data-lb-chapters hidden></div>
+      <div class="lightbox__stage">
+        <button class="lightbox__arrow lightbox__arrow--prev" type="button" data-lb-prev aria-label="Předchozí obrázek"></button>
+        <figure class="lightbox__figure">
+          <img data-lb-img alt="" />
+          <figcaption data-lb-caption></figcaption>
+        </figure>
+        <button class="lightbox__arrow lightbox__arrow--next" type="button" data-lb-next aria-label="Další obrázek"></button>
+      </div>
+      <div class="lightbox__thumbs" data-lb-thumbs></div>
+      <div class="case" data-lb-case hidden>
+        <section class="case__steps">
+          <h4 data-lb-steps-title>Jak to probíhalo</h4>
+          <ol data-lb-steps></ol>
+        </section>
+        <div class="case__side">
+          <section class="case__box">
+            <h4 data-lb-includes-title>Co klient dostane</h4>
+            <ul class="case__list" data-lb-includes></ul>
+            <p class="case__pkg" data-lb-service hidden></p>
+          </section>
+          <section class="case__box case__box--pdf" data-lb-pdf></section>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <script type="module" src="/src/v2/portfolio.js"></script>
+</body>
+</html>

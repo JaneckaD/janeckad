@@ -5,6 +5,7 @@
 // - vytvoří sitemap.xml a robots.txt
 // - přidá přednostní načtení písem
 // - stránce 404 přepíše cesty na absolutní, protože GitHub Pages ji ukazuje na libovolné adrese
+import { existsSync } from 'node:fs';
 import { site } from './src/data/site.js';
 import { projects } from './src/data/projects.js';
 import { services } from './src/data/services.js';
@@ -12,6 +13,7 @@ import { faq } from './src/data/faq.js';
 import { areas, handover, promises } from './src/data/offer.js';
 import { escapeHtml, projectCards, moreTile } from './src/cards.js';
 import { areasMarkup, handoverMarkup, promisesMarkup } from './src/sections.js';
+import * as v2 from './src/v2/sections.js';
 
 const url = site.url.replace(/\/$/, '');
 const abs = (path = '') => url + '/' + path.replace(/^\.?\//, '');
@@ -21,7 +23,13 @@ const ld = (data) => `<script type="application/ld+json">${JSON.stringify(data).
 const PAGES = {
   'index.html': { path: '', image: 'og/davix.jpg', prefix: '' },
   'portfolio/index.html': { path: 'portfolio/', image: 'og/portfolio.jpg', prefix: '../' },
+  // nová verze webu na zkoušku: vyhledávače ji nemají indexovat ani mít v mapě webu
+  'nova-verze/index.html': { path: 'nova-verze/', image: 'og/davix.jpg', prefix: '../', v2: true, noindex: true },
+  'nova-verze/portfolio/index.html': { path: 'nova-verze/portfolio/', image: 'og/portfolio.jpg', prefix: '../../', v2: true, noindex: true },
 };
+
+// které písmo stáhnout přednostně: stará verze Anybody a Onest, nová Geist a Instrument Serif (bez latin-ext)
+const preloadFonts = { old: /^assets\/(anybody|onest)-/, v2: /^assets\/(geist-latin-wght|instrument-serif-latin-400)/ };
 
 const ids = {
   website: abs('#web'),
@@ -136,6 +144,18 @@ function headTags(file, page, html) {
   const title = (html.match(/<title>([^<]*)<\/title>/) || [])[1] || site.brand;
   const description = (html.match(/<meta name="description" content="([^"]*)"/) || [])[1] || '';
   const image = abs(page.image);
+  if (page.noindex) {
+    return `
+    <meta name="robots" content="noindex, follow" />
+    <meta name="theme-color" content="#f4f4f1" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="cs_CZ" />
+    <meta property="og:site_name" content="${escapeHtml(site.brand)}" />
+    <meta property="og:title" content="${title}" />
+    <meta property="og:description" content="${description}" />
+    <meta property="og:image" content="${image}" />
+  `;
+  }
   return `
     <link rel="canonical" href="${abs(page.path)}" />
     <meta name="robots" content="index, follow, max-image-preview:large" />
@@ -160,6 +180,30 @@ function headTags(file, page, html) {
   `;
 }
 
+// Nová verze webu: sekce, ikonky a koláž v úvodu
+function v2Page(html, file, page, asset) {
+  const kc = (n) => new Intl.NumberFormat('cs-CZ').format(n).replace(/\s/g, '&nbsp;');
+  const featured = projects.filter((p) => p.featured);
+  // do úvodní koláže stačí zmenšené náhledy (public/nova-verze/nahled/*.webp), jinak se vezme obálka
+  const thumb = (p) => {
+    const small = p.cover.replace(/^portfolio\//, 'nova-verze/nahled/').replace(/\.\w+$/, '.webp');
+    return asset(existsSync(new URL(`./public/${small}`, import.meta.url)) ? small : p.cover);
+  };
+  const cards = file === 'nova-verze/index.html' ? projectCards(featured, asset, moreTile(projects.length)) : projectCards(projects, asset);
+  html = html
+    .replace('</title>', `</title>${headTags(file, page, html)}`)
+    .replace('<ul class="work" data-projects></ul>', `<ul class="work" data-projects>${cards}</ul>`)
+    .replace('<ul class="work work--all" data-projects></ul>', `<ul class="work work--all" data-projects>${cards}</ul>`)
+    .replace('<ul class="areas" data-areas></ul>', `<ul class="areas" data-areas>${v2.areasMarkup(areas, services)}</ul>`)
+    .replace('<div class="ho" data-handover></div>', `<div class="ho" data-handover>${v2.handoverMarkup(handover, services)}</div>`)
+    .replace('<ul class="promises" data-promises></ul>', `<ul class="promises" data-promises>${v2.promisesMarkup(promises)}</ul>`)
+    .replace('<div class="faq__list" data-faq></div>', `<div class="faq__list" data-faq>${v2.faqMarkup(faq)}</div>`)
+    .replace('<div class="stack" data-stack></div>', `<div class="stack">${v2.stackMarkup(featured, thumb)}</div>`)
+    .replace('<b data-count></b>', `<b>${projects.length}</b>`)
+    .replace(/<b data-price="([\w-]+)"><\/b>/g, (_, id) => `<b>${kc(services.find((s) => s.id === id).price)}&nbsp;Kč</b>`);
+  return v2.fillIcons(html);
+}
+
 export default function seo() {
   let root = '';
   return {
@@ -175,6 +219,7 @@ export default function seo() {
         const page = PAGES[file];
         if (!page) return html;
         const asset = (src) => page.prefix + src;
+        if (page.v2) return v2Page(html, file, page, asset);
         const cards =
           file === 'index.html'
             ? projectCards(projects.filter((p) => p.featured), asset, moreTile(projects.length))
@@ -193,6 +238,7 @@ export default function seo() {
       const images = (list) =>
         list.map((p) => `\n    <image:image><image:loc>${abs(p.cover)}</image:loc><image:title>${escapeHtml(p.title)}</image:title></image:image>`).join('');
       const urls = Object.values(PAGES)
+        .filter((page) => !page.noindex)
         .map(
           (page) => `
   <url>
@@ -210,11 +256,17 @@ export default function seo() {
 
       // písma potřebná hned při načtení stáhne prohlížeč přednostně
       const fonts = Object.keys(bundle).filter((f) => f.endsWith('.woff2'));
-      const pages = { 'index.html': './', 'portfolio/index.html': '../', '404.html': './' };
-      for (const [file, prefix] of Object.entries(pages)) {
+      const pages = {
+        'index.html': ['./', 'old'],
+        'portfolio/index.html': ['../', 'old'],
+        '404.html': ['./', 'old'],
+        'nova-verze/index.html': ['../', 'v2'],
+        'nova-verze/portfolio/index.html': ['../../', 'v2'],
+      };
+      for (const [file, [prefix, set]] of Object.entries(pages)) {
         const html = bundle[file];
         if (!html) continue;
-        const preload = fonts.map((f) => `<link rel="preload" href="${prefix}${f}" as="font" type="font/woff2" crossorigin />`).join('\n  ');
+        const preload = fonts.filter((f) => preloadFonts[set].test(f)).map((f) => `<link rel="preload" href="${prefix}${f}" as="font" type="font/woff2" crossorigin />`).join('\n  ');
         html.source = String(html.source).replace('<link rel="icon"', `${preload}\n  <link rel="icon"`);
       }
 

@@ -220,7 +220,9 @@ export function initLightbox() {
     const svcBox = $('[data-lb-service]', caseBox);
     svcBox.hidden = !svc;
     if (svc) {
-      svcBox.innerHTML = `Odpovídá službě <strong>${escapeHtml(svc.name)}</strong> z nabídky. <a href="${siteRoot}#sluzby">Spočítat cenu</a>`;
+      // stránka si může určit vlastní adresu ceníku (data-pricing na <body>)
+      const pricing = document.body.dataset.pricing || `${siteRoot}#sluzby`;
+      svcBox.innerHTML = `Odpovídá službě <strong>${escapeHtml(svc.name)}</strong> z nabídky. <a href="${escapeHtml(pricing)}">Spočítat cenu</a>`;
     }
     const pdf = project.presentation;
     const pdfBox = $('[data-lb-pdf]', caseBox);

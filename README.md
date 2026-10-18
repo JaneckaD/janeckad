@@ -33,6 +33,21 @@ Web se otevře v prohlížeči na `http://localhost:5173`. Změny v souborech se
 | Texty sekcí | `index.html` (hlavní stránka), `portfolio/index.html` (stránka Portfolio) |
 | Barvy a písma | začátek `src/style.css` |
 
+### Nová verze webu (na zkoušku)
+
+Na adrese **/nova-verze/** běží přepracovaný světlý vzhled (odkaz „Nová verze“ je dole v patičce).
+Obsah bere ze stejných souborů v `src/data/`, takže ceny, projekty i otázky jsou všude stejné.
+
+| Co | Soubor |
+| --- | --- |
+| Texty sekcí | `nova-verze/index.html`, `nova-verze/portfolio/index.html` |
+| Barvy obou variant (A Mlha a korál, B Levandule a indigo) a písma | začátek `src/v2/style.css` |
+| Tenké ikonky | `src/v2/icons.js` (Lucide) |
+| Malé náhledy v úvodní koláži | `public/nova-verze/nahled/` (webp, 800 px; když chybí, vezme se obálka projektu) |
+
+Barevnou variantu jde vybrat přepínačem dole na stránce nebo v adrese: `?barvy=a` / `?barvy=b`.
+Vyhledávače novou verzi zatím neindexují (noindex), aby se nepletla s hlavní stránkou.
+
 ### Přidání projektu
 
 Do `src/data/projects.js` zkopíruj jeden blok a uprav ho. Když vyplníš `link`, karta vede rovnou na web.

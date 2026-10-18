@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="cs" data-barvy="a">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Davix | Nová verze webu</title>
+  <meta name="description" content="Webové stránky, loga a vizuální identity na míru pro malé firmy a živnostníky. Web od 4 790 Kč, logo od 1 390 Kč." />
+  <!-- barevná varianta: ?barvy=a / ?barvy=b v adrese, jinak poslední zvolená -->
+  <script>(function(){var d=document.documentElement,v=new URLSearchParams(location.search).get('barvy');d.classList.add('js');try{v=v||localStorage.getItem('davix-barvy')}catch(e){}d.dataset.barvy=v==='b'?'b':'a'})()</script>
+  <link rel="icon" href="/icon-kurzor.svg?v=3" type="image/svg+xml" />
+  <link rel="icon" href="/icon-32.png?v=3" sizes="32x32" type="image/png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3" />
+</head>
+<body data-pricing="#sluzby">
+  <a class="skip" href="#co-delam">Přeskočit na obsah</a>
+
+  <header class="hd" data-nav>
+    <div class="hd__bar">
+      <a class="brand" href="#top" aria-label="Davix, zpět na začátek">
+        <svg class="brand__mark" viewBox="0 0 48 48" aria-hidden="true">
+          <rect class="brand__bg" width="48" height="48" rx="14" />
+          <g transform="translate(-0.5 0.25)">
+            <circle class="brand__bowl" cx="22" cy="27" r="7" />
+            <path class="brand__cursor" d="M30.5 12v23.5M27 12h7M27 35.5h7" />
+          </g>
+        </svg>
+        <span class="brand__word">Davix<small>webař a grafik</small></span>
+      </a>
+      <nav class="hd__links" id="menu" aria-label="Hlavní navigace" data-nav-links>
+        <a href="#co-delam">Co dělám</a>
+        <a href="#prace">Práce</a>
+        <a href="#co-dostanete">Co dostanete</a>
+        <a href="#sluzby">Ceník</a>
+        <a href="#postup">Postup</a>
+        <a href="#o-mne">O mně</a>
+        <a class="hd__menu-cta nav__menu-cta" href="#kontakt">Probrat projekt</a>
+      </nav>
+      <div class="hd__end">
+        <span class="status"><i aria-hidden="true"></i>Volno na projekty</span>
+        <a class="icon-btn" href="mailto:davix.designstudio@gmail.com" aria-label="Napsat e-mail" data-mail></a>
+        <a class="btn btn--accent btn--arrow hd__cta" href="#kontakt"><span>Probrat projekt</span><i data-arrow></i></a>
+        <button class="hd__toggle" type="button" aria-expanded="false" aria-controls="menu" aria-label="Otevřít menu" data-nav-toggle>
+          <span></span><span></span>
+        </button>
+      </div>
+      <span class="hd__progress" aria-hidden="true" data-progress></span>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- HERO -->
+    <section class="hero" aria-labelledby="hero-title">
+      <span class="hero__mark" aria-hidden="true">davix</span>
+      <div class="wrap hero__grid">
+        <div class="hero__text">
+          <p class="pill" data-intro><span class="pill__dot"></span>Ahoj, jsem David · webař a grafik</p>
+          <h1 id="hero-title" data-intro>Weby, loga a grafika <em>od jednoho člověka.</em></h1>
+          <p class="hero__lead" data-intro>
+            Student a junior webař, který umí i&nbsp;grafiku. Navrhnu vám logo, postavím web a&nbsp;pohlídám,
+            aby všechno ladilo dohromady. S&nbsp;chutí, rychle a&nbsp;za férové peníze.
+          </p>
+          <div class="hero__cta" data-intro>
+            <a class="btn btn--accent btn--arrow btn--lg" href="#sluzby"><span>Spočítat cenu</span><i data-arrow></i></a>
+            <a class="btn btn--ghost btn--lg" href="#prace">Ukázat práce</a>
+          </div>
+          <ul class="hero__ticks" data-intro>
+            <li data-tick>Návrh na míru, bez šablon</li>
+            <li data-tick>Soubory i přístupy jsou vaše</li>
+            <li data-tick>Odpověď nejpozději druhý den</li>
+          </ul>
+        </div>
+
+        <div class="hero__visual" aria-hidden="true">
+          <div class="stack" data-stack></div>
+          <span class="chip chip--a" data-chip="monitorSmartphone">Web na míru</span>
+          <span class="chip chip--b" data-chip="penTool">Logo a identita</span>
+          <span class="cursor"><svg viewBox="0 0 24 24"><path d="M4 3l7.5 18 2.4-7.6L21.5 11z" /></svg><b>David</b></span>
+        </div>
+      </div>
+
+      <div class="wrap">
+        <dl class="stats" data-intro>
+          <div><dt>web od</dt><dd><b data-price="web-simple"></b></dd></div>
+          <div><dt>logo od</dt><dd><b data-price="logo"></b></dd></div>
+          <div><dt>projekty v portfoliu</dt><dd><b data-count></b></dd></div>
+          <div><dt>člověk na design i kód</dt><dd><b>1</b></dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- NÁSTROJE -->
+    <section class="tools" aria-label="S čím pracuju">
+      <div class="wrap tools__row">
+        <span class="tools__label">S čím pracuju</span>
+        <ul class="tools__list">
+          <li>HTML a CSS</li><li>JavaScript</li><li>Node.js</li><li>PHP</li>
+          <li>Figma</li><li>Photoshop</li><li>Illustrator</li><li>After Effects</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- CO DĚLÁM (obsah je v src/data/offer.js) -->
+    <section class="sec" id="co-delam" aria-labelledby="areas-title">
+      <div class="wrap">
+        <div class="head">
+          <div>
+            <p class="label" data-reveal>Co dělám</p>
+            <h2 id="areas-title" data-reveal>Co pro vás <em>udělám</em></h2>
+          </div>
+          <p class="head__side" data-reveal>Weby i grafiku dělám sám, od prvního návrhu až po spuštění. Tohle všechno u mě můžete objednat, klidně v jednom balíku.</p>
+        </div>
+        <ul class="areas" data-areas></ul>
+      </div>
+    </section>
+
+    <!-- PORTFOLIO -->
+    <section class="sec sec--alt" id="prace" aria-labelledby="work-title">
+      <div class="wrap">
+        <div class="head">
+          <div>
+            <p class="label" data-reveal>Portfolio</p>
+            <h2 id="work-title" data-reveal>Vybrané <em>práce</em></h2>
+          </div>
+          <div class="head__side">
+            <p data-reveal>Výběr webů a vizuálních identit, na kterých jsem pracoval. Klikněte na projekt a prohlédněte si ho zblízka.</p>
+            <a class="link-arrow" href="portfolio/" data-reveal>Celé portfolio <i data-arrow></i></a>
+          </div>
+        </div>
+        <ul class="work" data-projects></ul>
+      </div>
+    </section>
+
+    <!-- CO DOSTANETE (obsah je v src/data/offer.js a services.js) -->
+    <section class="sec" id="co-dostanete" aria-labelledby="handover-title">
+      <div class="wrap">
+        <div class="head">
+          <div>
+            <p class="label" data-reveal>Předání</p>
+            <h2 id="handover-title" data-reveal>Co ode mě <em>dostanete</em></h2>
+          </div>
+          <p class="head__side" data-reveal>Ať dopředu víte, co vám na konci předám. Vyberte, co vás zajímá.</p>
+        </div>
+        <div class="ho" data-handover></div>
+        <ul class="promises" data-promises></ul>
+      </div>
+    </section>
+
+    <!-- CENÍK -->
+    <section class="sec sec--alt" id="sluzby" aria-labelledby="services-title">
+      <div class="wrap">
+        <div class="head">
+          <div>
+            <p class="label" data-reveal>Ceník</p>
+            <h2 id="services-title" data-reveal>Poskládejte si, <em>co potřebujete</em></h2>
+          </div>
+          <p class="head__side" data-reveal>Vyberte si služby a cenu uvidíte hned. Jsem student a junior, proto jsou moje ceny výrazně nižší než v&nbsp;agentuře. Na kvalitě ale nešetřím, každý projekt je pro mě vizitka.</p>
+        </div>
+
+        <div class="builder">
+          <div class="builder__picker">
+            <div class="bundles" role="group" aria-label="Rychlý výběr">
+              <span class="bundles__label">Rychlá volba</span>
+              <div class="bundles__list" data-bundles></div>
+            </div>
+            <div data-services></div>
+          </div>
+
+          <aside class="summary" aria-live="polite" data-summary>
+            <div class="summary__head">
+              <h3>Vaše skládačka</h3>
+              <span class="ico ico--sm" data-icon="calculator"></span>
+            </div>
+            <ul class="summary__list" data-summary-list></ul>
+            <p class="summary__empty" data-summary-empty>Zatím je tu prázdno. Vyberte služby, které vás lákají.</p>
+            <dl class="summary__totals">
+              <div class="summary__total">
+                <dt>Orientačně</dt>
+                <dd><span data-total>0</span><span data-total-max hidden></span> Kč</dd>
+              </div>
+              <div class="summary__deal" data-deal-note hidden>
+                <dt>Jiná grafika</dt>
+                <dd>dohodou</dd>
+              </div>
+            </dl>
+            <a class="btn btn--accent btn--arrow btn--full" href="#kontakt" data-send-selection><span>Poslat poptávku</span><i data-arrow></i></a>
+            <p class="summary__note">Přesnou cenu vám řeknu, až probereme detaily. Poptávka vás k&nbsp;ničemu nezavazuje.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- POSTUP -->
+    <section class="sec" id="postup" aria-labelledby="process-title">
+      <div class="wrap">
+        <div class="process">
+          <div class="process__intro">
+            <p class="label label--on-tint" data-reveal>Postup</p>
+            <h2 id="process-title" data-reveal>Jak spolu budeme <em>pracovat</em></h2>
+            <p data-reveal>Od první zprávy po spuštění ve čtyřech krocích. Celou dobu víte, co se děje a co přijde dál.</p>
+            <a class="btn btn--ink btn--arrow" href="#kontakt" data-reveal><span>Ozvat se</span><i data-arrow></i></a>
+          </div>
+          <ol class="process__steps">
+            <li data-reveal>
+              <span class="process__num">(01)</span>
+              <span class="ico ico--sm" data-icon="send"></span>
+              <div><h3>Ozvete se</h3><p>Stačí pár vět o tom, co potřebujete. Zbytek doladíme spolu.</p></div>
+            </li>
+            <li data-reveal>
+              <span class="process__num">(02)</span>
+              <span class="ico ico--sm" data-icon="messagesSquare"></span>
+              <div><h3>Probereme to</h3><p>Krátký hovor nebo káva. Ujasníme si, co má web umět, a dostanete přesnou cenu.</p></div>
+            </li>
+            <li data-reveal>
+              <span class="process__num">(03)</span>
+              <span class="ico ico--sm" data-icon="pencilRuler"></span>
+              <div><h3>Navrhnu a stavím</h3><p>Nejdřív uvidíte návrh, pak teprve programuju. Celou dobu víte, jak to roste.</p></div>
+            </li>
+            <li data-reveal>
+              <span class="process__num">(04)</span>
+              <span class="ico ico--sm" data-icon="rocket"></span>
+              <div><h3>Spustíme to</h3><p>Web pustíme do světa a ukážu vám, jak si v&nbsp;něm věci upravit sami.</p></div>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- O MNĚ -->
+    <section class="sec sec--alt" id="o-mne" aria-labelledby="about-title">
+      <div class="wrap about">
+        <div class="profile" data-reveal>
+          <div class="profile__top">
+            <svg class="profile__mark" viewBox="0 0 48 48" aria-hidden="true">
+              <rect class="brand__bg" width="48" height="48" rx="14" />
+              <g transform="translate(-0.5 0.25)">
+                <circle class="brand__bowl" cx="22" cy="27" r="7" />
+                <path class="brand__cursor" d="M30.5 12v23.5M27 12h7M27 35.5h7" />
+              </g>
+            </svg>
+            <div>
+              <strong>David</strong>
+              <span>Junior webař a grafik</span>
+            </div>
+            <span class="status status--sm"><i aria-hidden="true"></i>Volno</span>
+          </div>
+          <p class="profile__label">S čím pracuju</p>
+          <ul class="profile__tools">
+            <li><span data-icon="codeXml"></span>HTML a CSS</li>
+            <li><span data-icon="zap"></span>JavaScript</li>
+            <li><span data-icon="layers"></span>Node.js</li>
+            <li><span data-icon="database"></span>PHP</li>
+            <li><span data-icon="squareMousePointer"></span>Figma</li>
+            <li><span data-icon="image"></span>Photoshop</li>
+            <li><span data-icon="penTool"></span>Illustrator</li>
+            <li><span data-icon="film"></span>After Effects</li>
+          </ul>
+        </div>
+        <div class="about__text">
+          <p class="label" data-reveal>O mně</p>
+          <h2 id="about-title" data-reveal>Kód i grafika <em>z&nbsp;jedné hlavy</em></h2>
+          <p data-reveal>
+            Jsem David, student a junior webař. Nejvíc mě baví, když web nejen hezky vypadá, ale taky
+            přivádí zákazníky. Umím design i&nbsp;programování, takže nemusíte shánět dva lidi a hlídat, jestli si rozumí.
+          </p>
+          <p data-reveal>
+            Jsem na začátku cesty, a tak každý projekt beru osobně a mám na vás čas. Vy dostanete poctivou práci
+            za studentskou cenu, já další projekt, na který budu hrdý.
+          </p>
+          <ul class="facts" data-reveal>
+            <li><span class="ico ico--sm" data-icon="pencilRuler"></span><strong>Design i kód</strong><span>Všechno na sebe navazuje.</span></li>
+            <li><span class="ico ico--sm" data-icon="handCoins"></span><strong>Studentská cena</strong><span>Výrazně levněji než agentura.</span></li>
+            <li><span class="ico ico--sm" data-icon="heartHandshake"></span><strong>Osobní přístup</strong><span>Mám na vás čas.</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ČASTÉ OTÁZKY (obsah je v src/data/faq.js) -->
+    <section class="sec" id="otazky" aria-labelledby="faq-title">
+      <div class="wrap faq">
+        <div class="faq__side">
+          <p class="label" data-reveal>Otázky</p>
+          <h2 id="faq-title" data-reveal>Možná se chcete <em>zeptat</em></h2>
+          <p data-reveal>Ceny, doména, úpravy webu. Když tu odpověď nenajdete, napište mi.</p>
+          <div class="ask" data-reveal>
+            <span class="ico ico--sm" data-icon="messageCircle"></span>
+            <h3>Nenašli jste odpověď?</h3>
+            <p>Napište mi a odpovím vám osobně, nejpozději druhý den.</p>
+            <a class="btn btn--accent btn--arrow btn--sm" href="#kontakt"><span>Položit dotaz</span><i data-arrow></i></a>
+          </div>
+        </div>
+        <div class="faq__list" data-faq></div>
+      </div>
+    </section>
+
+    <!-- KONTAKT -->
+    <section class="contact" id="kontakt" aria-labelledby="contact-title">
+      <div class="wrap contact__grid">
+        <div class="contact__text">
+          <p class="label" data-reveal>Kontakt</p>
+          <h2 id="contact-title" data-reveal>Pojďme probrat <em>váš projekt</em></h2>
+          <p class="contact__lead" data-reveal>Napište mi, s čím vám můžu pomoct. Ozvu se nejpozději druhý den a poradím, kde začít.</p>
+          <div class="contact__me" data-reveal>
+            <svg class="profile__mark" viewBox="0 0 48 48" aria-hidden="true">
+              <rect class="brand__bg" width="48" height="48" rx="14" />
+              <g transform="translate(-0.5 0.25)">
+                <circle class="brand__bowl" cx="22" cy="27" r="7" />
+                <path class="brand__cursor" d="M30.5 12v23.5M27 12h7M27 35.5h7" />
+              </g>
+            </svg>
+            <div><strong>David</strong><span>Odpovím osobně</span></div>
+          </div>
+          <a class="contact__mail" href="mailto:davix.designstudio@gmail.com" data-reveal><span class="ico ico--sm" data-icon="mail"></span>davix.designstudio@gmail.com</a>
+        </div>
+
+        <form class="form" data-form novalidate>
+          <label class="field">
+            <span>Jak se jmenujete?</span>
+            <input name="name" type="text" autocomplete="name" placeholder="Vaše jméno" required />
+          </label>
+          <label class="field">
+            <span>Váš e-mail</span>
+            <input name="email" type="email" autocomplete="email" placeholder="jmeno@firma.cz" required />
+          </label>
+          <label class="field">
+            <span>Pár slov o projektu</span>
+            <textarea name="message" rows="5" placeholder="Třeba: potřebuji logo a jednoduchý web pro kavárnu." required data-message></textarea>
+          </label>
+          <!-- past na spamovací roboty: člověk pole nevidí, robot ho vyplní -->
+          <input class="form__hp" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <p class="form__error" data-form-error role="alert"></p>
+          <button class="btn btn--accent btn--arrow btn--full btn--lg" type="submit" data-form-submit><span data-label>Odeslat zprávu</span><i data-arrow></i></button>
+          <p class="form__ok" data-form-ok role="status" hidden>Díky, zpráva dorazila! Ozvu se vám nejpozději druhý den.</p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="ft">
+    <div class="wrap">
+      <div class="ft__top">
+        <div class="ft__brand">
+          <a class="brand" href="#top" aria-label="Davix, zpět na začátek">
+            <svg class="brand__mark" viewBox="0 0 48 48" aria-hidden="true">
+              <rect class="brand__bg" width="48" height="48" rx="14" />
+              <g transform="translate(-0.5 0.25)">
+                <circle class="brand__bowl" cx="22" cy="27" r="7" />
+                <path class="brand__cursor" d="M30.5 12v23.5M27 12h7M27 35.5h7" />
+              </g>
+            </svg>
+            <span class="brand__word">Davix<small>webař a grafik</small></span>
+          </a>
+          <p>Weby, loga a vizuální identity na míru pro malé firmy a živnostníky.</p>
+        </div>
+        <nav class="ft__col" aria-label="Stránka">
+          <h3>Stránka</h3>
+          <a href="#co-delam">Co dělám</a>
+          <a href="#prace">Práce</a>
+          <a href="#postup">Postup</a>
+          <a href="#o-mne">O mně</a>
+        </nav>
+        <nav class="ft__col" aria-label="Služby">
+          <h3>Služby</h3>
+          <a href="#sluzby">Weby a e-shopy</a>
+          <a href="#sluzby">Loga a identity</a>
+          <a href="#sluzby">Sociální sítě</a>
+          <a href="portfolio/">Celé portfolio</a>
+        </nav>
+        <div class="ft__col">
+          <h3>Kontakt</h3>
+          <a href="mailto:davix.designstudio@gmail.com">davix.designstudio@gmail.com</a>
+          <span class="status status--sm"><i aria-hidden="true"></i>Volno na nové projekty</span>
+        </div>
+      </div>
+      <p class="ft__word" aria-hidden="true">davix</p>
+      <div class="ft__bottom">
+        <span>© <span data-year>2026</span> Davix · David, webař a grafik</span>
+        <span class="ft__links" data-socials></span>
+        <a class="ft__old" href="../">Původní verze webu</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- PŘEPÍNAČ BAREV (jen v nové verzi, než se vybere jedna) -->
+  <div class="swatch" role="group" aria-label="Barevná varianta">
+    <span class="swatch__label">Barvy</span>
+    <button type="button" data-barvy-set="a" aria-pressed="true"><i class="swatch__dot swatch__dot--a"></i>A<span class="swatch__name"> Mlha a korál</span></button>
+    <button type="button" data-barvy-set="b" aria-pressed="false"><i class="swatch__dot swatch__dot--b"></i>B<span class="swatch__name"> Levandule a indigo</span></button>
+  </div>
+
+  <!-- GALERIE -->
+  <dialog class="lightbox" data-lightbox aria-labelledby="lb-title">
+    <div class="lightbox__body" data-lb-body>
+      <div class="lightbox__head">
+        <h3 id="lb-title" data-lb-title></h3>
+        <p class="lightbox__desc" data-lb-meta></p>
+        <div class="lightbox__actions">
+          <a class="btn btn--accent btn--sm" href="#" data-lb-link target="_blank" rel="noopener" hidden>Navštívit web</a>
+          <button class="lightbox__close" type="button" data-lb-close aria-label="Zavřít galerii"></button>
+        </div>
+      </div>
+      <div class="lightbox__chapters" role="group" aria-label="Části projektu" data-lb-chapters hidden></div>
+      <div class="lightbox__stage">
+        <button class="lightbox__arrow lightbox__arrow--prev" type="button" data-lb-prev aria-label="Předchozí obrázek"></button>
+        <figure class="lightbox__figure">
+          <img data-lb-img alt="" />
+          <figcaption data-lb-caption></figcaption>
+        </figure>
+        <button class="lightbox__arrow lightbox__arrow--next" type="button" data-lb-next aria-label="Další obrázek"></button>
+      </div>
+      <div class="lightbox__thumbs" data-lb-thumbs></div>
+      <div class="case" data-lb-case hidden>
+        <section class="case__steps">
+          <h4 data-lb-steps-title>Jak to probíhalo</h4>
+          <ol data-lb-steps></ol>
+        </section>
+        <div class="case__side">
+          <section class="case__box">
+            <h4 data-lb-includes-title>Co klient dostane</h4>
+            <ul class="case__list" data-lb-includes></ul>
+            <p class="case__pkg" data-lb-service hidden></p>
+          </section>
+          <section class="case__box case__box--pdf" data-lb-pdf></section>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- CO OBSAHUJE SLUŽBA -->
+  <dialog class="pkg" data-pkg aria-labelledby="pkg-title">
+    <div class="pkg__inner">
+      <button class="lightbox__close pkg__close" type="button" data-pkg-close aria-label="Zavřít"></button>
+      <p class="label">Co dostanete</p>
+      <h3 id="pkg-title" data-pkg-title></h3>
+      <ul class="pkg__list" data-pkg-list></ul>
+      <div class="pkg__foot">
+        <span class="pkg__price" data-pkg-price></span>
+        <button class="btn btn--accent btn--sm" type="button" data-pkg-add>Přidat do skládačky</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script type="module" src="/src/v2/main.js"></script>
+</body>
+</html>
