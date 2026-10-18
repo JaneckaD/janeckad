@@ -1,6 +1,6 @@
 /* =====================================================================
    NOVÁ VERZE WEBU – světlá, menší a detailnější
-   Dvě barevné varianty: html[data-barvy="a"] Mlha a korál, html[data-barvy="b"] Levandule a indigo.
+   Barevné varianty na výběr přes html[data-barvy] (seznam níže v části Barvy).
    Animuje se jen transform a opacity, ať je web plynulý i na slabších telefonech.
    ===================================================================== */
 
@@ -26,43 +26,58 @@
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 
-/* ===== Barvy ===== */
-/* A: Mlha a korál – teplá světle šedá, černá a korálová, zvýraznění prachově modré */
-:root, :root[data-barvy='a'] {
-  --bg: #f4f4f1;
-  --bg-alt: #ebebe6;
-  --card: #ffffff;
-  --ink: #151514;
-  --ink-2: #5a5a54;
-  --ink-3: #6b6b65;
-  --line: #e1e1db;
-  --line-2: #cfcfc8;
-  --accent: #ff5b2e;
-  --accent-hover: #ef4a1d;
-  --accent-soft: #ffe7de;
-  --on-accent: #ffffff;
-  --tint: #5d8aa3;
-  --tint-soft: #e1ebf0;
-  --shadow: 0 1px 2px rgba(21, 21, 20, .04), 0 12px 32px -12px rgba(21, 21, 20, .12);
+/* ===== Barvy =====
+   Varianty navržené podle palet ze skillu ui-ux-pro-max (Interior, Portfolio, Architecture, Florist, Creative Agency),
+   upravené na kontrast textu aspoň 4,5 : 1. Přepíná se přes html[data-barvy]. */
+/* Šalvěj a terakota: teplá šedozelená, terakotová a šalvějová (výchozí) */
+:root, :root[data-barvy='terakota'] {
+  --bg: #f1f0ea; --bg-alt: #e5e6dc; --card: #fbfbf7;
+  --ink: #1d2420; --ink-2: #4d5650; --ink-3: #5f6761;
+  --line: #dddcd2; --line-2: #c9cabd;
+  --accent: #b14a2b; --accent-hover: #9a3d21; --accent-soft: #f3ddd3; --on-accent: #ffffff;
+  --tint: #5b7a60; --tint-soft: #dde6da;
 }
-/* B: Levandule a indigo – světlá levandule, tmavě fialová, indigo a mátové zvýraznění */
-:root[data-barvy='b'] {
-  --bg: #f6f5fb;
-  --bg-alt: #edebf7;
-  --card: #ffffff;
-  --ink: #17142c;
-  --ink-2: #5d5a77;
-  --ink-3: #6e6a90;
-  --line: #e3e0ef;
-  --line-2: #d3cfe6;
-  --accent: #5b3df5;
-  --accent-hover: #4a2ce4;
-  --accent-soft: #ebe7ff;
-  --on-accent: #ffffff;
-  --tint: #1f9f73;
-  --tint-soft: #dcf3ea;
-  --shadow: 0 1px 2px rgba(23, 20, 44, .05), 0 12px 32px -12px rgba(43, 30, 120, .16);
+/* Papír a kobalt: papírově bílá, skoro černá a kobaltově modrá */
+:root[data-barvy='kobalt'] {
+  --bg: #f7f6f2; --bg-alt: #ecebe5; --card: #ffffff;
+  --ink: #111318; --ink-2: #4f5260; --ink-3: #65676f;
+  --line: #e2e1da; --line-2: #cfcec6;
+  --accent: #2346d8; --accent-hover: #1b39b8; --accent-soft: #e2e8fb; --on-accent: #ffffff;
+  --tint: #2346d8; --tint-soft: #e2e8fb;
 }
+/* Pískovec a okr: teplá pískově bílá, hnědočerná a okrová */
+:root[data-barvy='okr'] {
+  --bg: #faf7f1; --bg-alt: #f0ebe0; --card: #fffdf9;
+  --ink: #1a1714; --ink-2: #59524a; --ink-3: #6f675d;
+  --line: #e8e1d3; --line-2: #d8cfbd;
+  --accent: #9a5d07; --accent-hover: #824e05; --accent-soft: #f5e9cf; --on-accent: #ffffff;
+  --tint: #9a5d07; --tint-soft: #f2e8d6;
+}
+/* Mentol a les: svěží mentolová, lesní zelená a malinová */
+:root[data-barvy='les'] {
+  --bg: #f2f6f3; --bg-alt: #e4ede7; --card: #ffffff;
+  --ink: #12261c; --ink-2: #46574e; --ink-3: #5f6e66;
+  --line: #d9e3dc; --line-2: #c3d2c8;
+  --accent: #157347; --accent-hover: #0f5d39; --accent-soft: #d7eedf; --on-accent: #ffffff;
+  --tint: #c03a76; --tint-soft: #f7dde8;
+}
+/* Růže a petrolej: jemně růžová, vínová a petrolejová */
+:root[data-barvy='ruze'] {
+  --bg: #fbf4f6; --bg-alt: #f3e6eb; --card: #ffffff;
+  --ink: #2a1420; --ink-2: #5d4652; --ink-3: #755f6a;
+  --line: #eedde4; --line-2: #e0c8d2;
+  --accent: #c7336f; --accent-hover: #a9285c; --accent-soft: #fadde8; --on-accent: #ffffff;
+  --tint: #0e7c86; --tint-soft: #d6eef0;
+}
+/* Mlha a korál: původní varianta A */
+:root[data-barvy='koral'] {
+  --bg: #f4f4f1; --bg-alt: #ebebe6; --card: #ffffff;
+  --ink: #151514; --ink-2: #5a5a54; --ink-3: #6b6b65;
+  --line: #e1e1db; --line-2: #cfcfc8;
+  --accent: #ff5b2e; --accent-hover: #ef4a1d; --accent-soft: #ffe7de; --on-accent: #ffffff;
+  --tint: #5d8aa3; --tint-soft: #e1ebf0;
+}
+:root { --shadow: 0 1px 2px color-mix(in srgb, var(--ink) 5%, transparent), 0 12px 32px -12px color-mix(in srgb, var(--ink) 16%, transparent); }
 
 :root {
   --sans: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -703,10 +718,16 @@ h1 em, h2 em { font-size: 1.08em; line-height: .9; }
 }
 .swatch button:hover { background: color-mix(in srgb, var(--bg) 12%, transparent); }
 .swatch button[aria-pressed='true'] { background: var(--bg); color: var(--ink); }
-.swatch__name { font-weight: 450; }
+.swatch button { padding: .4rem; }
+.swatch button[aria-pressed='true'] { padding-right: .85rem; }
+.swatch button:not([aria-pressed='true']) .swatch__name { display: none; }
 .swatch__dot { width: 18px; height: 18px; border-radius: 50%; box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .7); }
-.swatch__dot--a { background: conic-gradient(#ff5b2e 0 50%, #f4f4f1 0 75%, #6f9ab2 0); }
-.swatch__dot--b { background: conic-gradient(#5b3df5 0 50%, #f6f5fb 0 75%, #1f9f73 0); }
+.swatch__dot--terakota { background: conic-gradient(#b14a2b 0 50%, #f1f0ea 0 75%, #5b7a60 0); }
+.swatch__dot--kobalt { background: conic-gradient(#2346d8 0 50%, #f7f6f2 0 75%, #111318 0); }
+.swatch__dot--okr { background: conic-gradient(#9a5d07 0 50%, #faf7f1 0 75%, #1a1714 0); }
+.swatch__dot--les { background: conic-gradient(#157347 0 50%, #f2f6f3 0 75%, #c03a76 0); }
+.swatch__dot--ruze { background: conic-gradient(#c7336f 0 50%, #fbf4f6 0 75%, #0e7c86 0); }
+.swatch__dot--koral { background: conic-gradient(#ff5b2e 0 50%, #f4f4f1 0 75%, #5d8aa3 0); }
 
 /* ===== Stránka Portfolio ===== */
 .page-head { position: relative; overflow: hidden; padding: clamp(2.5rem, 6vw, 4.5rem) 0 2rem; }
@@ -884,7 +905,8 @@ h1 em, h2 em { font-size: 1.08em; line-height: .9; }
   .process__num { display: none; }
   .qa p { padding-right: 0; }
   .ft__top { grid-template-columns: 1fr; }
-  .swatch__name { display: none; }
+  .swatch__label { display: none; }
+  .swatch { padding-left: .3rem; }
   .ft { padding-bottom: 5rem; }
   .seg { display: flex; width: 100%; }
   .seg__btn { flex: 1; justify-content: center; padding: .6rem .5rem; font-size: .82rem; }

@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="cs" data-barvy="a">
+<html lang="cs" data-barvy="terakota">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Portfolio | Davix (nová verze)</title>
   <meta name="description" content="Ukázky mých prací: weby a vizuální identity pro malé firmy. Podívejte se, jak probíhal návrh a co klient dostal." />
-  <!-- barevná varianta: ?barvy=a / ?barvy=b v adrese, jinak poslední zvolená -->
-  <script>(function(){var d=document.documentElement,v=new URLSearchParams(location.search).get('barvy');d.classList.add('js');try{v=v||localStorage.getItem('davix-barvy')}catch(e){}d.dataset.barvy=v==='b'?'b':'a'})()</script>
+  <!-- barevná varianta: ?barvy=terakota / kobalt / okr / les / ruze / koral v adrese, jinak poslední zvolená -->
+  <script>(function(){var d=document.documentElement,v=new URLSearchParams(location.search).get('barvy');d.classList.add('js');try{v=v||localStorage.getItem('davix-barvy')}catch(e){}d.dataset.barvy=['terakota','kobalt','okr','les','ruze','koral'].indexOf(v)>-1?v:'terakota'})()</script>
   <link rel="icon" href="/icon-kurzor.svg?v=3" type="image/svg+xml" />
   <link rel="icon" href="/icon-32.png?v=3" sizes="32x32" type="image/png" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3" />
@@ -126,8 +126,12 @@
   <!-- PŘEPÍNAČ BAREV (jen v nové verzi, než se vybere jedna) -->
   <div class="swatch" role="group" aria-label="Barevná varianta">
     <span class="swatch__label">Barvy</span>
-    <button type="button" data-barvy-set="a" aria-pressed="true"><i class="swatch__dot swatch__dot--a"></i>A<span class="swatch__name"> Mlha a korál</span></button>
-    <button type="button" data-barvy-set="b" aria-pressed="false"><i class="swatch__dot swatch__dot--b"></i>B<span class="swatch__name"> Levandule a indigo</span></button>
+    <button type="button" data-barvy-set="terakota" aria-pressed="true" title="Šalvěj a terakota" aria-label="Šalvěj a terakota"><i class="swatch__dot swatch__dot--terakota"></i><span class="swatch__name">Šalvěj a terakota</span></button>
+    <button type="button" data-barvy-set="kobalt" aria-pressed="false" title="Papír a kobalt" aria-label="Papír a kobalt"><i class="swatch__dot swatch__dot--kobalt"></i><span class="swatch__name">Papír a kobalt</span></button>
+    <button type="button" data-barvy-set="okr" aria-pressed="false" title="Pískovec a okr" aria-label="Pískovec a okr"><i class="swatch__dot swatch__dot--okr"></i><span class="swatch__name">Pískovec a okr</span></button>
+    <button type="button" data-barvy-set="les" aria-pressed="false" title="Mentol a les" aria-label="Mentol a les"><i class="swatch__dot swatch__dot--les"></i><span class="swatch__name">Mentol a les</span></button>
+    <button type="button" data-barvy-set="ruze" aria-pressed="false" title="Růže a petrolej" aria-label="Růže a petrolej"><i class="swatch__dot swatch__dot--ruze"></i><span class="swatch__name">Růže a petrolej</span></button>
+    <button type="button" data-barvy-set="koral" aria-pressed="false" title="Mlha a korál" aria-label="Mlha a korál"><i class="swatch__dot swatch__dot--koral"></i><span class="swatch__name">Mlha a korál</span></button>
   </div>
 
   <!-- GALERIE -->

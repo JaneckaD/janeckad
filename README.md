@@ -41,11 +41,11 @@ Obsah bere ze stejných souborů v `src/data/`, takže ceny, projekty i otázky 
 | Co | Soubor |
 | --- | --- |
 | Texty sekcí | `nova-verze/index.html`, `nova-verze/portfolio/index.html` |
-| Barvy obou variant (A Mlha a korál, B Levandule a indigo) a písma | začátek `src/v2/style.css` |
+| Barvy všech variant (Šalvěj a terakota, Papír a kobalt, Pískovec a okr, Mentol a les, Růže a petrolej, Mlha a korál) a písma | začátek `src/v2/style.css` |
 | Tenké ikonky | `src/v2/icons.js` (Lucide) |
 | Malé náhledy v úvodní koláži | `public/nova-verze/nahled/` (webp, 800 px; když chybí, vezme se obálka projektu) |
 
-Barevnou variantu jde vybrat přepínačem dole na stránce nebo v adrese: `?barvy=a` / `?barvy=b`.
+Barevnou variantu jde vybrat přepínačem dole na stránce nebo v adrese: `?barvy=terakota`, `kobalt`, `okr`, `les`, `ruze` nebo `koral`.
 Vyhledávače novou verzi zatím neindexují (noindex), aby se nepletla s hlavní stránkou.
 
 ### Přidání projektu
