@@ -36,7 +36,7 @@ Web se otevře v prohlížeči na `http://localhost:5173`. Změny v souborech se
 | Tenké ikonky | `src/v2/icons.js` (Lucide) |
 | Logo „dj“ (značka) | `logoMark` v `src/v2/sections.js`, v HTML stačí `<i data-logo></i>` |
 | Ikonka v záložce a ikony aplikace | `public/favicon.svg`, `favicon.ico`, `icon-*.png`, `apple-touch-icon.png` |
-| Mobil v úvodu | rám `public/mockup/telefon.webp` (z PSD, se stínem), tvar displeje `public/mockup/displej-maska.png`, obsah displeje `public/mockup/web-mobil.webp` (585 px široký obrázek, který se v displeji pomalu posouvá) |
+| Mobil v úvodu | rám `public/mockup/telefon.webp` (z PSD, se stínem), tvar displeje `public/mockup/displej-maska.png`, obsah displeje `public/mockup/web-mobil.webp` (statický obrázek 1170 × 2532 px, tedy obrazovka mobilu ve 3× rozlišení) |
 
 Vzhled je tenký a minimalistický, písma Bricolage Grotesque (nadpisy, zvýrazněná slova jsou zúžená) a Hanken Grotesk.
 Displej mobilu v úvodu je obyčejný blok, který `matrix3d` v `src/v2/style.css` zkosí přesně do displeje z PSD.

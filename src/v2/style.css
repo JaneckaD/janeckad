@@ -205,7 +205,7 @@ em { font-style: normal; font-stretch: 75%; color: var(--accent-text); }
 .hero__ring::after { content: ''; position: absolute; inset: 12%; border-radius: 50%; border: 1px dashed var(--line-2); animation: spin 60s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 /* mobil: skutečný model (rám z PSD), displej je obyčejný blok zkosený přes matrix3d
-   do přesné polohy displeje, uvnitř se pomalu posouvá snímek webu */
+   do přesné polohy displeje, na něm je statický obrázek ve 3× rozlišení */
 .phone {
   --k: .36;
   position: absolute; left: 50%; top: 50%; width: calc(931px * var(--k)); height: calc(1702px * var(--k));
@@ -222,15 +222,8 @@ em { font-style: normal; font-stretch: 75%; color: var(--accent-text); }
   transform-origin: 0 0;
   transform: matrix3d(1.87489, 0.261052, 0, 0.000328129, 0.312081, 1.96866, 0, -7.22023e-06, 0, 0, 1, 0, 33.3125, -5.46349, 0, 1);
 }
-.phone__screen::after { content: ''; position: absolute; inset: 0; background: linear-gradient(118deg, transparent 55%, rgba(255, 255, 255, .14) 55.2%, rgba(255, 255, 255, .04)); pointer-events: none; }
-.phone__shot { display: block; width: 100%; height: auto; will-change: transform; animation: scroll-shot 24s cubic-bezier(.45, 0, .55, 1) infinite alternate 1.6s; }
-.phone.is-paused .phone__shot { animation-play-state: paused; }
-@keyframes scroll-shot { 0%, 8% { transform: translateY(0); } 92%, 100% { transform: translateY(calc(-100% + 844px)); } }
-/* stavový řádek telefonu zůstává nahoře, obsah pod ním jede */
-.phone__bar { position: absolute; z-index: 1; left: 0; right: 0; top: 0; height: 50px; padding: 16px 28px 0 34px; display: flex; justify-content: space-between; font: 600 15px/1 var(--sans); color: #0f172a; background: linear-gradient(#f6f8fb 62%, rgba(246, 248, 251, 0)); }
-.phone__bar i { display: flex; gap: 5px; align-items: center; }
-.phone__bar i::before { content: ''; width: 17px; height: 10px; background: linear-gradient(90deg, #0f172a 0 3px, transparent 3px 4.5px, #0f172a 4.5px 7.5px, transparent 7.5px 9px, #0f172a 9px 12px, transparent 12px 13.5px, #0f172a 13.5px); clip-path: polygon(0 70%, 25% 70%, 25% 45%, 50% 45%, 50% 20%, 75% 20%, 75% 0, 100% 0, 100% 100%, 0 100%); }
-.phone__bar i::after { content: ''; width: 24px; height: 11px; border-radius: 3px; border: 1.5px solid #0f172a; box-shadow: inset 0 0 0 1.5px #f6f8fb, inset 16px 0 0 #0f172a; opacity: .9; }
+.phone__screen::after { content: ''; position: absolute; inset: 0; background: linear-gradient(118deg, transparent 55%, rgba(255, 255, 255, .12) 55.2%, rgba(255, 255, 255, .03)); pointer-events: none; }
+.phone__shot { display: block; width: 100%; height: 100%; object-fit: cover; }
 .phone__frame { position: absolute; left: -120px; top: -120px; width: 1171px; height: 1942px; max-width: none; }
 
 .float {
@@ -870,7 +863,8 @@ a.soc:hover { border-color: var(--ink); }
 }
 @media (max-width: 960px) {
   .hero__grid, .ho__panel.is-active, .builder, .guide, .budget, .about, .faq, .contact__grid, .case { grid-template-columns: 1fr; }
-  .hero__visual { height: clamp(440px, 110vw, 600px); max-width: 560px; width: 100%; margin-inline: auto; }
+  .hero__visual { height: calc(1702px * var(--k-m, .33) + 90px); max-width: 560px; width: 100%; margin-inline: auto; margin-top: 1rem; }
+  .phone { --k: var(--k-m, .33); }
   .summary, .faq__side, .guide__result { position: static; }
   .ref { grid-template-columns: auto minmax(0, 1fr) auto; }
   .ref__what, .ref__year { display: none; }
@@ -885,7 +879,8 @@ a.soc:hover { border-color: var(--ink); }
   .hero__prices > div { padding: 0 .8rem; }
   .hero__prices dd { font-size: 1.12rem; white-space: nowrap; }
   .hero__prices small { font-size: .72rem; }
-  .phone { --k: .27; }
+  .hero__visual { --k-m: .3; height: calc(1702px * .3 + 60px); }
+  .hero__visual .float { display: none; }
   .float { font-size: .78rem; }
   .float--b { right: -1%; }
   .areas, .work, .work--all, .ticks--cols, .promises, .steps, .budget__list { grid-template-columns: 1fr; }
@@ -909,5 +904,5 @@ a.soc:hover { border-color: var(--ink); }
 /* Kdo nechce animace, nedostane je */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; animation-delay: 0s !important; transition-duration: .01ms !important; transition-delay: 0s !important; scroll-behavior: auto !important; }
-  .phone__shot, .hero__ring::after { animation: none !important; }
+  .hero__ring::after { animation: none !important; }
 }
