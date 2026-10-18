@@ -5,7 +5,6 @@
 // - vytvoří sitemap.xml a robots.txt
 // - přidá přednostní načtení písem
 // - stránce 404 přepíše cesty na absolutní, protože GitHub Pages ji ukazuje na libovolné adrese
-import { existsSync } from 'node:fs';
 import { site } from './src/data/site.js';
 import { projects } from './src/data/projects.js';
 import { services } from './src/data/services.js';
@@ -28,8 +27,8 @@ const PAGES = {
   'nova-verze/portfolio/index.html': { path: 'nova-verze/portfolio/', image: 'og/portfolio.jpg', prefix: '../../', v2: true, noindex: true, brand: 'David Janečka' },
 };
 
-// které písmo stáhnout přednostně: stará verze Anybody a Onest, nová Space Grotesk a Archivo (bez latin-ext)
-const preloadFonts = { old: /^assets\/(anybody|onest)-/, v2: /^assets\/(space-grotesk-latin-wght|archivo-latin-wght)/ };
+// které písmo stáhnout přednostně: stará verze Anybody a Onest, nová Bricolage Grotesque a Hanken Grotesk (bez latin-ext)
+const preloadFonts = { old: /^assets\/(anybody|onest)-/, v2: /^assets\/(bricolage-grotesque-latin-wdth|hanken-grotesk-latin-wght)/ };
 
 const ids = {
   website: abs('#web'),
@@ -180,25 +179,20 @@ function headTags(file, page, html) {
   `;
 }
 
-// Nová verze webu: sekce, ikonky a koláž v úvodu
+// Nová verze webu: sekce, ikonky a reference
 function v2Page(html, file, page, asset) {
   const kc = (n) => new Intl.NumberFormat('cs-CZ').format(n).replace(/\s/g, '&nbsp;');
   const featured = projects.filter((p) => p.featured);
-  // do úvodní koláže stačí zmenšené náhledy (public/nova-verze/nahled/*.webp), jinak se vezme obálka
-  const thumb = (p) => {
-    const small = p.cover.replace(/^portfolio\//, 'nova-verze/nahled/').replace(/\.\w+$/, '.webp');
-    return asset(existsSync(new URL(`./public/${small}`, import.meta.url)) ? small : p.cover);
-  };
-  const cards = file === 'nova-verze/index.html' ? projectCards(featured, asset, moreTile(projects.length)) : projectCards(projects, asset);
+  const cards = file === 'nova-verze/index.html' ? projectCards(featured, asset) : projectCards(projects, asset);
   html = html
     .replace('</title>', `</title>${headTags(file, page, html)}`)
     .replace('<ul class="work" data-projects></ul>', `<ul class="work" data-projects>${cards}</ul>`)
     .replace('<ul class="work work--all" data-projects></ul>', `<ul class="work work--all" data-projects>${cards}</ul>`)
     .replace('<ul class="areas" data-areas></ul>', `<ul class="areas" data-areas>${v2.areasMarkup(areas, services)}</ul>`)
     .replace('<div class="ho" data-handover></div>', `<div class="ho" data-handover>${v2.handoverMarkup(handover, services)}</div>`)
-    .replace('<ul class="promises" data-promises></ul>', `<ul class="promises" data-promises>${v2.promisesMarkup(promises)}</ul>`)
+    .replace('<ul class="promises" data-promises></ul>', `<ul class="promises" data-promises>${v2.promisesMarkup(promises.map((p) => (p.title === 'Rychlá odpověď' ? { title: 'Cena předem', text: 'Cenu znáte dřív, než začnu. Žádné skryté poplatky navíc.' } : p)))}</ul>`)
     .replace('<div class="faq__list" data-faq></div>', `<div class="faq__list" data-faq>${v2.faqMarkup(faq)}</div>`)
-    .replace('<div class="stack" data-stack></div>', `<div class="stack">${v2.stackMarkup(featured, thumb)}</div>`)
+    .replace('<ul class="refs__list" data-refs></ul>', `<ul class="refs__list" data-refs>${v2.refsMarkup(projects)}</ul>`)
     .replace('<b data-count></b>', `<b>${projects.length}</b>`)
     .replace(/<b data-price="([\w-]+)"><\/b>/g, (_, id) => `<b>${kc(services.find((s) => s.id === id).price)}&nbsp;Kč</b>`);
   return v2.fillIcons(html);

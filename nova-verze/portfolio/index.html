@@ -7,32 +7,32 @@
   <meta name="description" content="Ukázky mých prací: weby a vizuální identity pro malé firmy. Podívejte se, jak probíhal návrh a co klient dostal." />
   <!-- barevná varianta: ?barvy=tisk / atelier / … (seznam v src/v2/style.css) v adrese, jinak poslední zvolená -->
   <script>(function(){var d=document.documentElement,v=new URLSearchParams(location.search).get('barvy');d.classList.add('js');try{v=v||localStorage.getItem('dj-barvy')}catch(e){}d.dataset.barvy=["tisk", "atelier", "terakota", "vyprava", "kobalt", "zahrada", "ruze", "citron", "salvej", "noc"].indexOf(v)>-1?v:'tisk'})()</script>
-  <link rel="icon" href="/nova-verze/favicon.svg?v=1" type="image/svg+xml" />
-  <link rel="icon" href="/nova-verze/favicon-32.png?v=1" sizes="32x32" type="image/png" />
-  <link rel="apple-touch-icon" href="/nova-verze/apple-touch-icon.png?v=1" />
+  <link rel="icon" href="/nova-verze/favicon.svg?v=2" type="image/svg+xml" />
+  <link rel="icon" href="/nova-verze/favicon-32.png?v=2" sizes="32x32" type="image/png" />
+  <link rel="apple-touch-icon" href="/nova-verze/apple-touch-icon.png?v=2" />
 </head>
 <body data-pricing="../#cenik">
   <a class="skip" href="#projekty">Přeskočit na projekty</a>
 
   <header class="hd" data-nav>
     <div class="hd__bar">
-      <a class="logo" href="../" aria-label="David Janečka, hlavní stránka">
-        <span class="logo__name">David Janečka</span><span class="logo__cur" aria-hidden="true"></span>
-      </a>
+      <a class="logo" href="../" aria-label="David Janečka, hlavní stránka"><i data-logo></i><span class="logo__name">David Janečka</span></a>
       <nav class="hd__links" id="menu" aria-label="Hlavní navigace" data-nav-links>
-        <a href="./" aria-current="page"><small>01</small>Práce</a>
-        <a href="../#sluzby"><small>02</small>Služby</a>
-        <a href="../#cenik"><small>03</small>Ceník</a>
-        <a href="../#postup"><small>04</small>Postup</a>
-        <a href="../#o-mne"><small>05</small>O mně</a>
-        <a href="../#otazky"><small>06</small>Otázky</a>
+        <a href="../#sluzby">Služby</a>
+        <a href="./" aria-current="page">Práce</a>
+        <a href="../#cenik">Ceník</a>
+        <a href="../#postup">Postup</a>
+        <a href="../#o-mne">O mně</a>
+        <a href="../#otazky">Otázky</a>
         <a class="hd__menu-cta nav__menu-cta" href="../#kontakt">Napište mi</a>
       </nav>
-      <span class="hd__status status"><i aria-hidden="true"></i>Volno na projekty</span>
-      <a class="hd__cta" href="../#kontakt"><span>Napište mi</span><i data-arrow></i></a>
-      <button class="hd__toggle" type="button" aria-expanded="false" aria-controls="menu" aria-label="Otevřít menu" data-nav-toggle>
-        <span></span><span></span>
-      </button>
+      <div class="hd__end">
+        <a class="icon-btn" href="mailto:davix.designstudio@gmail.com" aria-label="Napsat e-mail" data-mail></a>
+        <a class="btn btn--ink btn--sm hd__cta" href="../#kontakt">Napište mi</a>
+        <button class="hd__toggle" type="button" aria-expanded="false" aria-controls="menu" aria-label="Otevřít menu" data-nav-toggle>
+          <span></span><span></span>
+        </button>
+      </div>
       <span class="hd__progress" aria-hidden="true" data-progress></span>
     </div>
   </header>
@@ -41,13 +41,10 @@
     <section class="page-head" aria-labelledby="page-title">
       <div class="wrap">
         <a class="link-back" href="../" data-reveal><span data-icon="arrowLeft"></span>Zpět na hlavní stránku</a>
-        <div class="head head--page">
-          <span class="head__num" data-reveal>01</span>
-          <div class="head__main">
-            <p class="head__label" data-reveal>Portfolio</p>
-            <h1 id="page-title" data-reveal>Všechny moje <em>práce</em></h1>
-          </div>
-          <p class="head__side" data-reveal>Všechno, co jsem zatím navrhl a postavil: weby, loga i&nbsp;celé vizuální identity. Klikněte na projekt a prohlédněte si ho zblízka.</p>
+        <div class="head">
+          <p class="eyebrow" data-reveal>Portfolio</p>
+          <h1 id="page-title" data-reveal>Všechny moje <em>práce</em></h1>
+          <p class="head__lead" data-reveal>Všechno, co jsem zatím navrhl a postavil: weby, loga i&nbsp;celé vizuální identity. Klikněte na projekt a prohlédněte si ho zblízka.</p>
         </div>
         <div class="filters" role="group" aria-label="Filtrovat projekty" data-filters></div>
       </div>
@@ -64,8 +61,8 @@
             <p>Napište mi, s čím vám můžu pomoct, nebo si nejdřív spočítejte, kolik by to stálo.</p>
           </div>
           <div class="cta-band__btns">
-            <a class="btn btn--ink btn--arrow" href="../#kontakt"><span>Napsat mi</span><i data-arrow></i></a>
-            <a class="btn btn--line" href="../#cenik">Spočítat cenu</a>
+            <a class="btn btn--accent" href="../#kontakt">Napsat mi <span data-icon="arrowRight"></span></a>
+            <a class="btn btn--ghost" href="../#cenik">Spočítat cenu</a>
           </div>
         </div>
       </div>
@@ -76,17 +73,16 @@
     <div class="wrap">
       <div class="ft__top">
         <div class="ft__brand">
-          <a class="logo" href="../" aria-label="David Janečka, hlavní stránka">
-            <span class="logo__name">David Janečka</span><span class="logo__cur" aria-hidden="true"></span>
-          </a>
+          <a class="logo" href="../" aria-label="David Janečka, hlavní stránka"><i data-logo></i><span class="logo__name">David Janečka</span></a>
           <p>Weby, loga a vizuální identity na míru pro malé firmy a živnostníky.</p>
         </div>
         <nav class="ft__col" aria-label="Stránka">
           <h3>Stránka</h3>
-          <a href="../#prace">Práce</a>
           <a href="../#sluzby">Služby</a>
+          <a href="../#prace">Práce</a>
           <a href="../#postup">Postup</a>
           <a href="../#o-mne">O mně</a>
+          <a href="../#otazky">Otázky</a>
         </nav>
         <nav class="ft__col" aria-label="Služby">
           <h3>Služby</h3>
@@ -98,10 +94,8 @@
         <div class="ft__col">
           <h3>Kontakt</h3>
           <a href="mailto:davix.designstudio@gmail.com">davix.designstudio@gmail.com</a>
-          <span class="status status--sm"><i aria-hidden="true"></i>Volno na nové projekty</span>
         </div>
       </div>
-      <p class="ft__word" aria-hidden="true">David Janečka</p>
       <div class="ft__bottom">
         <span>© <span data-year>2026</span> David Janečka, webař a grafik</span>
         <span class="ft__links" data-socials></span>

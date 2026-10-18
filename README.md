@@ -37,16 +37,18 @@ Web se otevře v prohlížeči na `http://localhost:5173`. Změny v souborech se
 
 Na adrese **/nova-verze/** běží přepracovaný web pod jménem **David Janečka** (odkaz „Nová verze“ je dole v patičce).
 Obsah bere ze stejných souborů v `src/data/`, takže ceny, projekty i otázky jsou všude stejné.
-Vzhled vychází ze skillu ui-ux-pro-max: vzor stránky Portfolio Grid (práce hned po úvodu), styl Editorial Grid
-(viditelná mřížka, číslované kapitoly, citát s iniciálou), písma Space Grotesk a Archivo.
+Vzhled je tenký a minimalistický (styl Minimalism & Swiss ze skillu ui-ux-pro-max), písma Bricolage Grotesque
+(nadpisy, zvýrazněná slova jsou zúžená) a Hanken Grotesk. V úvodu je nakloněný mobil s ukázkou webu, v ceníku tři
+kalkulačky: skládačka, průvodce „Co potřebuji?“ a výběr podle rozpočtu.
 
 | Co | Soubor |
 | --- | --- |
 | Texty sekcí | `nova-verze/index.html`, `nova-verze/portfolio/index.html` |
 | Barvy všech 10 variant (každá má 4 barvy `--c1` až `--c4`) a písma | začátek `src/v2/style.css` |
 | Tenké ikonky | `src/v2/icons.js` (Lucide) |
-| Ikonka v záložce (dj) | `public/nova-verze/favicon.svg` a PNG vedle |
-| Malé náhledy v úvodní koláži | `public/nova-verze/nahled/` (webp, 800 px; když chybí, vezme se obálka projektu) |
+| Logo „dj“ (značka) | `logoMark` v `src/v2/sections.js`, v HTML stačí `<i data-logo></i>` |
+| Ikonka v záložce | `public/nova-verze/favicon.svg` a PNG vedle |
+| Obrázek webu v mobilu | `public/nova-verze/mockup/web-mobil.webp` (585 px široký snímek mobilní verze; po větší změně úvodu ho vyfoťte znovu) |
 
 Barevnou variantu jde vybrat tlačítkem „Barvy“ vpravo dole nebo v adrese: `?barvy=tisk`, `atelier`, `terakota`,
 `vyprava`, `kobalt`, `zahrada`, `ruze`, `citron`, `salvej` nebo `noc`.

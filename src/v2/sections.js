@@ -92,7 +92,7 @@ export function handoverMarkup(handover, services) {
   return `<div class="seg" role="tablist" aria-label="Druh zakázky">${tabs}</div>${panels}`;
 }
 
-const promiseIcon = ['eye', 'keyRound', 'userRound', 'clock'];
+const promiseIcon = ['eye', 'keyRound', 'userRound', 'handCoins'];
 
 export function promisesMarkup(promises) {
   return promises
@@ -123,6 +123,7 @@ export function faqMarkup(faq) {
 // aby byly v HTML hned a nečekalo se na JavaScript.
 export function fillIcons(html) {
   return html
+    .replace(/<i data-logo><\/i>/g, logoMark)
     .replace(/<i data-arrow><\/i>/g, `<i class="arr">${icon('arrowRight')}${icon('arrowRight')}</i>`)
     .replace(/(<span[^>]*?) data-icon="(\w+)"><\/span>/g, (_, open, name) => `${open}>${icon(name)}</span>`)
     .replace(/<li data-tick>/g, `<li>${icon('check')}`)
@@ -133,16 +134,26 @@ export function fillIcons(html) {
     .replace(/(data-lb-next[^>]*>)<\/button>/, `$1${icon('chevronRight')}</button>`);
 }
 
-// Úvodní koláž z obálek vybraných projektů; thumb vrátí adresu zmenšeného náhledu
-export function stackMarkup(projects, thumb) {
+// Reference: všechny zakázky v řádcích; živý web vede ven, ostatní na stránku portfolia
+export function refsMarkup(projects) {
   return projects
-    .slice(0, 3)
-    .map(
-      (p, i) => `
-        <figure class="stack__card stack__card--${i + 1}">
-          <img src="${escapeHtml(thumb(p))}" alt="" width="800" height="533" decoding="async" />
-          <figcaption><span>${escapeHtml(p.title)}</span><small>${escapeHtml(p.type === 'web' ? 'Web' : 'Identita')}</small></figcaption>
-        </figure>`,
-    )
+    .map((p) => {
+      const href = p.link || 'portfolio/';
+      const ext = p.link ? ' target="_blank" rel="noopener"' : '';
+      const where = p.link ? p.link.replace(/^https?:\/\//, '').replace(/\/$/, '') : 'v portfoliu';
+      return `
+        <li data-reveal>
+          <a class="ref" href="${escapeHtml(href)}"${ext}>
+            <span class="ref__ico">${icon(p.type === 'web' ? 'globe' : 'penTool')}</span>
+            <span class="ref__name">${escapeHtml(p.title)}</span>
+            <span class="ref__what">${escapeHtml(p.category)}</span>
+            <span class="ref__year">${escapeHtml(String(p.year))}</span>
+            <span class="ref__go">${escapeHtml(where)}${icon('arrowUpRight')}</span>
+          </a>
+        </li>`;
+    })
     .join('');
 }
+
+// Logo: d a j z tenké linky, ocásek j podtrhuje obě písmena, tečka nad j je v barvě
+export const logoMark = `<svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><g class="mark__lines"><circle cx="20" cy="34" r="9" /><path d="M29 12v31" /><path d="M40 26v21a8 8 0 0 1-8 8H12" /></g><circle class="mark__dot" cx="40" cy="17.5" r="2.8" /></svg>`;
