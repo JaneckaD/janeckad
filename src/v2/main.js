@@ -41,7 +41,6 @@ initFooter();
 initReveal();
 initTilt($('.hero__visual'), [
   ...$$('.stack__card').map((el, i) => [el, 6 + i * 5]),
-  [$('.chip--a'), -14],
-  [$('.chip--b'), 18],
-  [$('.cursor'), 26],
+  [$('.sticker--a'), -14],
+  [$('.sticker--b'), 18],
 ]);

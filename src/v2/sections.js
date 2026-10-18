@@ -20,7 +20,7 @@ export function areasMarkup(areas, services) {
   return areas
     .map(
       (a, i) => `
-        <li class="area" data-reveal>
+        <li class="area" data-reveal style="--sc: var(--c${(i % 4) + 1}); --on-sc: var(--on-c${(i % 4) + 1})">
           <div class="area__top">
             <span class="ico">${icon(areaIcon[a.art] || 'sparkles')}</span>
             <span class="area__num">${String(i + 1).padStart(2, '0')}</span>
@@ -110,9 +110,9 @@ export function promisesMarkup(promises) {
 export function faqMarkup(faq) {
   return faq
     .map(
-      (f) => `
+      (f, i) => `
         <details class="qa" data-reveal>
-          <summary><h3>${escapeHtml(f.q)}</h3><span class="qa__icon">${icon('plus')}</span></summary>
+          <summary><span class="qa__num">${String(i + 1).padStart(2, '0')}</span><h3>${escapeHtml(f.q)}</h3><span class="qa__icon">${icon('plus')}</span></summary>
           <p>${escapeHtml(f.a)}</p>
         </details>`,
     )

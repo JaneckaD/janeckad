@@ -24,12 +24,12 @@ const PAGES = {
   'index.html': { path: '', image: 'og/davix.jpg', prefix: '' },
   'portfolio/index.html': { path: 'portfolio/', image: 'og/portfolio.jpg', prefix: '../' },
   // nová verze webu na zkoušku: vyhledávače ji nemají indexovat ani mít v mapě webu
-  'nova-verze/index.html': { path: 'nova-verze/', image: 'og/davix.jpg', prefix: '../', v2: true, noindex: true },
-  'nova-verze/portfolio/index.html': { path: 'nova-verze/portfolio/', image: 'og/portfolio.jpg', prefix: '../../', v2: true, noindex: true },
+  'nova-verze/index.html': { path: 'nova-verze/', image: 'og/davix.jpg', prefix: '../', v2: true, noindex: true, brand: 'David Janečka' },
+  'nova-verze/portfolio/index.html': { path: 'nova-verze/portfolio/', image: 'og/portfolio.jpg', prefix: '../../', v2: true, noindex: true, brand: 'David Janečka' },
 };
 
-// které písmo stáhnout přednostně: stará verze Anybody a Onest, nová Geist a Instrument Serif (bez latin-ext)
-const preloadFonts = { old: /^assets\/(anybody|onest)-/, v2: /^assets\/(geist-latin-wght|instrument-serif-latin-400)/ };
+// které písmo stáhnout přednostně: stará verze Anybody a Onest, nová Space Grotesk a Archivo (bez latin-ext)
+const preloadFonts = { old: /^assets\/(anybody|onest)-/, v2: /^assets\/(space-grotesk-latin-wght|archivo-latin-wght)/ };
 
 const ids = {
   website: abs('#web'),
@@ -147,10 +147,10 @@ function headTags(file, page, html) {
   if (page.noindex) {
     return `
     <meta name="robots" content="noindex, follow" />
-    <meta name="theme-color" content="#f4f4f1" />
+    <meta name="theme-color" content="#f7f7f4" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="cs_CZ" />
-    <meta property="og:site_name" content="${escapeHtml(site.brand)}" />
+    <meta property="og:site_name" content="${escapeHtml(page.brand || site.brand)}" />
     <meta property="og:title" content="${title}" />
     <meta property="og:description" content="${description}" />
     <meta property="og:image" content="${image}" />

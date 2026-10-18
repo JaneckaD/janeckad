@@ -35,17 +35,21 @@ Web se otevře v prohlížeči na `http://localhost:5173`. Změny v souborech se
 
 ### Nová verze webu (na zkoušku)
 
-Na adrese **/nova-verze/** běží přepracovaný světlý vzhled (odkaz „Nová verze“ je dole v patičce).
+Na adrese **/nova-verze/** běží přepracovaný web pod jménem **David Janečka** (odkaz „Nová verze“ je dole v patičce).
 Obsah bere ze stejných souborů v `src/data/`, takže ceny, projekty i otázky jsou všude stejné.
+Vzhled vychází ze skillu ui-ux-pro-max: vzor stránky Portfolio Grid (práce hned po úvodu), styl Editorial Grid
+(viditelná mřížka, číslované kapitoly, citát s iniciálou), písma Space Grotesk a Archivo.
 
 | Co | Soubor |
 | --- | --- |
 | Texty sekcí | `nova-verze/index.html`, `nova-verze/portfolio/index.html` |
-| Barvy všech variant (Šalvěj a terakota, Papír a kobalt, Pískovec a okr, Mentol a les, Růže a petrolej, Mlha a korál) a písma | začátek `src/v2/style.css` |
+| Barvy všech 10 variant (každá má 4 barvy `--c1` až `--c4`) a písma | začátek `src/v2/style.css` |
 | Tenké ikonky | `src/v2/icons.js` (Lucide) |
+| Ikonka v záložce (dj) | `public/nova-verze/favicon.svg` a PNG vedle |
 | Malé náhledy v úvodní koláži | `public/nova-verze/nahled/` (webp, 800 px; když chybí, vezme se obálka projektu) |
 
-Barevnou variantu jde vybrat přepínačem dole na stránce nebo v adrese: `?barvy=terakota`, `kobalt`, `okr`, `les`, `ruze` nebo `koral`.
+Barevnou variantu jde vybrat tlačítkem „Barvy“ vpravo dole nebo v adrese: `?barvy=tisk`, `atelier`, `terakota`,
+`vyprava`, `kobalt`, `zahrada`, `ruze`, `citron`, `salvej` nebo `noc`.
 Vyhledávače novou verzi zatím neindexují (noindex), aby se nepletla s hlavní stránkou.
 
 ### Přidání projektu

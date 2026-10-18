@@ -1,60 +1,54 @@
 <!doctype html>
-<html lang="cs" data-barvy="terakota">
+<html lang="cs" data-barvy="tisk">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Portfolio | Davix (nová verze)</title>
+  <title>Portfolio | David Janečka</title>
   <meta name="description" content="Ukázky mých prací: weby a vizuální identity pro malé firmy. Podívejte se, jak probíhal návrh a co klient dostal." />
-  <!-- barevná varianta: ?barvy=terakota / kobalt / okr / les / ruze / koral v adrese, jinak poslední zvolená -->
-  <script>(function(){var d=document.documentElement,v=new URLSearchParams(location.search).get('barvy');d.classList.add('js');try{v=v||localStorage.getItem('davix-barvy')}catch(e){}d.dataset.barvy=['terakota','kobalt','okr','les','ruze','koral'].indexOf(v)>-1?v:'terakota'})()</script>
-  <link rel="icon" href="/icon-kurzor.svg?v=3" type="image/svg+xml" />
-  <link rel="icon" href="/icon-32.png?v=3" sizes="32x32" type="image/png" />
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3" />
+  <!-- barevná varianta: ?barvy=tisk / atelier / … (seznam v src/v2/style.css) v adrese, jinak poslední zvolená -->
+  <script>(function(){var d=document.documentElement,v=new URLSearchParams(location.search).get('barvy');d.classList.add('js');try{v=v||localStorage.getItem('dj-barvy')}catch(e){}d.dataset.barvy=["tisk", "atelier", "terakota", "vyprava", "kobalt", "zahrada", "ruze", "citron", "salvej", "noc"].indexOf(v)>-1?v:'tisk'})()</script>
+  <link rel="icon" href="/nova-verze/favicon.svg?v=1" type="image/svg+xml" />
+  <link rel="icon" href="/nova-verze/favicon-32.png?v=1" sizes="32x32" type="image/png" />
+  <link rel="apple-touch-icon" href="/nova-verze/apple-touch-icon.png?v=1" />
 </head>
-<body data-pricing="../#sluzby">
+<body data-pricing="../#cenik">
   <a class="skip" href="#projekty">Přeskočit na projekty</a>
 
   <header class="hd" data-nav>
     <div class="hd__bar">
-      <a class="brand" href="../" aria-label="Davix, hlavní stránka">
-        <svg class="brand__mark" viewBox="0 0 48 48" aria-hidden="true">
-          <rect class="brand__bg" width="48" height="48" rx="14" />
-          <g transform="translate(-0.5 0.25)">
-            <circle class="brand__bowl" cx="22" cy="27" r="7" />
-            <path class="brand__cursor" d="M30.5 12v23.5M27 12h7M27 35.5h7" />
-          </g>
-        </svg>
-        <span class="brand__word">Davix<small>webař a grafik</small></span>
+      <a class="logo" href="../" aria-label="David Janečka, hlavní stránka">
+        <span class="logo__name">David Janečka</span><span class="logo__cur" aria-hidden="true"></span>
       </a>
       <nav class="hd__links" id="menu" aria-label="Hlavní navigace" data-nav-links>
-        <a href="../#co-delam">Co dělám</a>
-        <a href="./" aria-current="page">Práce</a>
-        <a href="../#co-dostanete">Co dostanete</a>
-        <a href="../#sluzby">Ceník</a>
-        <a href="../#postup">Postup</a>
-        <a href="../#o-mne">O mně</a>
-        <a class="hd__menu-cta nav__menu-cta" href="../#kontakt">Probrat projekt</a>
+        <a href="./" aria-current="page"><small>01</small>Práce</a>
+        <a href="../#sluzby"><small>02</small>Služby</a>
+        <a href="../#cenik"><small>03</small>Ceník</a>
+        <a href="../#postup"><small>04</small>Postup</a>
+        <a href="../#o-mne"><small>05</small>O mně</a>
+        <a href="../#otazky"><small>06</small>Otázky</a>
+        <a class="hd__menu-cta nav__menu-cta" href="../#kontakt">Napište mi</a>
       </nav>
-      <div class="hd__end">
-        <span class="status"><i aria-hidden="true"></i>Volno na projekty</span>
-        <a class="icon-btn" href="mailto:davix.designstudio@gmail.com" aria-label="Napsat e-mail" data-mail></a>
-        <a class="btn btn--accent btn--arrow hd__cta" href="../#kontakt"><span>Probrat projekt</span><i data-arrow></i></a>
-        <button class="hd__toggle" type="button" aria-expanded="false" aria-controls="menu" aria-label="Otevřít menu" data-nav-toggle>
-          <span></span><span></span>
-        </button>
-      </div>
+      <span class="hd__status status"><i aria-hidden="true"></i>Volno na projekty</span>
+      <a class="hd__cta" href="../#kontakt"><span>Napište mi</span><i data-arrow></i></a>
+      <button class="hd__toggle" type="button" aria-expanded="false" aria-controls="menu" aria-label="Otevřít menu" data-nav-toggle>
+        <span></span><span></span>
+      </button>
       <span class="hd__progress" aria-hidden="true" data-progress></span>
     </div>
   </header>
 
   <main id="top">
     <section class="page-head" aria-labelledby="page-title">
-      <span class="hero__mark" aria-hidden="true">portfolio</span>
       <div class="wrap">
         <a class="link-back" href="../" data-reveal><span data-icon="arrowLeft"></span>Zpět na hlavní stránku</a>
-        <p class="label" data-reveal>Portfolio</p>
-        <h1 id="page-title" data-reveal>Všechny moje <em>práce</em></h1>
-        <p class="page-head__lead" data-reveal>Všechno, co jsem zatím navrhl a postavil: weby, loga i&nbsp;celé vizuální identity. Klikněte na projekt a prohlédněte si ho zblízka.</p>
+        <div class="head head--page">
+          <span class="head__num" data-reveal>01</span>
+          <div class="head__main">
+            <p class="head__label" data-reveal>Portfolio</p>
+            <h1 id="page-title" data-reveal>Všechny moje <em>práce</em></h1>
+          </div>
+          <p class="head__side" data-reveal>Všechno, co jsem zatím navrhl a postavil: weby, loga i&nbsp;celé vizuální identity. Klikněte na projekt a prohlédněte si ho zblízka.</p>
+        </div>
         <div class="filters" role="group" aria-label="Filtrovat projekty" data-filters></div>
       </div>
     </section>
@@ -70,8 +64,8 @@
             <p>Napište mi, s čím vám můžu pomoct, nebo si nejdřív spočítejte, kolik by to stálo.</p>
           </div>
           <div class="cta-band__btns">
-            <a class="btn btn--accent btn--arrow" href="../#kontakt"><span>Napsat mi</span><i data-arrow></i></a>
-            <a class="btn btn--ghost" href="../#sluzby">Spočítat cenu</a>
+            <a class="btn btn--ink btn--arrow" href="../#kontakt"><span>Napsat mi</span><i data-arrow></i></a>
+            <a class="btn btn--line" href="../#cenik">Spočítat cenu</a>
           </div>
         </div>
       </div>
@@ -82,30 +76,23 @@
     <div class="wrap">
       <div class="ft__top">
         <div class="ft__brand">
-          <a class="brand" href="../" aria-label="Davix, hlavní stránka">
-            <svg class="brand__mark" viewBox="0 0 48 48" aria-hidden="true">
-              <rect class="brand__bg" width="48" height="48" rx="14" />
-              <g transform="translate(-0.5 0.25)">
-                <circle class="brand__bowl" cx="22" cy="27" r="7" />
-                <path class="brand__cursor" d="M30.5 12v23.5M27 12h7M27 35.5h7" />
-              </g>
-            </svg>
-            <span class="brand__word">Davix<small>webař a grafik</small></span>
+          <a class="logo" href="../" aria-label="David Janečka, hlavní stránka">
+            <span class="logo__name">David Janečka</span><span class="logo__cur" aria-hidden="true"></span>
           </a>
           <p>Weby, loga a vizuální identity na míru pro malé firmy a živnostníky.</p>
         </div>
         <nav class="ft__col" aria-label="Stránka">
           <h3>Stránka</h3>
-          <a href="../#co-delam">Co dělám</a>
           <a href="../#prace">Práce</a>
+          <a href="../#sluzby">Služby</a>
           <a href="../#postup">Postup</a>
           <a href="../#o-mne">O mně</a>
         </nav>
         <nav class="ft__col" aria-label="Služby">
           <h3>Služby</h3>
-          <a href="../#sluzby">Weby a e-shopy</a>
-          <a href="../#sluzby">Loga a identity</a>
-          <a href="../#sluzby">Sociální sítě</a>
+          <a href="../#cenik">Weby a e-shopy</a>
+          <a href="../#cenik">Loga a identity</a>
+          <a href="../#cenik">Sociální sítě</a>
           <a href="./">Celé portfolio</a>
         </nav>
         <div class="ft__col">
@@ -114,9 +101,9 @@
           <span class="status status--sm"><i aria-hidden="true"></i>Volno na nové projekty</span>
         </div>
       </div>
-      <p class="ft__word" aria-hidden="true">davix</p>
+      <p class="ft__word" aria-hidden="true">David Janečka</p>
       <div class="ft__bottom">
-        <span>© <span data-year>2026</span> Davix · David, webař a grafik</span>
+        <span>© <span data-year>2026</span> David Janečka, webař a grafik</span>
         <span class="ft__links" data-socials></span>
         <a class="ft__old" href="../../portfolio/">Původní verze webu</a>
       </div>
@@ -124,14 +111,22 @@
   </footer>
 
   <!-- PŘEPÍNAČ BAREV (jen v nové verzi, než se vybere jedna) -->
-  <div class="swatch" role="group" aria-label="Barevná varianta">
-    <span class="swatch__label">Barvy</span>
-    <button type="button" data-barvy-set="terakota" aria-pressed="true" title="Šalvěj a terakota" aria-label="Šalvěj a terakota"><i class="swatch__dot swatch__dot--terakota"></i><span class="swatch__name">Šalvěj a terakota</span></button>
-    <button type="button" data-barvy-set="kobalt" aria-pressed="false" title="Papír a kobalt" aria-label="Papír a kobalt"><i class="swatch__dot swatch__dot--kobalt"></i><span class="swatch__name">Papír a kobalt</span></button>
-    <button type="button" data-barvy-set="okr" aria-pressed="false" title="Pískovec a okr" aria-label="Pískovec a okr"><i class="swatch__dot swatch__dot--okr"></i><span class="swatch__name">Pískovec a okr</span></button>
-    <button type="button" data-barvy-set="les" aria-pressed="false" title="Mentol a les" aria-label="Mentol a les"><i class="swatch__dot swatch__dot--les"></i><span class="swatch__name">Mentol a les</span></button>
-    <button type="button" data-barvy-set="ruze" aria-pressed="false" title="Růže a petrolej" aria-label="Růže a petrolej"><i class="swatch__dot swatch__dot--ruze"></i><span class="swatch__name">Růže a petrolej</span></button>
-    <button type="button" data-barvy-set="koral" aria-pressed="false" title="Mlha a korál" aria-label="Mlha a korál"><i class="swatch__dot swatch__dot--koral"></i><span class="swatch__name">Mlha a korál</span></button>
+  <div class="swatch" data-swatch>
+    <div class="swatch__list" id="swatch-list" role="group" aria-label="Barevná varianta" data-swatch-list>
+      <button type="button" data-barvy-set="tisk" aria-pressed="true"><i class="swatch__dot swatch__dot--tisk"></i>Tiskárna</button>
+      <button type="button" data-barvy-set="atelier" aria-pressed="false"><i class="swatch__dot swatch__dot--atelier"></i>Ateliér</button>
+      <button type="button" data-barvy-set="terakota" aria-pressed="false"><i class="swatch__dot swatch__dot--terakota"></i>Terakota a bylinky</button>
+      <button type="button" data-barvy-set="vyprava" aria-pressed="false"><i class="swatch__dot swatch__dot--vyprava"></i>Výprava</button>
+      <button type="button" data-barvy-set="kobalt" aria-pressed="false"><i class="swatch__dot swatch__dot--kobalt"></i>Kobalt</button>
+      <button type="button" data-barvy-set="zahrada" aria-pressed="false"><i class="swatch__dot swatch__dot--zahrada"></i>Zahrada</button>
+      <button type="button" data-barvy-set="ruze" aria-pressed="false"><i class="swatch__dot swatch__dot--ruze"></i>Růže a zlato</button>
+      <button type="button" data-barvy-set="citron" aria-pressed="false"><i class="swatch__dot swatch__dot--citron"></i>Citron</button>
+      <button type="button" data-barvy-set="salvej" aria-pressed="false"><i class="swatch__dot swatch__dot--salvej"></i>Šalvěj</button>
+      <button type="button" data-barvy-set="noc" aria-pressed="false"><i class="swatch__dot swatch__dot--noc"></i>Noc</button>
+    </div>
+    <button class="swatch__toggle" type="button" aria-expanded="false" aria-controls="swatch-list" data-swatch-toggle>
+      <i class="swatch__dot swatch__dot--now"></i><span>Barvy</span><b data-swatch-name>Tiskárna</b>
+    </button>
   </div>
 
   <!-- GALERIE -->
