@@ -17,7 +17,7 @@ export const site = {
   // Sociální sítě v patičce. Dokud je url prázdné, ukáže se ikonka s popiskem „brzy“.
   // Až budeš mít profil, stačí doplnit adresu, třeba url: 'https://instagram.com/tvujprofil'.
   socials: [
-    { label: 'Instagram', icon: 'instagram', url: '' },
+    { label: 'Instagram', icon: 'instagram', url: 'https://www.instagram.com/janecka.design/' },
     { label: 'LinkedIn', icon: 'linkedin', url: '' },
   ],
 };

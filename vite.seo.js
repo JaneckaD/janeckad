@@ -40,6 +40,7 @@ const person = {
   url: abs(),
   email: `mailto:${site.email}`,
   knowsAbout: ['Tvorba webových stránek', 'Webdesign', 'Logo', 'Vizuální identita', 'Grafický design', ...site.skills],
+  sameAs: site.socials.filter((s) => s.url).map((s) => s.url),
   worksFor: { '@id': ids.business },
 };
 
@@ -62,6 +63,7 @@ const business = {
   email: site.email,
   telephone: site.phone,
   founder: { '@id': ids.person },
+  sameAs: site.socials.filter((s) => s.url).map((s) => s.url),
   areaServed: { '@type': 'Country', name: 'Česko' },
   knowsLanguage: 'cs',
   priceRange: `${Math.min(...services.filter((s) => s.price).map((s) => s.price))}–${Math.max(...services.map((s) => s.priceMax || s.price || 0))} Kč`,
@@ -239,6 +241,7 @@ export default function seo() {
         '## Kontakt',
         `- E-mail: ${site.email}`,
         `- Telefon: ${site.phone}`,
+        ...site.socials.filter((s) => s.url).map((s) => `- ${s.label}: ${s.url}`),
         `- Poptávkový formulář: ${abs('#kontakt')}`,
         '',
       ].join('\n');
