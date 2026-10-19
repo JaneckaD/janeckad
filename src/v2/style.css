@@ -390,9 +390,14 @@ li:nth-child(4) > .ref .ref__ico { background: var(--soft-4); color: var(--ink);
 /* ===== O mně ===== */
 .about { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: clamp(2rem, 6vw, 5rem); align-items: center; }
 .about__visual { position: relative; max-width: 380px; }
-.avatar { display: grid; place-items: center; aspect-ratio: 1; border-radius: 50%; background: var(--ink); color: var(--bg); }
-.avatar .mark { width: 50%; height: 50%; }
-.avatar .mark__dot { fill: #3b82f6; }
+.avatar {
+  position: relative; display: grid; place-items: center; aspect-ratio: 1; border-radius: 50%; color: var(--ink);
+  background: radial-gradient(circle at 35% 35%, color-mix(in srgb, var(--c2) 22%, transparent), transparent 60%),
+              radial-gradient(circle at 70% 70%, color-mix(in srgb, var(--c1) 22%, transparent), transparent 60%);
+  border: 1px solid var(--line);
+}
+.avatar::after { content: ''; position: absolute; inset: 12%; border-radius: 50%; border: 1px dashed var(--line-2); }
+.avatar .mark { width: 44%; height: 44%; translate: 2% 0; }
 .about__card {
   position: absolute; right: -6%; bottom: 8%; display: grid; padding: .8rem 1.2rem; border-radius: 18px;
   background: var(--card);
