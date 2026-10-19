@@ -198,7 +198,7 @@ export function footerMarkup(site, home, portfolio) {
       </div>
       <div class="ft__top">
         <div class="ft__brand">
-          <a class="logo" href="${home || '#top'}" aria-label="David Janečka, hlavní stránka"><i data-logo></i><span class="logo__name">David Janečka</span></a>
+          <a class="logo" href="${home || '#top'}" aria-label="David Janečka, hlavní stránka"><i data-logo></i><span class="logo__name">David <em>Janečka</em></span></a>
           <p>Weby, loga a vizuální identity na míru pro malé firmy a živnostníky. Od návrhu po spuštění.</p>
           <div class="ft__socials" aria-label="Sociální sítě">${socials}</div>
         </div>

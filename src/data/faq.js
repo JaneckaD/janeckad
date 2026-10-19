@@ -13,7 +13,7 @@ export const faq = [
   },
   {
     q: 'Proč jsou vaše ceny nižší než v agentuře?',
-    a: 'Jsem student a junior webař a grafik a teprve sbírám reference, proto jsou moje ceny výrazně nižší. Na kvalitě ale nešetřím: každý web i logo navrhuju na míru, žádné hotové šablony, a každý projekt je pro mě vizitka.',
+    a: 'Pracuju sám, bez agenturní režie a drahé kanceláře, proto jsou moje ceny výrazně nižší. Na kvalitě ale nešetřím: každý web i logo navrhuju na míru, žádné hotové šablony, a každý projekt je pro mě vizitka.',
   },
   {
     q: 'Můžu si objednat web i logo najednou?',

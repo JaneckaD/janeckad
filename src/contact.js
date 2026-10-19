@@ -46,7 +46,7 @@ export function initContact() {
           'E-mail': data.get('email'),
           'Zpráva': data.get('message'),
           _replyto: data.get('email'),
-          _subject: `Nová poptávka z webu davix.cz od ${data.get('name')}`,
+          _subject: `Nová poptávka z webu od ${data.get('name')}`,
           _template: 'table',
           _honey: data.get('_honey'),
         }),
