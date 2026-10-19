@@ -1,34 +1,13 @@
 /* =====================================================================
    NOVÁ VERZE WEBU – David Janečka
-   Jednoduchá, tenká a minimalistická. Písma ze skillu ui-ux-pro-max: Bricolage Grotesque
-   (nadpisy, tenký řez, zvýraznění zúženou šířkou) a Hanken Grotesk (text).
+   Jednoduchá a minimalistická. Celý web používá písmo z loga: Rethink Sans
+   (nadpisy i text, zvýrazněná slova jsou jen modře).
    Barvy Kobalt: 4 barvy (--c1 až --c4) a ke každé barva textu s kontrastem
    aspoň 4,5 : 1 (--on-c1 až --on-c4).
    Animuje se jen transform a opacity, ať je web plynulý i na slabších telefonech.
    ===================================================================== */
 
 /* ===== Písma: uložená přímo na webu ===== */
-@font-face {
-  font-family: 'Bricolage Grotesque'; font-style: normal; font-weight: 200 800; font-stretch: 75% 100%; font-display: swap;
-  src: url('./fonts/bricolage-grotesque-latin-wdth-normal.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: 'Bricolage Grotesque'; font-style: normal; font-weight: 200 800; font-stretch: 75% 100%; font-display: swap;
-  src: url('./fonts/bricolage-grotesque-latin-ext-wdth-normal.woff2') format('woff2');
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-@font-face {
-  font-family: 'Hanken Grotesk'; font-style: normal; font-weight: 100 900; font-display: swap;
-  src: url('./fonts/hanken-grotesk-latin-wght-normal.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: 'Hanken Grotesk'; font-style: normal; font-weight: 100 900; font-display: swap;
-  src: url('./fonts/hanken-grotesk-latin-ext-wght-normal.woff2') format('woff2');
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-/* Rethink Sans jen pro jméno v logu */
 @font-face {
   font-family: 'Rethink Sans'; font-style: normal; font-weight: 400 800; font-display: swap;
   src: url('./fonts/rethink-sans-latin-wght-normal.woff2') format('woff2');
@@ -62,8 +41,8 @@
   --line-2: color-mix(in srgb, var(--ink) 16%, var(--bg));
   --shadow: 0 1px 2px color-mix(in srgb, var(--ink) 4%, transparent), 0 18px 40px -18px color-mix(in srgb, var(--ink) 18%, transparent);
 
-  --display: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
-  --sans: 'Hanken Grotesk', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --display: 'Rethink Sans', ui-sans-serif, system-ui, sans-serif;
+  --sans: 'Rethink Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --serif: var(--display);
   --max: 1180px;
   --gutter: clamp(1.1rem, 4vw, 2rem);
@@ -91,7 +70,7 @@ button { font: inherit; color: inherit; }
 ::selection { background: var(--c1); color: var(--on-c1); }
 :focus-visible { outline: 2px solid var(--c1); outline-offset: 3px; border-radius: 8px; }
 /* zvýrazněné slovo: zúžený řez písma v barvě varianty */
-em { font-style: normal; font-stretch: 75%; color: var(--accent-text); }
+em { font-style: normal; color: var(--accent-text); }
 
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .skip { position: absolute; left: 1rem; top: -4rem; z-index: 100; padding: .6rem 1rem; border-radius: 999px; background: var(--ink); color: var(--bg); }
@@ -152,7 +131,7 @@ em { font-style: normal; font-stretch: 75%; color: var(--accent-text); }
 .mark__d { fill: currentColor; }
 .mark__dot { fill: var(--c1); transition: transform .5s var(--ease); }
 .logo:hover .mark__dot { transform: translateY(-60px); }
-.logo__name { font: 700 1.5rem/1 'Rethink Sans', var(--sans); letter-spacing: -.035em; white-space: nowrap; }
+.logo__name { font: 700 1.5rem/1 var(--display); letter-spacing: -.035em; white-space: nowrap; }
 .logo__name i { display: inline-block; font-style: normal; color: var(--c1); transition: transform .5s var(--ease); }
 .logo:hover .logo__name i { transform: translateY(-.18em); }
 
@@ -196,7 +175,7 @@ em { font-style: normal; font-stretch: 75%; color: var(--accent-text); }
 /* ===== Úvod: text vlevo, nakloněný mobil vpravo ===== */
 .hero { position: relative; overflow: hidden; padding: clamp(2rem, 5vw, 4rem) 0 clamp(3rem, 7vw, 6rem); }
 .hero__grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: clamp(2rem, 5vw, 4rem); align-items: center; }
-.hero h1 { font-size: clamp(2.8rem, 6.4vw, 5.6rem); font-weight: 300; line-height: .98; letter-spacing: -.05em; }
+.hero h1 { font-size: clamp(2.8rem, 6.4vw, 5.6rem); font-weight: 400; line-height: 1; letter-spacing: -.045em; }
 .hero h1 em { display: block; }
 .hero__lead { max-width: 31rem; margin-top: 1.6rem; font-size: clamp(1.05rem, 1.4vw, 1.18rem); color: var(--ink-2); }
 .hero__cta { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 2.2rem; }

@@ -23,8 +23,8 @@ const PAGES = {
   'portfolio/index.html': { path: 'portfolio/', image: 'og/portfolio.jpg', prefix: '../' },
 };
 
-// které písmo stáhnout přednostně: Bricolage Grotesque a Hanken Grotesk (bez latin-ext)
-const preloadFonts = /^assets\/(bricolage-grotesque-latin-wdth|hanken-grotesk-latin-wght)/;
+// které písmo stáhnout přednostně: Rethink Sans (bez latin-ext)
+const preloadFonts = /^assets\/rethink-sans-latin-wght/;
 
 const ids = {
   website: abs('#web'),

@@ -38,7 +38,7 @@ Web se otevře v prohlížeči na `http://localhost:5173`. Změny v souborech se
 | Ikonka v záložce a ikony aplikace | `public/favicon.svg`, `favicon.ico`, `icon-*.png`, `apple-touch-icon.png` |
 | Mobil v úvodu | hotová fotka mockupu `public/mockup/mobil.webp` (průhledné pozadí, 930 × 1400 px) |
 
-Vzhled je tenký a minimalistický, písma Bricolage Grotesque (nadpisy, zvýrazněná slova jsou zúžená) a Hanken Grotesk.
+Vzhled je minimalistický, celý web používá písmo z loga Rethink Sans (nadpisy i text, zvýrazněná slova jsou modře).
 Displej mobilu v úvodu je obyčejný blok, který `matrix3d` v `src/v2/style.css` zkosí přesně do displeje z PSD.
 Stará adresa `/nova-verze/` jen přesměruje na hlavní stránku.
 
