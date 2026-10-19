@@ -57,7 +57,7 @@ const business = {
   alternateName: `${site.name}, webař a grafik`,
   description: 'Tvorba webových stránek, e-shopů, log a vizuálních identit pro malé firmy a živnostníky.',
   url: abs(),
-  logo: abs('icon-512.png'),
+  logo: abs('ikona-512.png'),
   image: abs('og/david-janecka.jpg'),
   email: site.email,
   telephone: site.phone,

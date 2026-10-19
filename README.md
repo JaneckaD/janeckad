@@ -35,7 +35,7 @@ Web se otevře v prohlížeči na `http://localhost:5173`. Změny v souborech se
 | Barvy (Kobalt: 4 barvy `--c1` až `--c4`) a písma | začátek `src/v2/style.css` |
 | Tenké ikonky | `src/v2/icons.js` (Lucide) |
 | Logo „dj“ (značka) | `logoMark` v `src/v2/sections.js`, v HTML stačí `<i data-logo></i>` |
-| Ikonka v záložce a ikony aplikace | `public/favicon.svg`, `favicon.ico`, `icon-*.png`, `apple-touch-icon.png` |
+| Ikonka v záložce a ikony aplikace | `public/ikona.svg`, `ikona.ico`, `ikona-32/180/192/512.png` (nové názvy kvůli mezipaměti prohlížeče; `favicon.ico` a `apple-touch-icon.png` zůstávají pro výchozí cesty) |
 | Mobil v úvodu | hotová fotka mockupu `public/mockup/mobil.webp` (průhledné pozadí, 930 × 1400 px) |
 
 Vzhled je minimalistický, celý web používá písmo z loga Rethink Sans (nadpisy i text, zvýrazněná slova jsou modře).

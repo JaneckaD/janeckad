@@ -33,7 +33,7 @@ export const projects = [
     featured: true,
     year: 2026,
     description: 'Web pro rozvoz jídla s vlastním objednávkovým systémem. Majitel si v administraci spravuje menu, obsah webu i role týmu a každá restaurace má vlastní přístup ke svým objednávkám.',
-    cover: 'portfolio/ricci-cover.jpg',
+    cover: 'portfolio/ricci-nahled.jpg',
     link: 'https://riccijidlo.cz',
     service: 'eshop',
     stepsTitle: 'Co web umí',
@@ -57,7 +57,7 @@ export const projects = [
       link: { label: 'Otevřít riccijidlo.cz', url: 'https://riccijidlo.cz' },
     },
     gallery: [
-      { src: 'portfolio/ricci-cover.jpg', alt: 'Úvodní stránka s vyhledáním restaurace podle adresy' },
+      { src: 'portfolio/ricci-nahled.jpg', alt: 'Úvodní stránka s vyhledáním restaurace podle adresy' },
       { src: 'portfolio/ricci-list.jpg', alt: 'Přehled restaurací s filtry a otevírací dobou' },
       { src: 'portfolio/ricci-detail.jpg', alt: 'Stránka restaurace s menu a košíkem' },
       { src: 'portfolio/ricci-admin.jpg', alt: 'Administrace na míru: směny kurýrů, role a newsletter' },
@@ -71,7 +71,7 @@ export const projects = [
     featured: true,
     year: 2026,
     description: 'Identita pro firmu, která staví skládané betonové ploty. Jednobarevný abstraktní znak ze tří desek, které do sebe zapadají na pero a drážku, přesně jako skutečný plot. Žádná písmena ani domeček, jen spoj, který drží.',
-    cover: 'portfolio/spoj-cover.jpg',
+    cover: 'portfolio/spoj-nahled.jpg',
     service: 'identity',
     steps: [
       { title: 'Tři směry', from: 0, text: 'Na začátku jsem připravil tři různé koncepty znaku a vyzkoušel je ve velikostech od 64 do 16 px: Spoj (desky na pero a drážku), Tuhnutí (vlna tekutého betonu) a Ohrada (desky kolem kruhu).' },
@@ -129,7 +129,7 @@ export const projects = [
     featured: true,
     year: 2026,
     description: 'Identita pro jídelnu, která každý den vaří a menu rozváží po Otrokovicích. Znak JO spojuje naběračku a talíř: polévka v naběračce i porce na talíři mají stejný tvar, protože je to pořád to samé jídlo na cestě z kuchyně až k zákazníkovi. Klient dostal logo s textem i bez něj, dvě barevné kombinace, vzor, šablonu denního menu a podklady pro tisk, všechno v jedné prezentaci.',
-    cover: 'portfolio/jo-cover.jpg',
+    cover: 'portfolio/jo-nahled.jpg',
     service: 'identity',
     steps: [
       { title: 'Znak JO', from: 0, text: 'J je naběračka a O talíř. Polévka v naběračce a porce na talíři mají stejný tvar, protože je to pořád to samé jídlo, jen putuje z kuchyně až k zákazníkovi. Dohromady to dává české „jo“.' },
