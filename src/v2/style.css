@@ -28,25 +28,15 @@
   src: url('./fonts/hanken-grotesk-latin-ext-wght-normal.woff2') format('woff2');
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
-/* Instrument Serif jen pro jméno v logu */
+/* Outfit jen pro jméno v logu */
 @font-face {
-  font-family: 'Instrument Serif'; font-style: normal; font-weight: 400; font-display: swap;
-  src: url('./fonts/instrument-serif-latin-400-normal.woff2') format('woff2');
+  font-family: 'Outfit'; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url('./fonts/outfit-latin-wght-normal.woff2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
-  font-family: 'Instrument Serif'; font-style: normal; font-weight: 400; font-display: swap;
-  src: url('./fonts/instrument-serif-latin-ext-400-normal.woff2') format('woff2');
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-@font-face {
-  font-family: 'Instrument Serif'; font-style: italic; font-weight: 400; font-display: swap;
-  src: url('./fonts/instrument-serif-latin-400-italic.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: 'Instrument Serif'; font-style: italic; font-weight: 400; font-display: swap;
-  src: url('./fonts/instrument-serif-latin-ext-400-italic.woff2') format('woff2');
+  font-family: 'Outfit'; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url('./fonts/outfit-latin-ext-wght-normal.woff2') format('woff2');
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 
@@ -162,8 +152,8 @@ em { font-style: normal; font-stretch: 75%; color: var(--accent-text); }
 .mark__lines { fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
 .mark__dot { fill: var(--c1); transition: transform .5s var(--ease); transform-origin: 40px 17.5px; }
 .logo:hover .mark__dot { transform: translateY(-3px); }
-.logo__name { font: 400 1.5rem/1 'Instrument Serif', Georgia, serif; letter-spacing: -.005em; white-space: nowrap; }
-.logo__name em { font-style: italic; color: var(--accent-text); }
+.logo__name { font: 500 1.18rem/1 'Outfit', var(--sans); letter-spacing: -.025em; white-space: nowrap; }
+.logo__name i { font-style: normal; color: var(--accent-text); }
 
 /* ===== Hlavička ===== */
 .hd { position: sticky; top: 0; z-index: 50; background: var(--bg); }
@@ -884,7 +874,7 @@ a.soc:hover { border-color: var(--ink); }
 @media (max-width: 640px) {
   .hd__cta, .hd .icon-btn { display: none; }
   .hd__bar { height: 64px; }
-  .logo__name { font-size: 1.36rem; }
+  .logo__name { font-size: 1.08rem; }
   .hero__cta .btn { flex: 1 1 auto; }
   .hero__prices { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; }
   .hero__prices > div { padding: 0 .8rem; }
