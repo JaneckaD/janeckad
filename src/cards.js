@@ -19,7 +19,7 @@ export function projectCards(items, asset, extra = '') {
         const tag = hasGallery ? `${icons.gallery} Zobrazit galerii` : `${icons.link} Navštívit web`;
         const inner = `
         <div class="project__media">
-          <img src="${escapeHtml(asset(p.cover))}" alt="${escapeHtml(`Náhled projektu ${p.title}`)}" width="1800" height="1200" loading="lazy" decoding="async" />
+          <img src="${escapeHtml(asset(p.cover))}" alt="${escapeHtml(`${p.title}: ${p.category.toLowerCase()}, ukázka práce`)}" width="1800" height="1200" loading="lazy" decoding="async" />
           <span class="project__tag">${tag}</span>
         </div>
         <div class="project__info">

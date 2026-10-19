@@ -96,6 +96,9 @@ em { font-style: normal; color: var(--accent-text); }
 .eyebrow i:nth-of-type(2) { background: var(--c2); }
 
 /* ===== Tlačítka ===== */
+/* atribut hidden musí vyhrát i nad třídami s display (tlačítko Navštívit web u grafických prací) */
+[hidden] { display: none !important; }
+
 .btn {
   --h: 48px;
   display: inline-flex; align-items: center; justify-content: center; gap: .6rem;

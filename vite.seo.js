@@ -99,6 +99,7 @@ function structuredData(file, page, title, description) {
     inLanguage: 'cs',
     isPartOf: { '@id': ids.website },
     primaryImageOfPage: { '@type': 'ImageObject', url: abs(page.image), width: 1200, height: 630 },
+    dateModified: new Date().toISOString().slice(0, 10),
   };
   const graph = [website, business, person, webpage];
 
@@ -216,6 +217,32 @@ export default function seo() {
         source: `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">${urls}\n</urlset>\n`,
       });
       this.emitFile({ type: 'asset', fileName: 'robots.txt', source: `User-agent: *\nAllow: /\n\nSitemap: ${abs('sitemap.xml')}\n` });
+
+      // stručný přehled webu v Markdownu pro AI vyhledávače (ChatGPT, Perplexity, Claude); Google ho ignoruje
+      const kc = (n) => n.toLocaleString('cs-CZ').replace(/\s/g, ' ') + ' Kč';
+      const cena = (sv) => (sv.price ? (sv.priceMax ? `${kc(sv.price)} až ${kc(sv.priceMax)}` : kc(sv.price)) : 'dohodou');
+      const llms = [
+        `# ${site.brand}`,
+        '',
+        `> ${site.brand}, ${site.role.toLowerCase()}. Tvorba webových stránek, e-shopů, log a vizuálních identit pro malé firmy a živnostníky po celém Česku.`,
+        '',
+        '## Služby a ceny',
+        ...services.map((sv) => `- ${sv.name} (${cena(sv)}): ${sv.desc}`),
+        '',
+        '## Ukázky prací',
+        ...projects.map((p) => `- ${p.title} (${p.category})${p.link ? `: ${p.link}` : ''}`),
+        '',
+        '## Stránky',
+        `- [Úvod, služby a ceník](${abs()})`,
+        `- [Portfolio](${abs('portfolio/')})`,
+        '',
+        '## Kontakt',
+        `- E-mail: ${site.email}`,
+        `- Telefon: ${site.phone}`,
+        `- Poptávkový formulář: ${abs('#kontakt')}`,
+        '',
+      ].join('\n');
+      this.emitFile({ type: 'asset', fileName: 'llms.txt', source: llms });
 
       // písma potřebná hned při načtení stáhne prohlížeč přednostně
       const fonts = Object.keys(bundle).filter((f) => f.endsWith('.woff2'));
