@@ -56,7 +56,12 @@ export function initContact() {
       form.reset();
       fields.forEach((f) => f.removeAttribute('aria-invalid'));
       ok.hidden = false;
-    } catch {
+    } catch (e) {
+      // FormSubmit u nové adresy nejdřív pošle aktivační e-mail; dokud se nepotvrdí, zprávy nedoručí
+      if (/activat/i.test(e.message)) {
+        error.innerHTML = `Formulář se teprve zapíná. Napište mi prosím zatím rovnou na <a href="${escapeHtml(mailto(data))}">${escapeHtml(site.email)}</a>.`;
+        return;
+      }
       error.innerHTML = `Zprávu se nepodařilo odeslat. Zkuste to prosím znovu, nebo mi napište rovnou na <a href="${escapeHtml(mailto(data))}">${escapeHtml(site.email)}</a>.`;
     } finally {
       submit.disabled = false;
