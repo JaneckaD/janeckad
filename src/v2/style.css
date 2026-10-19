@@ -204,8 +204,7 @@ em { font-style: normal; font-stretch: 75%; color: var(--accent-text); }
 }
 .hero__ring::after { content: ''; position: absolute; inset: 12%; border-radius: 50%; border: 1px dashed var(--line-2); animation: spin 60s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-/* mobil: skutečný model (rám z PSD), displej je obyčejný blok zkosený přes matrix3d
-   do přesné polohy displeje, na něm je statický obrázek ve 3× rozlišení */
+/* mobil: hotová fotka mockupu (public/mockup/mobil.webp, průhledné pozadí) */
 .phone {
   --k: .36;
   position: absolute; left: 50%; top: 50%; width: calc(931px * var(--k)); height: calc(1702px * var(--k));
@@ -214,17 +213,7 @@ em { font-style: normal; font-stretch: 75%; color: var(--accent-text); }
   animation: phone-in 1.2s var(--ease) both .15s;
 }
 @keyframes phone-in { from { opacity: 0; transform: translate3d(30px, 50px, 0) rotate(4deg); } }
-.phone__inner { position: absolute; left: 0; top: 0; width: 931px; height: 1702px; transform: scale(var(--k)); transform-origin: 0 0; }
-/* displej je ořezaný maskou přesně podle tvaru z PSD (zaoblené rohy i výřez) */
-.phone__clip { position: absolute; left: 0; top: 0; width: 931px; height: 1702px; -webkit-mask: url('/mockup/displej-maska.png') 0 0 / 100% 100% no-repeat; mask: url('/mockup/displej-maska.png') 0 0 / 100% 100% no-repeat; }
-.phone__screen {
-  position: absolute; left: 0; top: 0; width: 390px; height: 844px; overflow: hidden; background: #f6f8fb;
-  transform-origin: 0 0;
-  transform: matrix3d(1.87489, 0.261052, 0, 0.000328129, 0.312081, 1.96866, 0, -7.22023e-06, 0, 0, 1, 0, 33.3125, -5.46349, 0, 1);
-}
-.phone__screen::after { content: ''; position: absolute; inset: 0; background: linear-gradient(118deg, transparent 55%, rgba(255, 255, 255, .12) 55.2%, rgba(255, 255, 255, .03)); pointer-events: none; }
-.phone__shot { display: block; width: 100%; height: 100%; object-fit: cover; }
-.phone__frame { position: absolute; left: -120px; top: -120px; width: 1171px; height: 1942px; max-width: none; }
+.phone__img { position: absolute; top: 0; left: 50%; height: 100%; width: auto; max-width: none; translate: -50% 0; }
 
 .float {
   position: absolute; z-index: 2; display: inline-flex; align-items: center; gap: .55rem;
