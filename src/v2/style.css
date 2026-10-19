@@ -148,10 +148,10 @@ em { font-style: normal; font-stretch: 75%; color: var(--accent-text); }
 
 /* ===== Logo: tenká linka d + j, ocásek podtrhuje obě písmena ===== */
 .logo { display: inline-flex; align-items: center; gap: .55rem; text-decoration: none; color: inherit; }
-.mark { width: 34px; height: 34px; flex-shrink: 0; }
-.mark__lines { fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
-.mark__dot { fill: var(--c1); transition: transform .5s var(--ease); transform-origin: 40px 17.5px; }
-.logo:hover .mark__dot { transform: translateY(-3px); }
+.mark { width: 30px; height: 30px; flex-shrink: 0; }
+.mark__d { fill: currentColor; }
+.mark__dot { fill: var(--c1); transition: transform .5s var(--ease); }
+.logo:hover .mark__dot { transform: translateY(-60px); }
 .logo__name { font: 650 1.16rem/1 'Rethink Sans', var(--sans); letter-spacing: -.02em; white-space: nowrap; }
 .logo__name i { font-style: normal; color: var(--accent-text); }
 
@@ -390,8 +390,8 @@ li:nth-child(4) > .ref .ref__ico { background: var(--soft-4); color: var(--ink);
 .about { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: clamp(2rem, 6vw, 5rem); align-items: center; }
 .about__visual { position: relative; max-width: 380px; }
 .avatar { display: grid; place-items: center; aspect-ratio: 1; border-radius: 50%; background: var(--ink); color: var(--bg); }
-.avatar .mark { width: 62%; height: 62%; }
-.avatar .mark__lines { stroke-width: 2.4; }
+.avatar .mark { width: 50%; height: 50%; }
+.avatar .mark__dot { fill: #3b82f6; }
 .about__card {
   position: absolute; right: -6%; bottom: 8%; display: grid; padding: .8rem 1.2rem; border-radius: 18px;
   background: var(--card);

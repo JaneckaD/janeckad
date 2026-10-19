@@ -174,7 +174,7 @@ export function refsMarkup(projects) {
 }
 
 // Logo: d a j z tenké linky, ocásek j podtrhuje obě písmena, tečka nad j je v barvě
-export const logoMark = `<svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><g class="mark__lines"><circle cx="20" cy="34" r="9" /><path d="M29 12v31" /><path d="M40 26v21a8 8 0 0 1-8 8H12" /></g><circle class="mark__dot" cx="40" cy="17.5" r="2.8" /></svg>`;
+export const logoMark = `<svg class="mark" viewBox="-10 -24 760 760" aria-hidden="true"><path class="mark__d" d="M230 712Q158 712 106.5 676.5Q55 641 27.5 581.5Q0 522 0 450Q0 378 28 319.5Q56 261 108 226.5Q160 192 230 192Q278 192 321.5 212Q365 232 395 270V0H524V700H395V629Q370 670 325 691Q280 712 230 712ZM263 600Q303 600 332.5 581Q362 562 379 528.5Q396 495 396 452Q396 399 375 366.5Q354 334 323 319Q292 304 262 304Q223 304 193.5 323Q164 342 147 374.5Q130 407 130 450Q130 492 147 526Q164 560 194 580Q224 600 263 600Z" /><path class="mark__dot" d="M658 712Q623 712 599 687.5Q575 663 575 629Q575 594 599 570Q623 546 658 546Q693 546 717 570Q741 594 741 629Q741 663 717 687.5Q693 712 658 712Z" /></svg>`;
 
 // Patička: stejná na všech stránkách, vkládá se při sestavení (vite.seo.js).
 // home = cesta k hlavní stránce ('' na hlavní, '../' v portfoliu, '/' na stránce 404)
