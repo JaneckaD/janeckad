@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Dotazník k novému webu – david janečka.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rethink%20Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg: #f6f8fb; --bg-alt: #eceef2; --card: #fbfcfd; --ink: #0f172a; --ink-2: #494f5e;
+            --muted: #676c79; --accent: #2563eb;
+            --line: color-mix(in srgb, var(--ink) 10%, var(--bg)); --accent-soft: color-mix(in srgb, var(--accent) 9%, var(--card));
+            --shadow: 0 1px 2px color-mix(in srgb, var(--ink) 4%, transparent), 0 18px 40px -18px color-mix(in srgb, var(--ink) 18%, transparent); }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font-family: 'Rethink Sans', ui-sans-serif, system-ui, sans-serif; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+    .obal { max-width: 760px; margin: 0 auto; padding: 0 16px 80px; }
+    header { padding: 28px 0 8px; }
+    .znacka { font-weight: 700; font-size: 1.3rem; letter-spacing: -.04em; text-decoration: none; color: var(--ink); }
+    .znacka span { color: var(--accent); }
+    .eyebrow { font-size: .75rem; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); margin: 40px 0 10px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.2rem); font-weight: 500; letter-spacing: -.045em; line-height: 1.05; margin: 0 0 16px; }
+    h1 em { font-style: normal; color: var(--accent); }
+    .uvod { color: var(--ink-2); font-size: 1.05rem; max-width: 600px; }
+    .karta { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: clamp(20px, 4vw, 32px); margin-top: 20px; box-shadow: var(--shadow); }
+    .karta h2 { font-size: 1.25rem; font-weight: 600; letter-spacing: -.02em; margin: 0 0 4px; }
+    .otazka { padding: 20px 0; border-top: 1px solid var(--line); }
+    .otazka:first-of-type { border-top: 0; }
+    .otazka > label, .otazka > .nadpis { display: block; font-weight: 600; margin-bottom: 4px; }
+    .cislo { color: var(--accent); font-variant-numeric: tabular-nums; margin-right: .35em; }
+    .napoveda { color: var(--muted); font-size: .9rem; margin: 0 0 10px; }
+    input[type=text], input[type=email], input[type=tel], textarea {
+      width: 100%; font: inherit; color: var(--ink); background: #fff; border: 1px solid color-mix(in srgb, var(--ink) 16%, var(--bg));
+      border-radius: 12px; padding: 12px 14px; margin-top: 6px; }
+    textarea { min-height: 96px; resize: vertical; }
+    input:focus, textarea:focus { outline: 2px solid color-mix(in srgb, var(--accent) 35%, transparent); border-color: var(--accent); }
+    .moznosti { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .moznosti label { position: relative; cursor: pointer; }
+    .moznosti input { position: absolute; opacity: 0; pointer-events: none; }
+    .moznosti span { display: inline-block; padding: 9px 16px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--ink) 16%, var(--bg)); background: #fff; transition: all .15s; }
+    .moznosti input:checked + span { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .moznosti input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .jine { margin-top: 10px; }
+    .kontakt { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+    .kontakt .cele { grid-column: 1 / -1; }
+    @media (max-width: 560px) { .kontakt { grid-template-columns: 1fr; } }
+    .kontakt label { display: block; font-size: .85rem; color: var(--muted); margin-top: 12px; }
+    button { font: inherit; font-weight: 600; background: var(--accent); color: #fff; border: 0; border-radius: 999px; padding: 15px 30px; font-size: 1.05rem; cursor: pointer; margin-top: 24px; }
+    button:hover { background: color-mix(in srgb, var(--accent) 85%, var(--ink)); }
+    .postup { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--bg) 90%, transparent); backdrop-filter: blur(8px); padding: 10px 0; }
+    .postup div { height: 5px; background: var(--bg-alt); border-radius: 999px; overflow: hidden; }
+    .postup div span { display: block; height: 100%; width: 0; background: var(--accent); transition: width .3s; }
+    .chyba-odeslani { color: #b91c1c; margin-top: 16px; }
+    footer { color: var(--muted); font-size: .85rem; margin-top: 40px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="obal">
+    <header><a class="znacka" href="https://davix.cz">david janečka<span>.</span></a></header>
+
+    <div id="neplatny" hidden>
+      <div class="eyebrow">Dotazník</div>
+      <h1>Tenhle odkaz <em>nefunguje.</em></h1>
+      <p class="uvod">Dotazník už neexistuje nebo je adresa neúplná. Napište mi prosím na djanecka6@gmail.com a pošlu nový.</p>
+    </div>
+
+    <div id="dekujeme" hidden>
+      <div class="eyebrow">Hotovo</div>
+      <h1>Děkuju, <em>mám to.</em></h1>
+      <p class="uvod">Odpovědi mi přišly. Projdu je a ozvu se nejpozději druhý den s návrhem, jak by mohl nový web vypadat.</p>
+      <p class="uvod">Kdybyste si ještě na něco vzpomněli, můžete dotazník otevřít znovu a odeslat ho ještě jednou.</p>
+    </div>
+
+    
+    <div id="dotaznik">
+      <div class="eyebrow">Weby • Loga • Grafika</div>
+      <h1>Pár otázek <em>k vašemu webu.</em></h1>
+      <p class="uvod">Díky odpovědím vám připravím návrh na míru<span id="pro-firmu"></span>. Zabere to asi 10 minut,
+        nic není povinné a když nevíte, klidně otázku přeskočte.</p>
+
+      <div class="postup"><div><span id="ukazatel"></span></div></div>
+
+      <form method="post" id="formular">
+        <section class="karta">
+          <h2>Kontakt</h2>
+          <div class="kontakt">
+            <div class="cele"><label for="k-j">Vaše jméno</label><input type="text" id="k-j" name="kontakt_jmeno" value="" autocomplete="name"></div>
+            <div><label for="k-t">Telefon</label><input type="tel" id="k-t" name="kontakt_telefon" value="" autocomplete="tel"></div>
+            <div><label for="k-e">E-mail</label><input type="email" id="k-e" name="kontakt_email" value="" autocomplete="email"></div>
+          </div>
+        </section>
+
+        
+          <section class="karta">
+            <h2>O vaší firmě</h2>
+            
+              <div class="otazka" data-otazka>
+                
+                  <label for="o-nazev"><span class="cislo">1.</span>Jak se jmenuje vaše firma a v jakém oboru podnikáte?</label>
+                  
+                  
+                    <input type="text" id="o-nazev" name="nazev" value="">
+                  
+                
+              </div>
+            
+              <div class="otazka" data-otazka>
+                
+                  <label for="o-cinnost"><span class="cislo">2.</span>Čím se zabýváte? Jaké jsou vaše hlavní služby nebo produkty?</label>
+                  
+                  
+                    <textarea id="o-cinnost" name="cinnost"></textarea>
+                  
+                
+              </div>
+            
+              <div class="otazka" data-otazka>
+                
+                  <label for="o-zakaznici"><span class="cislo">3.</span>Kdo jsou vaši typičtí zákazníci?</label>
+                  <p class="napoveda">Např. rodiny z okolí, firmy, senioři, turisté…</p>
+                  
+                    <textarea id="o-zakaznici" name="zakaznici"></textarea>
+                  
+                
+              </div>
+            
+              <div class="otazka" data-otazka>
+                
+                  <label for="o-pusobnost"><span class="cislo">4.</span>Kde působíte?</label>
+                  <p class="napoveda">Město, region, celá ČR…</p>
+                  
+                    <input type="text" id="o-pusobnost" name="pusobnost" value="">
+                  
+                
+              </div>
+            
+              <div class="otazka" data-otazka>
+                
+                  <label for="o-odlisnost"><span class="cislo">5.</span>Čím se lišíte od konkurence? Proč si zákazníci vyberou právě vás?</label>
+                  
+                  
+                    <textarea id="o-odlisnost" name="odlisnost"></textarea>
+                  
+                
+              </div>
+            
+              <div class="otazka" data-otazka>
+                
+                  <div class="nadpis" id="n-odkud"><span class="cislo">6.</span>Jak k vám zákazníci nejčastěji přicházejí?</div>
+                  
+                  <div class="moznosti" role="group" aria-labelledby="n-odkud">
+                    
+                      <label><input type="checkbox" name="odkud" value="Na doporučení" ><span>Na doporučení</span></label>
+                    
+                      <label><input type="checkbox" name="odkud" value="Přes Google" ><span>Přes Google</span></label>
+                    
+                      <label><input type="checkbox" name="odkud" value="Ze sociálních sítí" ><span>Ze sociálních sítí</span></label>
+                    
+                      <label><input type="checkbox" name="odkud" value="Z inzerce nebo katalogů" ><span>Z inzerce nebo katalogů</span></label>
+                    
+                      <label><input type="checkbox" name="odkud" value="Jdou kolem provozovny" ><span>Jdou kolem provozovny</span></label>
+                    
+                  </div>
+                  <input type="text" class="jine" name="odkud_jine" placeholder="Jiné, doplňte…" value="" aria-label="Jiná odpověď">
+                
+              </div>
+            
+          </section>
+        
+          <section class="karta">
+            <h2>Co má web splnit</h2>
+            
+              <div class="otazka" data-otazka>
+                
+                  <div class="nadpis" id="n-cile"><span class="cislo">7.</span>Co má nový web hlavně dělat?</div>
+                  
+                  <div class="moznosti" role="group" aria-labelledby="n-cile">
+                    
+                      <label><input type="checkbox" name="cile" value="Přinášet víc poptávek a zakázek" ><span>Přinášet víc poptávek a zakázek</span></label>
+                    
+                      <label><input type="checkbox" name="cile" value="Představit firmu a budovat důvěru" ><span>Představit firmu a budovat důvěru</span></label>
+                    
+                      <label><input type="checkbox" name="cile" value="Prodávat online" ><span>Prodávat online</span></label>
+                    
+                      <label><input type="checkbox" name="cile" value="Umožnit online rezervace" ><span>Umožnit online rezervace</span></label>
+                    
+                      <label><input type="checkbox" name="cile" value="Pomoct s náborem lidí" ><span>Pomoct s náborem lidí</span></label>
+                    
+                      <label><input type="checkbox" name="cile" value="Informovat o novinkách a akcích" ><span>Informovat o novinkách a akcích</span></label>
+                    
+                  </div>
+                  <input type="text" class="jine" name="cile_jine" placeholder="Jiné, doplňte…" value="" aria-label="Jiná odpověď">
+                
+              </div>
+            
+              <div class="otazka" data-otazka>
+                
+                  <label for="o-inspirace"><span class="cislo">8.</span>Líbí se vám nějaké weby (třeba konkurence)? Co přesně se vám na nich líbí?</label>
+                  <p class="napoveda">Klidně jen odkazy.</p>
+                  
+                    <textarea id="o-inspirace" name="inspirace"></textarea>
+                  
+                
+              </div>
+            
+          </section>
+        
+          <section class="karta">
+            <h2>Vzhled a značka</h2>
+            
+              <div class="otazka" data-otazka>
+                
+                  <div class="nadpis" id="n-logo"><span class="cislo">9.</span>Máte logo?</div>
+                  
+                  <div class="moznosti" role="radiogroup" aria-labelledby="n-logo">
+                    
+                      <label><input type="radio" name="logo" value="Ano a jsem s ním spokojený" ><span>Ano a jsem s ním spokojený</span></label>
+                    
+                      <label><input type="radio" name="logo" value="Ano, ale chtěl bych nové nebo upravené" ><span>Ano, ale chtěl bych nové nebo upravené</span></label>
+                    
+                      <label><input type="radio" name="logo" value="Ne, logo potřebuji" ><span>Ne, logo potřebuji</span></label>
+                    
+                  </div>
+                  <input type="text" class="jine" name="logo_jine" placeholder="Jiné, doplňte…" value="" aria-label="Jiná odpověď">
+                
+              </div>
+            
+              <div class="otazka" data-otazka>
+                
+                  <label for="o-barvy"><span class="cislo">10.</span>Máte firemní barvy nebo písmo? Které?</label>
+                  <p class="napoveda">Pokud ne, napište barvy, které se vám líbí.</p>
+                  
+                    <input type="text" id="o-barvy" name="barvy" value="">
+                  
+                
+              </div>
+            
+              <div class="otazka" data-otazka>
+                
+                  <div class="nadpis" id="n-styl"><span class="cislo">11.</span>Jaký styl webu se vám líbí?</div>
+                  
+                  <div class="moznosti" role="group" aria-labelledby="n-styl">
+                    
+                      <label><input type="checkbox" name="styl" value="Moderní a minimalistický" ><span>Moderní a minimalistický</span></label>
+                    
+                      <label><input type="checkbox" name="styl" value="Tradiční a důvěryhodný" ><span>Tradiční a důvěryhodný</span></label>
+                    
+                      <label><input type="checkbox" name="styl" value="Hravý a barevný" ><span>Hravý a barevný</span></label>
+                    
+                      <label><input type="checkbox" name="styl" value="Luxusní a elegantní" ><span>Luxusní a elegantní</span></label>
+                    
+                      <label><input type="checkbox" name="styl" value="Technický a věcný" ><span>Technický a věcný</span></label>
+                    
+                      <label><input type="checkbox" name="styl" value="Přírodní a útulný" ><span>Přírodní a útulný</span></label>
+                    
+                  </div>
+                  <input type="text" class="jine" name="styl_jine" placeholder="Jiné, doplňte…" value="" aria-label="Jiná odpověď">
+                
+              </div>
+            
+              <div class="otazka" data-otazka>
+                
+                  <label for="o-dojem"><span class="cislo">12.</span>Jak má web na návštěvníka působit? Zkuste tři slova.</label>
+                  <p class="napoveda">Např. spolehlivě, přátelsky, profesionálně.</p>
+                  
+                    <input type="text" id="o-dojem" name="dojem" value="">
+                  
+                
+              </div>
+            
+              <div class="otazka" data-otazka>
+                
+                  <div class="nadpis" id="n-fotky"><span class="cislo">13.</span>Máte vlastní fotky (provozovna, tým, vaše práce)?</div>
+                  
+                  <div class="moznosti" role="radiogroup" aria-labelledby="n-fotky">
+                    
+                      <label><input type="radio" name="fotky" value="Ano, kvalitní" ><span>Ano, kvalitní</span></label>
+                    
+                      <label><input type="radio" name="fotky" value="Pár mám, spíš z mobilu" ><span>Pár mám, spíš z mobilu</span></label>
+                    
+                      <label><input type="radio" name="fotky" value="Nemám, budu potřebovat pomoct" ><span>Nemám, budu potřebovat pomoct</span></label>
+                    
+                  </div>
+                  <input type="text" class="jine" name="fotky_jine" placeholder="Jiné, doplňte…" value="" aria-label="Jiná odpověď">
+                
+              </div>
+            
+          </section>
+        
+          <section class="karta">
+            <h2>Obsah a funkce</h2>
+            
+              <div class="otazka" data-otazka>
+                
+                  <div class="nadpis" id="n-stranky"><span class="cislo">14.</span>Které části nebo stránky na webu chcete?</div>
+                  
+                  <div class="moznosti" role="group" aria-labelledby="n-stranky">
+                    
+                      <label><input type="checkbox" name="stranky" value="Úvod" ><span>Úvod</span></label>
+                    
+                      <label><input type="checkbox" name="stranky" value="O nás" ><span>O nás</span></label>
+                    
+                      <label><input type="checkbox" name="stranky" value="Služby" ><span>Služby</span></label>
+                    
+                      <label><input type="checkbox" name="stranky" value="Ceník" ><span>Ceník</span></label>
+                    
+                      <label><input type="checkbox" name="stranky" value="Galerie a reference" ><span>Galerie a reference</span></label>
+                    
+                      <label><input type="checkbox" name="stranky" value="Recenze zákazníků" ><span>Recenze zákazníků</span></label>
+                    
+                      <label><input type="checkbox" name="stranky" value="Novinky / blog" ><span>Novinky / blog</span></label>
+                    
+                      <label><input type="checkbox" name="stranky" value="Kariéra" ><span>Kariéra</span></label>
+                    
+                      <label><input type="checkbox" name="stranky" value="Časté dotazy" ><span>Časté dotazy</span></label>
+                    
+                      <label><input type="checkbox" name="stranky" value="Kontakt s mapou" ><span>Kontakt s mapou</span></label>
+                    
+                  </div>
+                  <input type="text" class="jine" name="stranky_jine" placeholder="Jiné, doplňte…" value="" aria-label="Jiná odpověď">
+                
+              </div>
+            
+              <div class="otazka" data-otazka>
+                
+                  <div class="nadpis" id="n-funkce"><span class="cislo">15.</span>Jaké funkce web potřebuje?</div>
+                  
+                  <div class="moznosti" role="group" aria-labelledby="n-funkce">
+                    
+                      <label><input type="checkbox" name="funkce" value="Kontaktní formulář" ><span>Kontaktní formulář</span></label>
+                    
+                      <label><input type="checkbox" name="funkce" value="Poptávkový formulář nebo kalkulačka ceny" ><span>Poptávkový formulář nebo kalkulačka ceny</span></label>
+                    
+                      <label><input type="checkbox" name="funkce" value="Online rezervace termínů" ><span>Online rezervace termínů</span></label>
+                    
+                      <label><input type="checkbox" name="funkce" value="E-shop" ><span>E-shop</span></label>
+                    
+                      <label><input type="checkbox" name="funkce" value="Možnost měnit obsah sám (administrace)" ><span>Možnost měnit obsah sám (administrace)</span></label>
+                    
+                      <label><input type="checkbox" name="funkce" value="Více jazyků" ><span>Více jazyků</span></label>
+                    
+                      <label><input type="checkbox" name="funkce" value="Napojení na sociální sítě" ><span>Napojení na sociální sítě</span></label>
+                    
+                      <label><input type="checkbox" name="funkce" value="Newsletter" ><span>Newsletter</span></label>
+                    
+                      <label><input type="checkbox" name="funkce" value="Chat / WhatsApp tlačítko" ><span>Chat / WhatsApp tlačítko</span></label>
+                    
+                  </div>
+                  <input type="text" class="jine" name="funkce_jine" placeholder="Jiné, doplňte…" value="" aria-label="Jiná odpověď">
+                
+              </div>
+            
+              <div class="otazka" data-otazka>
+                
+                  <div class="nadpis" id="n-texty"><span class="cislo">16.</span>Kdo připraví texty na web?</div>
+                  
+                  <div class="moznosti" role="radiogroup" aria-labelledby="n-texty">
+                    
+                      <label><input type="radio" name="texty" value="Dodám je sám" ><span>Dodám je sám</span></label>
+                    
+                      <label><input type="radio" name="texty" value="Dodám podklady, pomozte mi je sepsat" ><span>Dodám podklady, pomozte mi je sepsat</span></label>
+                    
+                      <label><input type="radio" name="texty" value="Napište je celé za mě" ><span>Napište je celé za mě</span></label>
+                    
+                  </div>
+                  <input type="text" class="jine" name="texty_jine" placeholder="Jiné, doplňte…" value="" aria-label="Jiná odpověď">
+                
+              </div>
+            
+              <div class="otazka" data-otazka>
+                
+                  <div class="nadpis" id="n-domena"><span class="cislo">17.</span>Máte doménu (adresu webu) a hosting?</div>
+                  
+                  <div class="moznosti" role="radiogroup" aria-labelledby="n-domena">
+                    
+                      <label><input type="radio" name="domena" value="Ano, obojí" ><span>Ano, obojí</span></label>
+                    
+                      <label><input type="radio" name="domena" value="Jen doménu" ><span>Jen doménu</span></label>
+                    
+                      <label><input type="radio" name="domena" value="Nemám nic, potřebuji zařídit" ><span>Nemám nic, potřebuji zařídit</span></label>
+                    
+                      <label><input type="radio" name="domena" value="Nevím" ><span>Nevím</span></label>
+                    
+                  </div>
+                  <input type="text" class="jine" name="domena_jine" placeholder="Jiné, doplňte…" value="" aria-label="Jiná odpověď">
+                
+              </div>
+            
+              <div class="otazka" data-otazka>
+                
+                  <div class="nadpis" id="n-grafika"><span class="cislo">18.</span>Potřebujete i další grafiku?</div>
+                  
+                  <div class="moznosti" role="group" aria-labelledby="n-grafika">
+                    
+                      <label><input type="checkbox" name="grafika" value="Vizitky" ><span>Vizitky</span></label>
+                    
+                      <label><input type="checkbox" name="grafika" value="Letáky nebo plakáty" ><span>Letáky nebo plakáty</span></label>
+                    
+                      <label><input type="checkbox" name="grafika" value="Polepy aut nebo provozovny" ><span>Polepy aut nebo provozovny</span></label>
+                    
+                      <label><input type="checkbox" name="grafika" value="Šablony na sociální sítě" ><span>Šablony na sociální sítě</span></label>
+                    
+                      <label><input type="checkbox" name="grafika" value="Zatím nic dalšího" ><span>Zatím nic dalšího</span></label>
+                    
+                  </div>
+                  <input type="text" class="jine" name="grafika_jine" placeholder="Jiné, doplňte…" value="" aria-label="Jiná odpověď">
+                
+              </div>
+            
+          </section>
+        
+          <section class="karta">
+            <h2>Praktické věci</h2>
+            
+              <div class="otazka" data-otazka>
+                
+                  <div class="nadpis" id="n-termin"><span class="cislo">19.</span>Kdy byste chtěli mít web hotový?</div>
+                  
+                  <div class="moznosti" role="radiogroup" aria-labelledby="n-termin">
+                    
+                      <label><input type="radio" name="termin" value="Co nejdřív" ><span>Co nejdřív</span></label>
+                    
+                      <label><input type="radio" name="termin" value="Do měsíce" ><span>Do měsíce</span></label>
+                    
+                      <label><input type="radio" name="termin" value="Do tří měsíců" ><span>Do tří měsíců</span></label>
+                    
+                      <label><input type="radio" name="termin" value="Nespěchá to" ><span>Nespěchá to</span></label>
+                    
+                  </div>
+                  <input type="text" class="jine" name="termin_jine" placeholder="Jiné, doplňte…" value="" aria-label="Jiná odpověď">
+                
+              </div>
+            
+              <div class="otazka" data-otazka>
+                
+                  <div class="nadpis" id="n-rozpocet"><span class="cislo">20.</span>S jakým rozpočtem zhruba počítáte?</div>
+                  
+                  <div class="moznosti" role="radiogroup" aria-labelledby="n-rozpocet">
+                    
+                      <label><input type="radio" name="rozpocet" value="Do 5 000 Kč" ><span>Do 5 000 Kč</span></label>
+                    
+                      <label><input type="radio" name="rozpocet" value="5 000 – 10 000 Kč" ><span>5 000 – 10 000 Kč</span></label>
+                    
+                      <label><input type="radio" name="rozpocet" value="10 000 – 20 000 Kč" ><span>10 000 – 20 000 Kč</span></label>
+                    
+                      <label><input type="radio" name="rozpocet" value="Víc než 20 000 Kč" ><span>Víc než 20 000 Kč</span></label>
+                    
+                      <label><input type="radio" name="rozpocet" value="Zatím nevím" ><span>Zatím nevím</span></label>
+                    
+                  </div>
+                  <input type="text" class="jine" name="rozpocet_jine" placeholder="Jiné, doplňte…" value="" aria-label="Jiná odpověď">
+                
+              </div>
+            
+              <div class="otazka" data-otazka>
+                
+                  <label for="o-poznamka"><span class="cislo">21.</span>Je ještě něco, co bych měl vědět?</label>
+                  
+                  
+                    <textarea id="o-poznamka" name="poznamka"></textarea>
+                  
+                
+              </div>
+            
+          </section>
+        
+
+        <p class="chyba-odeslani" id="chyba" hidden>Odeslání se nepovedlo. Zkontrolujte připojení a zkuste to prosím znovu.</p>
+        <button type="submit" id="odeslat">Odeslat dotazník</button>
+      </form>
+    </div>
+    
+
+    <footer>david janečka. · davix.cz</footer>
+  </div>
+
+  <script>
+    // ukazatel vyplnění
+    const form = document.getElementById('formular');
+    if (form) {
+      const otazky = [...form.querySelectorAll('[data-otazka]')];
+      const prepocet = () => {
+        const hotove = otazky.filter((o) => [...o.querySelectorAll('input, textarea')].some((i) =>
+          (i.type === 'radio' || i.type === 'checkbox') ? i.checked : i.value.trim())).length;
+        document.getElementById('ukazatel').style.width = (hotove / otazky.length * 100) + '%';
+      };
+      form.addEventListener('input', prepocet);
+      form.addEventListener('change', prepocet);
+      prepocet();
+    }
+  </script>
+  
+  <script>
+    // Verze pro davix.cz: odkaz ?t=TOKEN&f=Firma, odpovědi jdou do Google tabulky
+    (function () {
+      const SKRIPT = "https://script.google.com/macros/s/AKfycbz2Ru12YnbVPW6NAIE-_TaxI5nCF_1rGU3QJWGXn4jTkUMa1q5DKaozBF-_vUg24-G1DA/exec";
+      const p = new URLSearchParams(location.search);
+      const token = p.get('t') || '';
+      const firma = p.get('f') || '';
+      const form = document.getElementById('formular');
+      const zobraz = (id) => ['neplatny', 'dekujeme', 'dotaznik'].forEach((x) => { document.getElementById(x).hidden = x !== id; });
+
+      if (!/^[A-Za-z0-9_-]{6,40}$/.test(token)) { zobraz('neplatny'); return; }
+      if (firma) document.getElementById('pro-firmu').textContent = ' pro ' + firma;
+
+      // rozpracované odpovědi si pamatujeme v prohlížeči, kdyby zákazník stránku zavřel
+      const KLIC = 'dotaznik-' + token;
+      try {
+        const ulozene = JSON.parse(localStorage.getItem(KLIC) || 'null');
+        if (ulozene) {
+          for (const [nazev, hodnota] of Object.entries(ulozene)) {
+            form.querySelectorAll('[name="' + CSS.escape(nazev) + '"]').forEach((el) => {
+              if (el.type === 'checkbox' || el.type === 'radio') el.checked = [].concat(hodnota).includes(el.value);
+              else el.value = hodnota;
+            });
+          }
+          form.dispatchEvent(new Event('change'));
+        }
+      } catch (e) { /* localStorage nedostupný */ }
+
+      function data() {
+        const o = {};
+        for (const [k, v] of new FormData(form).entries()) {
+          if (k in o) o[k] = [].concat(o[k], v); else o[k] = v;
+        }
+        form.querySelectorAll('input[type=checkbox]').forEach((el) => { if (!(el.name in o)) o[el.name] = []; else o[el.name] = [].concat(o[el.name]); });
+        return o;
+      }
+      form.addEventListener('input', () => { try { localStorage.setItem(KLIC, JSON.stringify(data())); } catch (e) {} });
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('odeslat');
+        btn.disabled = true; btn.textContent = 'Odesílám…';
+        document.getElementById('chyba').hidden = true;
+        const o = data();
+        const kontakt = { jmeno: o.kontakt_jmeno || '', telefon: o.kontakt_telefon || '', email: o.kontakt_email || '' };
+        try {
+          // Google Apps Script nepovoluje čtení odpovědi z cizí domény → no-cors, výsledek si ověří aplikace
+          await fetch(SKRIPT, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ token, firma, kontakt, odpovedi: o, odeslano: new Date().toISOString() }) });
+          try { localStorage.removeItem(KLIC); } catch (err) {}
+          zobraz('dekujeme');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (err) {
+          document.getElementById('chyba').hidden = false;
+          btn.disabled = false; btn.textContent = 'Odeslat dotazník';
+        }
+      });
+    })();
+  </script>
+  
+</body>
+</html>
