@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<!-- skrytá stránka: nikam se na ni neodkazuje a vyhledávače ji nemají indexovat -->
+<meta name="robots" content="noindex, nofollow, noarchive" />
+<title>Cesta po Evropě · 24. 10. – 1. 11.</title>
+<link rel="icon" href="/ikona.svg?v=7" type="image/svg+xml" />
+<link rel="stylesheet" href="leaflet/leaflet.css" />
+<style>
+@font-face { font-family: 'Rethink Sans'; font-weight: 400 800; font-display: swap; src: url(rethink-sans-latin-wght-normal.woff2) format('woff2'); }
+@font-face { font-family: 'Rethink Sans'; font-weight: 400 800; font-display: swap; src: url(rethink-sans-latin-ext-wght-normal.woff2) format('woff2'); unicode-range: U+0100-02BA, U+1E00-1EFF; }
+:root {
+  --bg: #f6f8fb; --card: #fff; --ink: #0f172a; --ink-2: #494f5e; --ink-3: #676c79;
+  --line: #e2e6ec; --c1: #2563eb; --c2: #0891b2; --soft: #eaf0fd; --warn: #c2410c; --warn-soft: #fff1e6; --ok: #15803d; --ok-soft: #e8f6ee;
+  --r: 22px; --ease: cubic-bezier(.2,.7,.2,1);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; scroll-padding-top: 86px; }
+body { font: 400 16px/1.5 'Rethink Sans', system-ui, sans-serif; color: var(--ink); background: var(--bg); -webkit-font-smoothing: antialiased; }
+a { color: inherit; }
+.wrap { width: min(1120px, 100% - 32px); margin-inline: auto; }
+.i { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+/* hlavička */
+.hero { position: relative; overflow: hidden; padding: 40px 0 28px; }
+.hero::before, .hero::after { content: ''; position: absolute; border-radius: 50%; pointer-events: none; }
+.hero::before { width: 620px; height: 620px; right: -220px; top: -260px; background: radial-gradient(circle, rgba(8,145,178,.16), transparent 62%); }
+.hero::after { width: 620px; height: 620px; right: -120px; top: -140px; background: radial-gradient(circle, rgba(37,99,235,.18), transparent 62%); }
+.logo { font: 700 22px/1 'Rethink Sans'; letter-spacing: -.035em; text-decoration: none; }
+.logo i { font-style: normal; color: var(--c1); }
+.eyebrow { margin-top: 34px; font: 700 12px/1 'Rethink Sans'; letter-spacing: .16em; text-transform: uppercase; color: var(--c1); display: flex; align-items: center; gap: 10px; }
+.eyebrow::before { content: ''; width: 22px; height: 2px; border-radius: 2px; background: currentColor; }
+h1 { margin-top: 12px; font: 400 clamp(38px, 7vw, 68px)/1 'Rethink Sans'; letter-spacing: -.045em; position: relative; }
+h1 em { font-style: normal; color: var(--c1); }
+.sub { margin-top: 14px; color: var(--ink-2); font-size: 17px; max-width: 560px; position: relative; }
+.stats { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 10px; position: relative; }
+.stat { display: flex; align-items: center; gap: 8px; padding: 9px 15px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); font-size: 14px; color: var(--ink-2); }
+.stat b { color: var(--ink); font-weight: 600; }
+.stat .i { color: var(--c1); }
+
+/* trasa */
+.route { margin-top: 26px; display: flex; align-items: center; gap: 0; overflow-x: auto; padding: 4px 2px 10px; scrollbar-width: none; position: relative; }
+.route::-webkit-scrollbar { display: none; }
+.stop { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; background: none; border: 0; font: inherit; color: inherit; cursor: pointer; padding: 0 2px; }
+.stop span { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--card); border: 1px solid var(--line); font: 600 14px/1 'Rethink Sans'; transition: transform .25s var(--ease), background .25s, color .25s; }
+.stop small { font-size: 12px; color: var(--ink-3); white-space: nowrap; }
+.stop:hover span, .stop.is-on span { background: var(--c1); color: #fff; border-color: var(--c1); transform: translateY(-2px); }
+.stop.is-home span { background: var(--ink); color: #fff; border-color: var(--ink); }
+.dash { flex: 1 0 22px; min-width: 22px; height: 0; border-top: 2px dashed #c8d0dc; margin: 0 4px 22px; }
+
+/* teď */
+.now { margin-top: 22px; position: relative; display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; padding: 18px 22px; border-radius: var(--r); color: #fff; background: radial-gradient(120% 140% at 85% 20%, #2b4fd8 0, #16245e 55%, #0b1226 100%); box-shadow: 0 24px 40px -28px rgba(15,23,42,.6); }
+.now__ico { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.12); }
+.now__ico .i { width: 22px; height: 22px; }
+.now small { display: block; font: 700 11px/1 'Rethink Sans'; letter-spacing: .14em; text-transform: uppercase; color: #93c5fd; margin-bottom: 6px; }
+.now strong { font: 500 19px/1.3 'Rethink Sans'; letter-spacing: -.01em; }
+.now__cd { font: 600 22px/1 'Rethink Sans'; letter-spacing: -.02em; text-align: right; white-space: nowrap; }
+.now__cd em { display: block; font: 400 12px/1.3 'Rethink Sans'; font-style: normal; color: #c3cad6; margin-top: 4px; }
+
+/* lišta dnů */
+.days-nav { position: sticky; top: 0; z-index: 20; background: rgba(246,248,251,.94); border-bottom: 1px solid var(--line); }
+.days-nav .wrap { display: flex; gap: 8px; overflow-x: auto; padding: 12px 0; scrollbar-width: none; }
+.days-nav .wrap::-webkit-scrollbar { display: none; }
+.dchip { flex-shrink: 0; text-decoration: none; display: flex; flex-direction: column; align-items: center; padding: 7px 13px; border-radius: 14px; border: 1px solid var(--line); background: var(--card); line-height: 1.15; transition: background .2s, color .2s, border-color .2s; }
+.dchip b { font-size: 15px; font-weight: 600; }
+.dchip small { font-size: 11px; color: var(--ink-3); }
+.dchip.is-today { border-color: var(--c1); }
+.dchip.is-on { background: var(--c1); border-color: var(--c1); color: #fff; }
+.dchip.is-on small { color: #dbe6ff; }
+
+/* rozložení */
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 28px; align-items: start; padding: 26px 0 60px; }
+.side { position: sticky; top: 86px; display: flex; flex-direction: column; gap: 16px; }
+#map { height: 430px; border-radius: var(--r); border: 1px solid var(--line); background: #eef1f5; z-index: 1; }
+.leaflet-container { font-family: 'Rethink Sans', system-ui, sans-serif; }
+.pin { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--c1); color: #fff; font: 600 13px/1 'Rethink Sans'; border: 3px solid #fff; box-shadow: 0 6px 14px -4px rgba(15,23,42,.45); transition: transform .25s var(--ease); }
+.pin.is-home { background: var(--ink); }
+.pin.is-on { transform: scale(1.3); background: var(--c2); }
+.box { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 18px 20px; }
+.box h3 { font: 600 15px/1.2 'Rethink Sans'; display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.box h3 .i { color: var(--c1); }
+.checks { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+.checks label { display: flex; align-items: center; gap: 10px; font-size: 14px; cursor: pointer; }
+.checks input { width: 18px; height: 18px; accent-color: var(--c1); flex-shrink: 0; }
+.checks span { flex: 1; }
+.checks em { font-style: normal; font-size: 12px; color: var(--ink-3); white-space: nowrap; }
+.checks input:checked + span { color: var(--ink-3); text-decoration: line-through; }
+.progress { height: 6px; border-radius: 6px; background: var(--line); margin-top: 14px; overflow: hidden; }
+.progress i { display: block; height: 100%; width: 0; background: var(--c1); border-radius: 6px; transition: width .4s var(--ease); }
+
+/* dny */
+.day { position: relative; padding-left: 34px; padding-bottom: 26px; }
+.day::before { content: ''; position: absolute; left: 11px; top: 30px; bottom: 0; width: 2px; background: var(--line); }
+.day:last-child::before { display: none; }
+.day__dot { position: absolute; left: 0; top: 4px; width: 24px; height: 24px; border-radius: 50%; background: var(--card); border: 2px solid var(--line); }
+.day.is-today .day__dot { border-color: var(--c1); background: var(--c1); box-shadow: 0 0 0 6px rgba(37,99,235,.15); }
+.day.is-past { opacity: .55; }
+.day__head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 12px; }
+.day__head h2 { font: 500 26px/1.1 'Rethink Sans'; letter-spacing: -.03em; }
+.day__head span { font-size: 14px; color: var(--ink-3); }
+.today-tag { font: 700 11px/1 'Rethink Sans'; letter-spacing: .12em; text-transform: uppercase; padding: 6px 10px; border-radius: 999px; background: var(--c1); color: #fff; }
+.day__body { margin-top: 12px; display: flex; flex-direction: column; gap: 12px; }
+
+.leg { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 18px 20px; cursor: pointer; transition: border-color .2s, box-shadow .25s; }
+.leg:hover, .leg.is-on { border-color: #bcd0fb; box-shadow: 0 18px 30px -26px rgba(37,99,235,.7); }
+.leg__top { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-3); flex-wrap: wrap; }
+.leg__top .i { color: var(--c1); }
+.badge { display: inline-flex; align-items: center; gap: 5px; font: 600 12px/1 'Rethink Sans'; padding: 6px 9px; border-radius: 999px; }
+.badge--req { background: var(--warn-soft); color: var(--warn); }
+.badge--rec { background: var(--soft); color: var(--c1); }
+.badge--ok { background: var(--ok-soft); color: var(--ok); }
+.leg__route { margin-top: 14px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; }
+.leg__t b { display: block; font: 600 30px/1 'Rethink Sans'; letter-spacing: -.03em; }
+.leg__t span { display: block; margin-top: 6px; font-size: 14px; color: var(--ink-2); }
+.leg__t:last-child { text-align: right; }
+.leg__mid { text-align: center; font-size: 12px; color: var(--ink-3); min-width: 90px; }
+.leg__mid i { display: block; height: 2px; margin: 6px 0; background: linear-gradient(90deg, var(--c1), var(--c2)); border-radius: 2px; position: relative; }
+.leg__mid i::after { content: ''; position: absolute; right: -2px; top: -4px; border: 5px solid transparent; border-left: 7px solid var(--c2); border-right: 0; }
+.leg__more { display: none; margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--line); font-size: 14px; color: var(--ink-2); }
+.leg.is-open .leg__more { display: block; }
+.leg__more p + p { margin-top: 6px; }
+.links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.btn { display: inline-flex; align-items: center; gap: 6px; font: 500 13px/1 'Rethink Sans'; padding: 9px 13px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); text-decoration: none; cursor: pointer; color: var(--ink); }
+.btn:hover { border-color: var(--c1); color: var(--c1); }
+.btn .i { width: 15px; height: 15px; }
+.note { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; color: var(--ink-2); padding: 12px 16px; border-radius: 16px; background: var(--soft); }
+.note .i { color: var(--c1); margin-top: 2px; }
+.free { font-size: 15px; color: var(--ink-2); padding: 14px 18px; border-radius: var(--r); border: 1px dashed #cdd5e1; display: flex; gap: 10px; align-items: center; }
+.free .i { color: var(--c2); }
+
+.stay { border-radius: var(--r); padding: 18px 20px; background: linear-gradient(135deg, #f1f6ff, #eefbfd); border: 1px solid #d6e3fb; display: grid; grid-template-columns: auto 1fr; gap: 14px; }
+.stay__ico { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: #fff; color: var(--c1); }
+.stay__ico .i { width: 22px; height: 22px; }
+.stay small { font: 700 11px/1 'Rethink Sans'; letter-spacing: .14em; text-transform: uppercase; color: var(--c1); }
+.stay h4 { font: 600 18px/1.25 'Rethink Sans'; margin-top: 6px; }
+.stay p { font-size: 14px; color: var(--ink-2); margin-top: 2px; }
+.stay.is-missing { background: #fff; border: 1.5px dashed #f2b98f; }
+.stay.is-missing small { color: var(--warn); }
+.stay.is-missing .stay__ico { background: var(--warn-soft); color: var(--warn); }
+
+footer { padding: 24px 0 40px; color: var(--ink-3); font-size: 13px; border-top: 1px solid var(--line); }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .side { display: contents; }
+  #map { height: 300px; order: -1; }
+  .side .box { order: 1; }
+}
+@media (max-width: 520px) {
+  .leg__t b { font-size: 25px; }
+  .leg__mid { min-width: 64px; }
+  .now { grid-template-columns: auto 1fr; }
+  .now__cd { grid-column: 1 / -1; text-align: left; }
+  .day { padding-left: 28px; }
+  .day__head h2 { font-size: 22px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <a class="logo" href="/">david janečka<i>.</i></a>
+    <p class="eyebrow">DiscoverEU · podzim 2026</p>
+    <h1>Cesta <em>po Evropě</em></h1>
+    <p class="sub">Kde jsem který den, čím jedu a kde spím. Klikni na vlak nebo město a ukáže se na mapě.</p>
+    <div class="stats" id="stats"></div>
+    <div class="route" id="route" aria-label="Trasa"></div>
+    <div class="now" id="now" aria-live="polite"></div>
+  </div>
+</header>
+
+<nav class="days-nav" aria-label="Dny"><div class="wrap" id="daysNav"></div></nav>
+
+<main class="wrap layout">
+  <div id="days"></div>
+  <aside class="side">
+    <div id="map" role="img" aria-label="Mapa trasy"></div>
+    <div class="box">
+      <h3><svg class="i" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Rezervace míst</h3>
+      <ul class="checks" id="checks"></ul>
+      <div class="progress"><i id="prog"></i></div>
+    </div>
+  </aside>
+</main>
+
+<footer><div class="wrap">Časy jsou místní. Londýn je o hodinu pozadu. V noci z 24. na 25. 10. se posouvají hodiny o hodinu zpět (konec letního času).</div></footer>
+
+<script src="leaflet/leaflet.js"></script>
+<script>
+/* =====================================================================
+   ÚDAJE O CESTĚ – tady se všechno upravuje
+   ---------------------------------------------------------------------
+   UBYTOVÁNÍ: stačí doplnit name (název) a address (adresa).
+   Dokud je address prázdná, stránka ukáže oranžový rámeček „doplnit“.
+   Časy jsou se zónou: +02:00 letní čas (jen 24. 10.), +01:00 střední
+   Evropa po změně času, +00:00 Londýn.
+   ===================================================================== */
+const STATIONS = {
+  wien: { name: 'Wien Hbf', city: 'Vídeň', lat: 48.1852, lng: 16.3767 },
+  zurich: { name: 'Zürich HB', city: 'Curych', lat: 47.3779, lng: 8.5403 },
+  milano: { name: 'Milano Centrale', city: 'Milán', lat: 45.4862, lng: 9.2045 },
+  parisLyon: { name: 'Paris Gare de Lyon', city: 'Paříž', lat: 48.8443, lng: 2.3744 },
+  parisNord: { name: 'Paris Gare du Nord', city: 'Paříž', lat: 48.8809, lng: 2.3553 },
+  london: { name: 'London St Pancras Intl', city: 'Londýn', lat: 51.532, lng: -0.1263 },
+  amsterdam: { name: 'Amsterdam Centraal', city: 'Amsterdam', lat: 52.3791, lng: 4.9003 },
+  spandau: { name: 'Berlin-Spandau', city: 'Berlín', lat: 52.5345, lng: 13.1974 },
+  berlinHbf: { name: 'Berlin Hbf', city: 'Berlín', lat: 52.5251, lng: 13.3694 },
+  breclav: { name: 'Břeclav', city: 'Břeclav', lat: 48.7535, lng: 16.8848 },
+};
+
+const LEGS = [
+  { from: 'wien', to: 'zurich', dep: '2026-10-24T05:28:00+02:00', arr: '2026-10-24T13:53:00+02:00', changes: 1, res: 'rec' },
+  { from: 'zurich', to: 'milano', dep: '2026-10-24T18:33:00+02:00', arr: '2026-10-24T21:50:00+02:00', changes: 0, res: 'req', price: 17 },
+  { from: 'milano', to: 'parisLyon', dep: '2026-10-26T06:25:00+01:00', arr: '2026-10-26T13:22:00+01:00', changes: 0, res: 'req', price: 15 },
+  { from: 'parisNord', to: 'london', dep: '2026-10-27T16:27:00+01:00', arr: '2026-10-27T18:30:00+00:00', changes: 1, res: 'req', price: 32, limited: true },
+  { from: 'london', to: 'amsterdam', dep: '2026-10-29T17:29:00+00:00', arr: '2026-10-29T23:20:00+01:00', changes: 1, res: 'req', price: 37, limited: true },
+  { from: 'amsterdam', to: 'spandau', dep: '2026-10-30T16:00:00+01:00', arr: '2026-10-30T22:38:00+01:00', changes: 0, res: 'rec' },
+  { from: 'berlinHbf', to: 'breclav', dep: '2026-11-01T09:28:00+01:00', arr: '2026-11-01T16:47:00+01:00', changes: 1, res: 'rec' },
+];
+
+const STAYS = [
+  { city: 'Milán', from: '2026-10-24', to: '2026-10-26', name: '', address: '' },
+  { city: 'Paříž', from: '2026-10-26', to: '2026-10-27', name: '', address: '' },
+  { city: 'Londýn', from: '2026-10-27', to: '2026-10-29', name: '', address: '' },
+  { city: 'Amsterdam', from: '2026-10-29', to: '2026-10-30', name: '', address: '' },
+  { city: 'Berlín', from: '2026-10-30', to: '2026-11-01', name: '', address: '' },
+];
+
+// poznámky k jednotlivým dnům
+const NOTES = {
+  '2026-10-24': 'V Curychu máš 4 a půl hodiny mezi vlaky, dá se projít centrum a jezero.',
+  '2026-10-26': 'Přijedeš na Gare de Lyon, ale do Londýna se odjíždí z Gare du Nord (metro RER D nebo B, asi 15 minut).',
+  '2026-10-27': 'Na Eurostar přijď aspoň 60 minut předem, je tam pasová a bezpečnostní kontrola. Vezmi pas.',
+  '2026-10-29': 'Eurostar: zase aspoň 60 minut předem kvůli kontrole.',
+  '2026-10-30': 'Vlak končí v Berlin-Spandau, do centra jede S-Bahn S3 nebo S9.',
+  '2026-11-01': 'Zpátky se odjíždí z Berlin Hbf, ne ze Spandau.',
+};
+/* ===================================================================== */
+
+const TZ = 'Europe/Prague';
+const $ = (s, el = document) => el.querySelector(s);
+const ico = {
+  train: '<path d="M8 3h8a4 4 0 0 1 4 4v8a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V7a4 4 0 0 1 4-4z"/><path d="M4 11h16"/><path d="M12 3v8"/><path d="m8 19-2 3"/><path d="m18 22-2-3"/><path d="M8 15h.01"/><path d="M16 15h.01"/>',
+  bed: '<path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/>',
+  pin: '<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  swap: '<path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/>',
+  info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+  copy: '<rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+  map: '<path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+  home: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/>',
+  calendar: '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>',
+  euro: '<path d="M4 10h12"/><path d="M4 14h9"/><path d="M19 6a7.7 7.7 0 0 0-5.2-2A7.9 7.9 0 0 0 6 12c0 4.4 3.5 8 7.8 8 2 0 3.8-.8 5.2-2"/>',
+};
+const I = (n) => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${ico[n]}</svg>`;
+
+// časy: zobrazujeme místní čas podle zóny zapsané u odjezdu/příjezdu
+const localTime = (iso) => iso.slice(11, 16);
+const dateKey = (iso) => iso.slice(0, 10);
+const durText = (a, b) => { const m = Math.round((new Date(b) - new Date(a)) / 60000); return `${Math.floor(m / 60)} h ${m % 60} min`; };
+const dayNames = ['neděle', 'pondělí', 'úterý', 'středa', 'čtvrtek', 'pátek', 'sobota'];
+const fmtDay = (key) => { const d = new Date(key + 'T12:00:00'); return { num: `${d.getDate()}. ${d.getMonth() + 1}.`, name: dayNames[d.getDay()] }; };
+const addDays = (key, n) => { const d = new Date(key + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+const mapsUrl = (q) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+
+// „teď“ – pro vyzkoušení jde dát do adresy ?ted=2026-10-27T12:00
+const param = new URLSearchParams(location.search).get('ted');
+const now = () => (param ? new Date(param + (param.length <= 16 ? ':00+01:00' : '')) : new Date());
+const todayKey = () => new Intl.DateTimeFormat('sv-SE', { timeZone: TZ }).format(now());
+
+const FIRST = '2026-10-24', LAST = '2026-11-01';
+const DAYS = []; for (let k = FIRST; k <= LAST; k = addDays(k, 1)) DAYS.push(k);
+const stayFor = (key) => STAYS.find((s) => key >= s.from && key < s.to);
+const nights = (s) => Math.round((new Date(s.to) - new Date(s.from)) / 864e5);
+
+/* ---------- přehled nahoře ---------- */
+const totalMin = LEGS.reduce((s, l) => s + (new Date(l.arr) - new Date(l.dep)) / 60000, 0);
+$('#stats').innerHTML = [
+  [I('calendar'), `<b>${DAYS.length}</b> dní`],
+  [I('train'), `<b>${LEGS.length}</b> vlaků`],
+  [I('clock'), `<b>${Math.round(totalMin / 60)} h</b> ve vlaku`],
+  [I('flag'), '<b>7</b> zemí'],
+].map(([i, t]) => `<span class="stat">${i}${t}</span>`).join('');
+
+const ROUTE = [
+  { city: 'Vídeň', st: 'wien', home: true }, { city: 'Curych', st: 'zurich' }, { city: 'Milán', st: 'milano' }, { city: 'Paříž', st: 'parisLyon' },
+  { city: 'Londýn', st: 'london' }, { city: 'Amsterdam', st: 'amsterdam' }, { city: 'Berlín', st: 'spandau' }, { city: 'Břeclav', st: 'breclav', home: true },
+];
+const cityDay = { 'Vídeň': '2026-10-24', 'Curych': '2026-10-24', 'Milán': '2026-10-25', 'Paříž': '2026-10-26', 'Londýn': '2026-10-28', 'Amsterdam': '2026-10-29', 'Berlín': '2026-10-31', 'Břeclav': '2026-11-01' };
+$('#route').innerHTML = ROUTE.map((r, i) => `${i ? '<i class="dash"></i>' : ''}<button class="stop${r.home ? ' is-home' : ''}" data-city="${r.city}"><span>${i + 1}</span><small>${r.city}</small></button>`).join('');
+
+/* ---------- dny ---------- */
+const legsOn = (key) => LEGS.map((l, i) => ({ ...l, i })).filter((l) => dateKey(l.dep) === key);
+const resBadge = (l) => (l.res === 'req' ? `<span class="badge badge--req">Rezervace povinná</span>` : `<span class="badge badge--rec">Rezervace doporučená</span>`);
+
+function legHtml(l) {
+  const a = STATIONS[l.from], b = STATIONS[l.to];
+  return `<article class="leg" data-leg="${l.i}" tabindex="0" aria-expanded="false">
+    <div class="leg__top">${I('train')}Vlak ${l.i + 1} z ${LEGS.length}${resBadge(l)}${l.limited ? '<span class="badge badge--req">Málo míst</span>' : ''}${l.price ? `<span class="badge badge--ok">${I('euro')}rezervace od ${l.price} €</span>` : ''}</div>
+    <div class="leg__route">
+      <div class="leg__t"><b>${localTime(l.dep)}</b><span>${a.name}</span></div>
+      <div class="leg__mid">${durText(l.dep, l.arr)}<i></i>${l.changes ? `${l.changes} přestup` : 'přímý'}</div>
+      <div class="leg__t"><b>${localTime(l.arr)}</b><span>${b.name}</span></div>
+    </div>
+    <div class="leg__more">
+      <p>Odjezd ${a.name} v ${localTime(l.dep)}, příjezd ${b.name} v ${localTime(l.arr)} (místní čas).</p>
+      <p>${l.res === 'req' ? 'Bez rezervace místa tě do vlaku nepustí, zarezervuj ji v aplikaci DiscoverEU.' : 'Rezervace není povinná, ale v plném vlaku se hodí.'}</p>
+      <div class="links"><a class="btn" href="${mapsUrl(a.name)}" target="_blank" rel="noopener">${I('pin')}${a.name}</a><a class="btn" href="${mapsUrl(b.name)}" target="_blank" rel="noopener">${I('pin')}${b.name}</a></div>
+    </div>
+  </article>`;
+}
+
+function stayHtml(s) {
+  const n = nights(s);
+  const span = `${fmtDay(s.from).num} – ${fmtDay(s.to).num}, ${n} ${n === 1 ? 'noc' : 'noci'}`;
+  if (!s.address) {
+    return `<div class="stay is-missing"><div class="stay__ico">${I('bed')}</div><div><small>Ubytování · doplnit</small><h4>${s.city}</h4><p>${span}. Adresa zatím chybí.</p></div></div>`;
+  }
+  return `<div class="stay"><div class="stay__ico">${I('bed')}</div><div><small>Ubytování</small><h4>${esc(s.name || s.city)}</h4><p>${esc(s.address)}</p><p>${span}</p>
+    <div class="links"><a class="btn" href="${mapsUrl(s.address)}" target="_blank" rel="noopener">${I('map')}Navigovat</a><button class="btn" data-copy="${esc(s.address)}">${I('copy')}Kopírovat adresu</button></div></div></div>`;
+}
+
+$('#days').innerHTML = DAYS.map((key) => {
+  const d = fmtDay(key), ls = legsOn(key), stay = stayFor(key), prev = stayFor(addDays(key, -1));
+  const where = ls.length ? `${STATIONS[ls[0].from].city} → ${STATIONS[ls[ls.length - 1].to].city}` : stay ? stay.city : '';
+  let body = ls.map(legHtml).join('');
+  if (!ls.length && stay) body += `<div class="free">${I('sun')}Celý den v ${{ 'Milán': 'Miláně', 'Paříž': 'Paříži', 'Londýn': 'Londýně', 'Amsterdam': 'Amsterdamu', 'Berlín': 'Berlíně' }[stay.city]}.</div>`;
+  if (NOTES[key]) body += `<div class="note">${I('info')}<span>${NOTES[key]}</span></div>`;
+  if (stay && stay.from === key) body += stayHtml(stay);
+  else if (stay) body += `<div class="free">${I('bed')}Spíš pořád ve stejném ubytování (${stay.city}).</div>`;
+  if (key === LAST) body += `<div class="free">${I('home')}Návrat domů.</div>`;
+  return `<section class="day" id="d${key}" data-day="${key}"><span class="day__dot"></span>
+    <div class="day__head"><h2>${d.num} <span style="font-size:inherit;color:var(--ink-3)">${d.name}</span></h2><span>${where}</span></div>
+    <div class="day__body">${body}</div></section>`;
+}).join('');
+
+$('#daysNav').innerHTML = DAYS.map((key) => { const d = fmtDay(key), s = stayFor(key), ls = legsOn(key); return `<a class="dchip" href="#d${key}" data-day="${key}"><b>${d.num}</b><small>${ls.length ? I('train').replace('class="i"', 'class="i" style="width:12px;height:12px;vertical-align:-1px"') : ''} ${s ? s.city : 'domů'}</small></a>`; }).join('');
+
+/* ---------- mapa ---------- */
+let map, pins = {}, lines = [];
+if (window.L) {
+  map = L.map('map', { scrollWheelZoom: false, zoomControl: true, attributionControl: true });
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; OpenStreetMap, &copy; CARTO', maxZoom: 18 }).addTo(map);
+  ROUTE.forEach((r, i) => {
+    const s = STATIONS[r.st];
+    const icon = L.divIcon({ className: '', html: `<div class="pin${r.home ? ' is-home' : ''}">${i + 1}</div>`, iconSize: [30, 30], iconAnchor: [15, 15] });
+    pins[r.city] = L.marker([s.lat, s.lng], { icon }).addTo(map).bindTooltip(r.city, { direction: 'top', offset: [0, -14] });
+    pins[r.city].on('click', () => goDay(cityDay[r.city]));
+  });
+  LEGS.forEach((l, i) => {
+    const a = STATIONS[l.from], b = STATIONS[l.to];
+    lines[i] = L.polyline([[a.lat, a.lng], [b.lat, b.lng]], { color: '#2563eb', weight: 3, opacity: .55, dashArray: '6 8' }).addTo(map);
+  });
+  map.fitBounds(L.latLngBounds(Object.values(STATIONS).map((s) => [s.lat, s.lng])), { padding: [30, 30] });
+} else {
+  $('#map').innerHTML = '<p style="padding:20px;color:#676c79">Mapa se nenačetla, zkus obnovit stránku.</p>';
+}
+
+function focusLeg(i) {
+  document.querySelectorAll('.leg').forEach((el) => el.classList.toggle('is-on', +el.dataset.leg === i));
+  if (!map) return;
+  lines.forEach((ln, j) => ln.setStyle(j === i ? { color: '#0891b2', weight: 5, opacity: 1, dashArray: null } : { color: '#2563eb', weight: 3, opacity: .35, dashArray: '6 8' }));
+  map.fitBounds(lines[i].getBounds(), { padding: [50, 50], maxZoom: 7 });
+}
+function focusCity(city) {
+  document.querySelectorAll('.stop').forEach((b) => b.classList.toggle('is-on', b.dataset.city === city));
+  Object.entries(pins).forEach(([c, m]) => m.getElement()?.firstElementChild?.classList.toggle('is-on', c === city));
+  const st = STATIONS[ROUTE.find((r) => r.city === city).st];
+  if (map) { lines.forEach((ln) => ln.setStyle({ color: '#2563eb', weight: 3, opacity: .55, dashArray: '6 8' })); map.flyTo([st.lat, st.lng], 11, { duration: .8 }); }
+}
+function goDay(key) { document.getElementById('d' + key)?.scrollIntoView({ behavior: 'smooth' }); }
+
+document.addEventListener('click', (e) => {
+  const leg = e.target.closest('.leg');
+  if (leg && !e.target.closest('a,button')) { const open = leg.classList.toggle('is-open'); leg.setAttribute('aria-expanded', open); focusLeg(+leg.dataset.leg); }
+  const stop = e.target.closest('.stop');
+  if (stop) { focusCity(stop.dataset.city); goDay(cityDay[stop.dataset.city]); }
+  const cp = e.target.closest('[data-copy]');
+  if (cp) { navigator.clipboard?.writeText(cp.dataset.copy).then(() => { const t = cp.innerHTML; cp.textContent = 'Zkopírováno'; setTimeout(() => (cp.innerHTML = t), 1500); }); }
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.classList?.contains('leg')) e.target.click(); });
+
+// zvýraznění dne podle toho, kde jsi na stránce
+const io = new IntersectionObserver((ents) => ents.forEach((en) => {
+  if (!en.isIntersecting) return;
+  const key = en.target.dataset.day;
+  document.querySelectorAll('.dchip').forEach((c) => { const on = c.dataset.day === key; c.classList.toggle('is-on', on); if (on) c.scrollIntoView({ block: 'nearest', inline: 'center' }); });
+}), { rootMargin: '-90px 0px -65% 0px' });
+document.querySelectorAll('.day').forEach((d) => io.observe(d));
+
+/* ---------- rezervace (pamatuje si to tvůj prohlížeč) ---------- */
+const KEY = 'trip-rezervace';
+let done = {}; try { done = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
+$('#checks').innerHTML = LEGS.map((l, i) => `<li><label><input type="checkbox" data-i="${i}" ${done[i] ? 'checked' : ''}/><span>${STATIONS[l.from].city} → ${STATIONS[l.to].city}</span><em>${l.res === 'req' ? 'povinná' : 'doporučená'}</em></label></li>`).join('');
+const prog = () => { const n = LEGS.filter((_, i) => done[i]).length; $('#prog').style.width = (n / LEGS.length) * 100 + '%'; };
+$('#checks').addEventListener('change', (e) => { done[e.target.dataset.i] = e.target.checked; try { localStorage.setItem(KEY, JSON.stringify(done)); } catch (er) {} prog(); });
+prog();
+
+/* ---------- teď ---------- */
+function cd(ms) { const m = Math.max(0, Math.round(ms / 60000)), d = Math.floor(m / 1440), h = Math.floor((m % 1440) / 60), mm = m % 60; return d ? `${d} d ${h} h` : h ? `${h} h ${mm} min` : `${mm} min`; }
+function renderNow() {
+  const t = now(), key = todayKey();
+  const next = LEGS.find((l) => new Date(l.dep) > t);
+  const on = LEGS.find((l) => new Date(l.dep) <= t && new Date(l.arr) > t);
+  let icon = 'clock', label, text, right = '';
+  if (t < new Date(LEGS[0].dep)) { label = 'Před cestou'; text = `První vlak: ${STATIONS.wien.name} v ${localTime(LEGS[0].dep)}, ${fmtDay(FIRST).num}`; right = `${cd(new Date(LEGS[0].dep) - t)}<em>do odjezdu</em>`; }
+  else if (on) { icon = 'train'; label = 'Právě ve vlaku'; text = `${STATIONS[on.from].city} → ${STATIONS[on.to].city}, příjezd ${localTime(on.arr)}`; right = `${cd(new Date(on.arr) - t)}<em>do příjezdu</em>`; }
+  else if (next) { const s = stayFor(key); icon = 'pin'; label = s ? `Teď: ${s.city}` : 'Na cestě'; text = `Další vlak: ${STATIONS[next.from].name} → ${STATIONS[next.to].city}, ${fmtDay(dateKey(next.dep)).num} v ${localTime(next.dep)}`; right = `${cd(new Date(next.dep) - t)}<em>do odjezdu</em>`; }
+  else { icon = 'home'; label = 'Hotovo'; text = 'Cesta skončila, vítej doma.'; }
+  $('#now').innerHTML = `<span class="now__ico">${I(icon)}</span><div><small>${label}</small><strong>${text}</strong></div><div class="now__cd">${right}</div>`;
+  document.querySelectorAll('.day').forEach((d) => { d.classList.toggle('is-today', d.dataset.day === key); d.classList.toggle('is-past', d.dataset.day < key); });
+  document.querySelectorAll('.dchip').forEach((c) => c.classList.toggle('is-today', c.dataset.day === key));
+  document.querySelectorAll('.day.is-today .day__head').forEach((h) => { if (!h.querySelector('.today-tag')) h.insertAdjacentHTML('beforeend', '<span class="today-tag">Dnes</span>'); });
+}
+renderNow(); setInterval(renderNow, 30000);
+if (DAYS.includes(todayKey())) setTimeout(() => goDay(todayKey()), 300);
+</script>
+</body>
+</html>
