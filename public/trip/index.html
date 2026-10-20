@@ -28,6 +28,12 @@ a { color: inherit; }
 .hero::before, .hero::after { content: ''; position: absolute; border-radius: 50%; pointer-events: none; }
 .hero::before { width: 620px; height: 620px; right: -220px; top: -260px; background: radial-gradient(circle, rgba(8,145,178,.16), transparent 62%); }
 .hero::after { width: 620px; height: 620px; right: -120px; top: -140px; background: radial-gradient(circle, rgba(37,99,235,.18), transparent 62%); }
+.title-row { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 12px 20px; position: relative; z-index: 2; }
+.title-row .lang { margin-bottom: 6px; }
+.lang { display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); }
+.lang button { font: 600 13px/1 'Rethink Sans'; letter-spacing: .04em; color: var(--ink-3); background: none; border: 0; border-radius: 999px; padding: 8px 12px; cursor: pointer; transition: background .2s, color .2s; }
+.lang button:hover { color: var(--ink); }
+.lang button[aria-pressed="true"] { background: var(--c1); color: #fff; }
 .logo { font: 700 22px/1 'Rethink Sans'; letter-spacing: -.035em; text-decoration: none; }
 .logo i { font-style: normal; color: var(--c1); }
 .eyebrow { margin-top: 34px; font: 700 12px/1 'Rethink Sans'; letter-spacing: .16em; text-transform: uppercase; color: var(--c1); display: flex; align-items: center; gap: 10px; }
@@ -168,52 +174,69 @@ footer { padding: 24px 0 40px; color: var(--ink-3); font-size: 13px; border-top:
 <header class="hero">
   <div class="wrap">
     <a class="logo" href="/">david janečka<i>.</i></a>
-    <p class="eyebrow">DiscoverEU · podzim 2026</p>
-    <h1>Cesta <em>po Evropě</em></h1>
-    <p class="sub">Kde jsem který den, čím jedu a kde spím. Klikni na vlak nebo město a ukáže se na mapě.</p>
+    <p class="eyebrow" data-t="eyebrow"></p>
+    <div class="title-row">
+      <h1 data-t="h1"></h1>
+      <div class="lang" id="lang" role="group" aria-label="Jazyk / Language / Nyelv">
+        <button type="button" data-lang="cs" lang="cs" title="Čeština">CZ</button><button type="button" data-lang="en" lang="en" title="English">EN</button><button type="button" data-lang="hu" lang="hu" title="Magyar">HU</button>
+      </div>
+    </div>
+    <p class="sub" data-t="sub"></p>
     <div class="stats" id="stats"></div>
-    <div class="route" id="route" aria-label="Trasa"></div>
+    <div class="route" id="route"></div>
     <div class="now" id="now" aria-live="polite"></div>
   </div>
 </header>
 
-<nav class="days-nav" aria-label="Dny"><div class="wrap" id="daysNav"></div></nav>
+<nav class="days-nav"><div class="wrap" id="daysNav"></div></nav>
 
 <main class="wrap layout">
   <div id="days"></div>
   <aside class="side">
-    <div id="map" role="img" aria-label="Mapa trasy"></div>
+    <div id="map" role="img"></div>
     <div class="box">
-      <h3><svg class="i" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Rezervace míst</h3>
+      <h3><svg class="i" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span data-t="resTitle"></span></h3>
       <ul class="checks" id="checks"></ul>
       <div class="progress"><i id="prog"></i></div>
     </div>
   </aside>
 </main>
 
-<footer><div class="wrap">Časy jsou místní. Londýn je o hodinu pozadu. V noci z 24. na 25. 10. se posouvají hodiny o hodinu zpět (konec letního času).</div></footer>
+<footer><div class="wrap" data-t="footer"></div></footer>
 
 <script src="leaflet/leaflet.js"></script>
 <script>
 /* =====================================================================
    ÚDAJE O CESTĚ – tady se všechno upravuje
    ---------------------------------------------------------------------
-   UBYTOVÁNÍ: stačí doplnit name (název) a address (adresa).
-   Dokud je address prázdná, stránka ukáže oranžový rámeček „doplnit“.
+   Texty jsou ve třech jazycích: cs (čeština), en (angličtina), hu (maďarština).
+   UBYTOVÁNÍ: stačí doplnit name, address a případně info ve všech jazycích.
+   tbd: true = ukáže „bude upřesněno“.
    Časy jsou se zónou: +02:00 letní čas (jen 24. 10.), +01:00 střední
    Evropa po změně času, +00:00 Londýn.
    ===================================================================== */
+const CITIES = {
+  wien: { cs: 'Vídeň', en: 'Vienna', hu: 'Bécs' },
+  zurich: { cs: 'Curych', en: 'Zurich', hu: 'Zürich' },
+  milan: { cs: 'Milán', en: 'Milan', hu: 'Milánó' },
+  paris: { cs: 'Paříž', en: 'Paris', hu: 'Párizs' },
+  london: { cs: 'Londýn', en: 'London', hu: 'London' },
+  amsterdam: { cs: 'Amsterdam', en: 'Amsterdam', hu: 'Amszterdam' },
+  berlin: { cs: 'Berlín', en: 'Berlin', hu: 'Berlin' },
+  breclav: { cs: 'Břeclav', en: 'Břeclav', hu: 'Břeclav' },
+};
+
 const STATIONS = {
-  wien: { name: 'Wien Hbf', city: 'Vídeň', lat: 48.1852, lng: 16.3767 },
-  zurich: { name: 'Zürich HB', city: 'Curych', lat: 47.3779, lng: 8.5403 },
-  milano: { name: 'Milano Centrale', city: 'Milán', lat: 45.4862, lng: 9.2045 },
-  parisLyon: { name: 'Paris Gare de Lyon', city: 'Paříž', lat: 48.8443, lng: 2.3744 },
-  parisNord: { name: 'Paris Gare du Nord', city: 'Paříž', lat: 48.8809, lng: 2.3553 },
-  london: { name: 'London St Pancras Intl', city: 'Londýn', lat: 51.532, lng: -0.1263 },
-  amsterdam: { name: 'Amsterdam Centraal', city: 'Amsterdam', lat: 52.3791, lng: 4.9003 },
-  spandau: { name: 'Berlin-Spandau', city: 'Berlín', lat: 52.5345, lng: 13.1974 },
-  berlinHbf: { name: 'Berlin Hbf', city: 'Berlín', lat: 52.5251, lng: 13.3694 },
-  breclav: { name: 'Břeclav', city: 'Břeclav', lat: 48.7535, lng: 16.8848 },
+  wien: { name: 'Wien Hbf', city: 'wien', lat: 48.1852, lng: 16.3767 },
+  zurich: { name: 'Zürich HB', city: 'zurich', lat: 47.3779, lng: 8.5403 },
+  milano: { name: 'Milano Centrale', city: 'milan', lat: 45.4862, lng: 9.2045 },
+  parisLyon: { name: 'Paris Gare de Lyon', city: 'paris', lat: 48.8443, lng: 2.3744 },
+  parisNord: { name: 'Paris Gare du Nord', city: 'paris', lat: 48.8809, lng: 2.3553 },
+  london: { name: 'London St Pancras Intl', city: 'london', lat: 51.532, lng: -0.1263 },
+  amsterdam: { name: 'Amsterdam Centraal', city: 'amsterdam', lat: 52.3791, lng: 4.9003 },
+  spandau: { name: 'Berlin-Spandau', city: 'berlin', lat: 52.5345, lng: 13.1974 },
+  berlinHbf: { name: 'Berlin Hbf', city: 'berlin', lat: 52.5251, lng: 13.3694 },
+  breclav: { name: 'Břeclav', city: 'breclav', lat: 48.7535, lng: 16.8848 },
 };
 
 const LEGS = [
@@ -227,26 +250,171 @@ const LEGS = [
 ];
 
 const STAYS = [
-  { city: 'Milán', from: '2026-10-24', to: '2026-10-26', name: 'Airbnb Milán', address: 'Via Privata Chioggia 7, 20125 Milano, Itálie',
-    info: 'Severně od centra (čtvrť Greco/Gorla). Na hostitele se ozvi předem, jak se dostat dovnitř.' },
-  { city: 'Paříž', from: '2026-10-26', to: '2026-10-27', name: 'Airbnb Meudon', address: '19 Route des Gardes, 1. patro, 92190 Meudon, Francie',
-    info: 'Meudon je za hranicí Paříže, z Gare de Lyon počítej s cestou kolem 45 minut. Ráno 27. 10. si nech dost času na cestu na Gare du Nord.' },
-  { city: 'Londýn', from: '2026-10-27', to: '2026-10-29', tbd: true },
-  { city: 'Amsterdam', from: '2026-10-29', to: '2026-10-30', name: 'Airbnb Amsterdam-Noord', address: 'Papaverhof 71, 1032 LX Amsterdam, Nizozemsko',
-    info: 'Číslo bytu a jak se dostat do domu přijde až po online check-inu (s.bobw.co/airbnb), udělej ho před cestou. Přijíždíš ve 23:20: z Amsterdam Centraal jede za nádražím přívoz na Buiksloterweg zdarma a nonstop.' },
-  { city: 'Berlín', from: '2026-10-30', to: '2026-11-01', tbd: true },
+  { city: 'milan', from: '2026-10-24', to: '2026-10-26', name: 'Airbnb Milano', address: 'Via Privata Chioggia 7, 20125 Milano, Italia',
+    info: {
+      cs: 'Severně od centra (čtvrť Greco/Gorla). Na hostitele se ozvi předem, jak se dostat dovnitř.',
+      en: 'North of the centre (Greco/Gorla area). Message the host beforehand about how to get in.',
+      hu: 'A belvárostól északra (Greco/Gorla negyed). Előre írj a szállásadónak, hogyan lehet bejutni.',
+    } },
+  { city: 'paris', from: '2026-10-26', to: '2026-10-27', name: 'Airbnb Meudon', address: '19 Route des Gardes, Etage 1, 92190 Meudon, France',
+    info: {
+      cs: 'Meudon je za hranicí Paříže, z Gare de Lyon počítej s cestou kolem 45 minut. Byt je v 1. patře. Ráno 27. 10. si nech dost času na cestu na Gare du Nord.',
+      en: 'Meudon is just outside Paris, allow about 45 minutes from Gare de Lyon. The flat is on the 1st floor. On the morning of 27 October leave plenty of time to get to Gare du Nord.',
+      hu: 'Meudon Párizs határán túl van, a Gare de Lyontól kb. 45 perc az út. A lakás az első emeleten van. Október 27-én reggel hagyj bőven időt, hogy kiérj a Gare du Nordra.',
+    } },
+  { city: 'london', from: '2026-10-27', to: '2026-10-29', tbd: true },
+  { city: 'amsterdam', from: '2026-10-29', to: '2026-10-30', name: 'Airbnb Amsterdam-Noord', address: 'Papaverhof 71, 1032 LX Amsterdam, Nederland',
+    info: {
+      cs: 'Číslo bytu a jak se dostat do domu přijde až po online check-inu (s.bobw.co/airbnb), udělej ho před cestou. Přijíždíš ve 23:20: z Amsterdam Centraal jede za nádražím přívoz na Buiksloterweg zdarma a nonstop.',
+      en: 'The flat number and how to get into the building only come after the online check-in (s.bobw.co/airbnb), so do it before the trip. You arrive at 23:20: behind Amsterdam Centraal a free ferry runs to Buiksloterweg day and night.',
+      hu: 'A lakás számát és a bejutás módját csak az online check-in után kapod meg (s.bobw.co/airbnb), ezért még indulás előtt intézd el. 23:20-kor érkezel: az Amsterdam Centraal mögül ingyenes komp jár Buiksloterwegre éjjel-nappal.',
+    } },
+  { city: 'berlin', from: '2026-10-30', to: '2026-11-01', tbd: true },
 ];
 
 // poznámky k jednotlivým dnům
 const NOTES = {
-  '2026-10-24': 'V Curychu máš 4 a půl hodiny mezi vlaky, dá se projít centrum a jezero.',
-  '2026-10-26': 'Přijedeš na Gare de Lyon a spíš v Meudonu za Paříží. Do Londýna se zítra odjíždí z Gare du Nord, ne z Gare de Lyon.',
-  '2026-10-27': 'Z Meudonu na Gare du Nord to trvá asi hodinu. Na Eurostar přijď aspoň 60 minut předem, je tam pasová a bezpečnostní kontrola. Vezmi pas.',
-  '2026-10-29': 'Eurostar: zase aspoň 60 minut předem kvůli kontrole.',
-  '2026-10-30': 'Vlak končí v Berlin-Spandau, do centra jede S-Bahn S3 nebo S9.',
-  '2026-11-01': 'Zpátky se odjíždí z Berlin Hbf, ne ze Spandau.',
+  '2026-10-24': {
+    cs: 'V Curychu máš 4 a půl hodiny mezi vlaky, dá se projít centrum a jezero.',
+    en: 'You have four and a half hours in Zurich between trains, enough to walk around the centre and the lake.',
+    hu: 'Zürichben négy és fél órád van a vonatok között, belefér egy séta a belvárosban és a tónál.',
+  },
+  '2026-10-26': {
+    cs: 'Přijedeš na Gare de Lyon a spíš v Meudonu za Paříží. Do Londýna se zítra odjíždí z Gare du Nord, ne z Gare de Lyon.',
+    en: 'You arrive at Gare de Lyon and sleep in Meudon, just outside Paris. Tomorrow’s train to London leaves from Gare du Nord, not Gare de Lyon.',
+    hu: 'A Gare de Lyonra érkezel, és Meudonban alszol, Párizs mellett. A holnapi londoni vonat a Gare du Nordról indul, nem a Gare de Lyonról.',
+  },
+  '2026-10-27': {
+    cs: 'Z Meudonu na Gare du Nord to trvá asi hodinu. Na Eurostar přijď aspoň 60 minut předem, je tam pasová a bezpečnostní kontrola. Vezmi pas.',
+    en: 'Getting from Meudon to Gare du Nord takes about an hour. Be at the Eurostar at least 60 minutes early, there are passport and security checks. Bring your passport.',
+    hu: 'Meudonból a Gare du Nordra nagyjából egy óra az út. Az Eurostarhoz legalább 60 perccel indulás előtt érj oda, útlevél- és biztonsági ellenőrzés van. Vidd magaddal az útleveled.',
+  },
+  '2026-10-29': {
+    cs: 'Eurostar: zase aspoň 60 minut předem kvůli kontrole.',
+    en: 'Eurostar again: be there at least 60 minutes early because of the checks.',
+    hu: 'Megint Eurostar: az ellenőrzés miatt legalább 60 perccel előbb legyél ott.',
+  },
+  '2026-10-30': {
+    cs: 'Vlak končí v Berlin-Spandau, do centra jede S-Bahn S3 nebo S9.',
+    en: 'The train terminates at Berlin-Spandau. The S3 or S9 S-Bahn takes you into the centre.',
+    hu: 'A vonat Berlin-Spandauban áll meg utoljára, a belvárosba az S3-as vagy az S9-es S-Bahn visz.',
+  },
+  '2026-11-01': {
+    cs: 'Zpátky se odjíždí z Berlin Hbf, ne ze Spandau.',
+    en: 'The way home leaves from Berlin Hbf, not from Spandau.',
+    hu: 'Hazafelé a Berlin Hbf-ről indulsz, nem Spandauból.',
+  },
 };
 /* ===================================================================== */
+
+const T = {
+  cs: {
+    title: 'Cesta po Evropě · 24. 10. – 1. 11.',
+    eyebrow: 'DiscoverEU · podzim 2026',
+    h1: 'Cesta <em>po Evropě</em>',
+    sub: 'Kde jsem který den, čím jedu a kde spím. Klikni na vlak nebo město a ukáže se na mapě.',
+    resTitle: 'Rezervace míst',
+    footer: 'Časy jsou místní. Londýn je o hodinu pozadu. V noci z 24. na 25. 10. se posouvají hodiny o hodinu zpět (konec letního času).',
+    routeLabel: 'Trasa', daysLabel: 'Dny', mapLabel: 'Mapa trasy',
+    days: (n) => `<b>${n}</b> dní`, trains: (n) => `<b>${n}</b> vlaků`, hours: (n) => `<b>${n} h</b> ve vlaku`, countries: (n) => `<b>${n}</b> zemí`,
+    weekdays: ['neděle', 'pondělí', 'úterý', 'středa', 'čtvrtek', 'pátek', 'sobota'],
+    date: (d, m) => `${d}. ${m}.`,
+    dur: (h, m) => `${h} h ${m} min`,
+    trainOf: (i, n) => `Vlak ${i} z ${n}`,
+    req: 'Rezervace povinná', rec: 'Rezervace doporučená', limited: 'Málo míst', price: (p) => `rezervace od ${p} €`,
+    direct: 'přímý', changes: (n) => (n === 1 ? '1 přestup' : `${n} přestupy`),
+    legText: (a, ta, b, tb) => `Odjezd ${a} v ${ta}, příjezd ${b} v ${tb} (místní čas).`,
+    reqText: 'Bez rezervace místa tě do vlaku nepustí, zarezervuj ji v aplikaci DiscoverEU.',
+    recText: 'Rezervace není povinná, ale v plném vlaku se hodí.',
+    stay: 'Ubytování', tbd: 'Bude upřesněno.', missing: 'Ubytování · doplnit', missingText: 'Adresa zatím chybí.',
+    nights: (n) => `${n} ${n === 1 ? 'noc' : n < 5 ? 'noci' : 'nocí'}`,
+    navigate: 'Navigovat', copy: 'Kopírovat adresu', copied: 'Zkopírováno',
+    dayIn: { milan: 'Celý den v Miláně.', paris: 'Celý den v Paříži.', london: 'Celý den v Londýně.', amsterdam: 'Celý den v Amsterdamu.', berlin: 'Celý den v Berlíně.' },
+    same: (c) => `Spíš pořád ve stejném ubytování (${c}).`,
+    home: 'Návrat domů.', homeChip: 'domů', today: 'Dnes',
+    must: 'povinná', should: 'doporučená',
+    cd: (d, h, m) => (d ? `${d} d ${h} h` : h ? `${h} h ${m} min` : `${m} min`),
+    before: 'Před cestou', first: (st, t, d) => `První vlak: ${st} v ${t}, ${d}`, toDep: 'do odjezdu',
+    onTrain: 'Právě ve vlaku', arrival: (a, b, t) => `${a} → ${b}, příjezd ${t}`, toArr: 'do příjezdu',
+    nowIn: (c) => `Teď: ${c}`, onWay: 'Na cestě', next: (st, c, d, t) => `Další vlak: ${st} → ${c}, ${d} v ${t}`,
+    done: 'Hotovo', doneText: 'Cesta skončila, vítej doma.',
+    mapFail: 'Mapa se nenačetla, zkus obnovit stránku.',
+  },
+  en: {
+    title: 'Trip around Europe · 24 Oct – 1 Nov',
+    eyebrow: 'DiscoverEU · autumn 2026',
+    h1: 'Trip <em>around Europe</em>',
+    sub: 'Where I am each day, which trains I take and where I sleep. Tap a train or a city to see it on the map.',
+    resTitle: 'Seat reservations',
+    footer: 'All times are local. London is one hour behind. On the night of 24–25 October the clocks go back one hour (end of summer time).',
+    routeLabel: 'Route', daysLabel: 'Days', mapLabel: 'Route map',
+    days: (n) => `<b>${n}</b> days`, trains: (n) => `<b>${n}</b> trains`, hours: (n) => `<b>${n} h</b> on the train`, countries: (n) => `<b>${n}</b> countries`,
+    weekdays: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+    months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    date(d, m) { return `${d} ${this.months[m - 1]}`; },
+    dur: (h, m) => `${h} h ${m} min`,
+    trainOf: (i, n) => `Train ${i} of ${n}`,
+    req: 'Reservation required', rec: 'Reservation recommended', limited: 'Few seats left', price: (p) => `reservation from €${p}`,
+    direct: 'direct', changes: (n) => (n === 1 ? '1 change' : `${n} changes`),
+    legText: (a, ta, b, tb) => `Departs ${a} at ${ta}, arrives ${b} at ${tb} (local time).`,
+    reqText: 'You can’t board without a seat reservation, book it in the DiscoverEU app.',
+    recText: 'A reservation isn’t required, but it helps on a full train.',
+    stay: 'Accommodation', tbd: 'To be confirmed.', missing: 'Accommodation · to add', missingText: 'Address still missing.',
+    nights: (n) => `${n} ${n === 1 ? 'night' : 'nights'}`,
+    navigate: 'Directions', copy: 'Copy address', copied: 'Copied',
+    dayIn: { milan: 'Whole day in Milan.', paris: 'Whole day in Paris.', london: 'Whole day in London.', amsterdam: 'Whole day in Amsterdam.', berlin: 'Whole day in Berlin.' },
+    same: (c) => `Still at the same place (${c}).`,
+    home: 'Back home.', homeChip: 'home', today: 'Today',
+    must: 'required', should: 'recommended',
+    cd: (d, h, m) => (d ? `${d} d ${h} h` : h ? `${h} h ${m} min` : `${m} min`),
+    before: 'Before the trip', first: (st, t, d) => `First train: ${st} at ${t}, ${d}`, toDep: 'until departure',
+    onTrain: 'On the train', arrival: (a, b, t) => `${a} → ${b}, arriving ${t}`, toArr: 'until arrival',
+    nowIn: (c) => `Now: ${c}`, onWay: 'On the way', next: (st, c, d, t) => `Next train: ${st} → ${c}, ${d} at ${t}`,
+    done: 'Done', doneText: 'The trip is over, welcome home.',
+    mapFail: 'The map didn’t load, try refreshing the page.',
+  },
+  hu: {
+    title: 'Európai körutazás · okt. 24. – nov. 1.',
+    eyebrow: 'DiscoverEU · 2026 ősz',
+    h1: 'Körutazás <em>Európában</em>',
+    sub: 'Hol vagyok melyik nap, milyen vonattal megyek és hol alszom. Kattints egy vonatra vagy városra, és megmutatja a térképen.',
+    resTitle: 'Helyjegyek',
+    footer: 'Minden időpont helyi idő. London egy órával le van maradva. Október 24-ről 25-re virradó éjjel egy órával visszaállítják az órákat (véget ér a nyári időszámítás).',
+    routeLabel: 'Útvonal', daysLabel: 'Napok', mapLabel: 'Az útvonal térképe',
+    days: (n) => `<b>${n}</b> nap`, trains: (n) => `<b>${n}</b> vonat`, hours: (n) => `<b>${n} óra</b> vonaton`, countries: (n) => `<b>${n}</b> ország`,
+    weekdays: ['vasárnap', 'hétfő', 'kedd', 'szerda', 'csütörtök', 'péntek', 'szombat'],
+    months: ['jan.', 'febr.', 'márc.', 'ápr.', 'máj.', 'jún.', 'júl.', 'aug.', 'szept.', 'okt.', 'nov.', 'dec.'],
+    date(d, m) { return `${this.months[m - 1]} ${d}.`; },
+    dur: (h, m) => `${h} óra ${m} perc`,
+    trainOf: (i, n) => `${i}. vonat (${n}-ből)`,
+    req: 'Kötelező helyjegy', rec: 'Ajánlott helyjegy', limited: 'Kevés hely', price: (p) => `helyjegy ${p} €-tól`,
+    direct: 'közvetlen', changes: (n) => `${n} átszállás`,
+    legText: (a, ta, b, tb) => `Indulás: ${a}, ${ta}. Érkezés: ${b}, ${tb} (helyi idő).`,
+    reqText: 'Helyjegy nélkül nem szállhatsz fel, foglald le a DiscoverEU alkalmazásban.',
+    recText: 'A helyjegy nem kötelező, de telt vonaton jól jön.',
+    stay: 'Szállás', tbd: 'Később pontosítjuk.', missing: 'Szállás · hiányzik', missingText: 'A cím még hiányzik.',
+    nights: (n) => `${n} éjszaka`,
+    navigate: 'Útvonal', copy: 'Cím másolása', copied: 'Másolva',
+    dayIn: { milan: 'Egész nap Milánóban.', paris: 'Egész nap Párizsban.', london: 'Egész nap Londonban.', amsterdam: 'Egész nap Amszterdamban.', berlin: 'Egész nap Berlinben.' },
+    same: (c) => `Továbbra is ugyanott alszol (${c}).`,
+    home: 'Hazaérkezés.', homeChip: 'haza', today: 'Ma',
+    must: 'kötelező', should: 'ajánlott',
+    cd: (d, h, m) => (d ? `${d} nap ${h} óra` : h ? `${h} óra ${m} perc` : `${m} perc`),
+    before: 'Indulás előtt', first: (st, t, d) => `Első vonat: ${st}, ${d} ${t}`, toDep: 'az indulásig',
+    onTrain: 'Éppen vonaton', arrival: (a, b, t) => `${a} → ${b}, érkezés ${t}`, toArr: 'az érkezésig',
+    nowIn: (c) => `Most: ${c}`, onWay: 'Úton', next: (st, c, d, t) => `Következő vonat: ${st} → ${c}, ${d} ${t}`,
+    done: 'Vége', doneText: 'Az utazás véget ért, isten hozott itthon.',
+    mapFail: 'A térkép nem töltődött be, próbáld frissíteni az oldalt.',
+  },
+};
+
+// jazyk: primárně čeština, volba se pamatuje; jde i ?lang=en / ?lang=hu
+const LANGS = ['cs', 'en', 'hu'];
+let lang = new URLSearchParams(location.search).get('lang');
+if (!LANGS.includes(lang)) { try { lang = localStorage.getItem('trip-lang'); } catch (e) {} }
+if (!LANGS.includes(lang)) lang = 'cs';
+const t = () => T[lang];
+const C = (id) => CITIES[id][lang];
 
 const TZ = 'Europe/Prague';
 const $ = (s, el = document) => el.querySelector(s);
@@ -255,7 +423,6 @@ const ico = {
   bed: '<path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/>',
   pin: '<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
   clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
-  swap: '<path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/>',
   info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
   copy: '<rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
   map: '<path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/>',
@@ -270,9 +437,8 @@ const I = (n) => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${ico[n]
 // časy: zobrazujeme místní čas podle zóny zapsané u odjezdu/příjezdu
 const localTime = (iso) => iso.slice(11, 16);
 const dateKey = (iso) => iso.slice(0, 10);
-const durText = (a, b) => { const m = Math.round((new Date(b) - new Date(a)) / 60000); return `${Math.floor(m / 60)} h ${m % 60} min`; };
-const dayNames = ['neděle', 'pondělí', 'úterý', 'středa', 'čtvrtek', 'pátek', 'sobota'];
-const fmtDay = (key) => { const d = new Date(key + 'T12:00:00'); return { num: `${d.getDate()}. ${d.getMonth() + 1}.`, name: dayNames[d.getDay()] }; };
+const durText = (a, b) => { const m = Math.round((new Date(b) - new Date(a)) / 60000); return t().dur(Math.floor(m / 60), m % 60); };
+const fmtDay = (key) => { const d = new Date(key + 'T12:00:00'); return { num: t().date(d.getDate(), d.getMonth() + 1), name: t().weekdays[d.getDay()] }; };
 const addDays = (key, n) => { const d = new Date(key + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
 const mapsUrl = (q) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -286,72 +452,92 @@ const FIRST = '2026-10-24', LAST = '2026-11-01';
 const DAYS = []; for (let k = FIRST; k <= LAST; k = addDays(k, 1)) DAYS.push(k);
 const stayFor = (key) => STAYS.find((s) => key >= s.from && key < s.to);
 const nights = (s) => Math.round((new Date(s.to) - new Date(s.from)) / 864e5);
-
-/* ---------- přehled nahoře ---------- */
 const totalMin = LEGS.reduce((s, l) => s + (new Date(l.arr) - new Date(l.dep)) / 60000, 0);
-$('#stats').innerHTML = [
-  [I('calendar'), `<b>${DAYS.length}</b> dní`],
-  [I('train'), `<b>${LEGS.length}</b> vlaků`],
-  [I('clock'), `<b>${Math.round(totalMin / 60)} h</b> ve vlaku`],
-  [I('flag'), '<b>7</b> zemí'],
-].map(([i, t]) => `<span class="stat">${i}${t}</span>`).join('');
 
 const ROUTE = [
-  { city: 'Vídeň', st: 'wien', home: true }, { city: 'Curych', st: 'zurich' }, { city: 'Milán', st: 'milano' }, { city: 'Paříž', st: 'parisLyon' },
-  { city: 'Londýn', st: 'london' }, { city: 'Amsterdam', st: 'amsterdam' }, { city: 'Berlín', st: 'spandau' }, { city: 'Břeclav', st: 'breclav', home: true },
+  { city: 'wien', st: 'wien', home: true }, { city: 'zurich', st: 'zurich' }, { city: 'milan', st: 'milano' }, { city: 'paris', st: 'parisLyon' },
+  { city: 'london', st: 'london' }, { city: 'amsterdam', st: 'amsterdam' }, { city: 'berlin', st: 'spandau' }, { city: 'breclav', st: 'breclav', home: true },
 ];
-const cityDay = { 'Vídeň': '2026-10-24', 'Curych': '2026-10-24', 'Milán': '2026-10-25', 'Paříž': '2026-10-26', 'Londýn': '2026-10-28', 'Amsterdam': '2026-10-29', 'Berlín': '2026-10-31', 'Břeclav': '2026-11-01' };
-$('#route').innerHTML = ROUTE.map((r, i) => `${i ? '<i class="dash"></i>' : ''}<button class="stop${r.home ? ' is-home' : ''}" data-city="${r.city}"><span>${i + 1}</span><small>${r.city}</small></button>`).join('');
+const cityDay = { wien: '2026-10-24', zurich: '2026-10-24', milan: '2026-10-25', paris: '2026-10-26', london: '2026-10-28', amsterdam: '2026-10-29', berlin: '2026-10-31', breclav: '2026-11-01' };
 
 /* ---------- dny ---------- */
 const legsOn = (key) => LEGS.map((l, i) => ({ ...l, i })).filter((l) => dateKey(l.dep) === key);
-const resBadge = (l) => (l.res === 'req' ? `<span class="badge badge--req">Rezervace povinná</span>` : `<span class="badge badge--rec">Rezervace doporučená</span>`);
+const resBadge = (l) => (l.res === 'req' ? `<span class="badge badge--req">${t().req}</span>` : `<span class="badge badge--rec">${t().rec}</span>`);
 
 function legHtml(l) {
   const a = STATIONS[l.from], b = STATIONS[l.to];
   return `<article class="leg" data-leg="${l.i}" tabindex="0" aria-expanded="false">
-    <div class="leg__top">${I('train')}Vlak ${l.i + 1} z ${LEGS.length}${resBadge(l)}${l.limited ? '<span class="badge badge--req">Málo míst</span>' : ''}${l.price ? `<span class="badge badge--ok">${I('euro')}rezervace od ${l.price} €</span>` : ''}</div>
+    <div class="leg__top">${I('train')}${t().trainOf(l.i + 1, LEGS.length)}${resBadge(l)}${l.limited ? `<span class="badge badge--req">${t().limited}</span>` : ''}${l.price ? `<span class="badge badge--ok">${I('euro')}${t().price(l.price)}</span>` : ''}</div>
     <div class="leg__route">
       <div class="leg__t"><b>${localTime(l.dep)}</b><span>${a.name}</span></div>
-      <div class="leg__mid">${durText(l.dep, l.arr)}<i></i>${l.changes ? `${l.changes} přestup` : 'přímý'}</div>
+      <div class="leg__mid">${durText(l.dep, l.arr)}<i></i>${l.changes ? t().changes(l.changes) : t().direct}</div>
       <div class="leg__t"><b>${localTime(l.arr)}</b><span>${b.name}</span></div>
     </div>
     <div class="leg__more">
-      <p>Odjezd ${a.name} v ${localTime(l.dep)}, příjezd ${b.name} v ${localTime(l.arr)} (místní čas).</p>
-      <p>${l.res === 'req' ? 'Bez rezervace místa tě do vlaku nepustí, zarezervuj ji v aplikaci DiscoverEU.' : 'Rezervace není povinná, ale v plném vlaku se hodí.'}</p>
+      <p>${t().legText(a.name, localTime(l.dep), b.name, localTime(l.arr))}</p>
+      <p>${l.res === 'req' ? t().reqText : t().recText}</p>
       <div class="links"><a class="btn" href="${mapsUrl(a.name)}" target="_blank" rel="noopener">${I('pin')}${a.name}</a><a class="btn" href="${mapsUrl(b.name)}" target="_blank" rel="noopener">${I('pin')}${b.name}</a></div>
     </div>
   </article>`;
 }
 
 function stayHtml(s) {
-  const n = nights(s);
-  const span = `${fmtDay(s.from).num} – ${fmtDay(s.to).num}, ${n} ${n === 1 ? 'noc' : 'noci'}`;
+  const span = `${fmtDay(s.from).num} – ${fmtDay(s.to).num}, ${t().nights(nights(s))}`;
   if (s.tbd) {
-    return `<div class="stay is-tbd"><div class="stay__ico">${I('bed')}</div><div><small>Ubytování</small><h4>${s.city}</h4><p>${span}. Bude upřesněno.</p></div></div>`;
+    return `<div class="stay is-tbd"><div class="stay__ico">${I('bed')}</div><div><small>${t().stay}</small><h4>${C(s.city)}</h4><p>${span}. ${t().tbd}</p></div></div>`;
   }
   if (!s.address) {
-    return `<div class="stay is-missing"><div class="stay__ico">${I('bed')}</div><div><small>Ubytování · doplnit</small><h4>${s.city}</h4><p>${span}. Adresa zatím chybí.</p></div></div>`;
+    return `<div class="stay is-missing"><div class="stay__ico">${I('bed')}</div><div><small>${t().missing}</small><h4>${C(s.city)}</h4><p>${span}. ${t().missingText}</p></div></div>`;
   }
-  return `<div class="stay"><div class="stay__ico">${I('bed')}</div><div><small>Ubytování</small><h4>${esc(s.name || s.city)}</h4><p>${esc(s.address)}</p><p>${span}</p>${s.info ? `<p class="stay__info">${esc(s.info)}</p>` : ''}
-    <div class="links"><a class="btn" href="${mapsUrl(s.address)}" target="_blank" rel="noopener">${I('map')}Navigovat</a><button class="btn" data-copy="${esc(s.address)}">${I('copy')}Kopírovat adresu</button></div></div></div>`;
+  const info = s.info && s.info[lang];
+  return `<div class="stay"><div class="stay__ico">${I('bed')}</div><div><small>${t().stay}</small><h4>${esc(s.name || C(s.city))}</h4><p>${esc(s.address)}</p><p>${span}</p>${info ? `<p class="stay__info">${esc(info)}</p>` : ''}
+    <div class="links"><a class="btn" href="${mapsUrl(s.address)}" target="_blank" rel="noopener">${I('map')}${t().navigate}</a><button class="btn" data-copy="${esc(s.address)}">${I('copy')}${t().copy}</button></div></div></div>`;
 }
 
-$('#days').innerHTML = DAYS.map((key) => {
-  const d = fmtDay(key), ls = legsOn(key), stay = stayFor(key), prev = stayFor(addDays(key, -1));
-  const where = ls.length ? `${STATIONS[ls[0].from].city} → ${STATIONS[ls[ls.length - 1].to].city}` : stay ? stay.city : '';
-  let body = ls.map(legHtml).join('');
-  if (!ls.length && stay) body += `<div class="free">${I('sun')}Celý den v ${{ 'Milán': 'Miláně', 'Paříž': 'Paříži', 'Londýn': 'Londýně', 'Amsterdam': 'Amsterdamu', 'Berlín': 'Berlíně' }[stay.city]}.</div>`;
-  if (NOTES[key]) body += `<div class="note">${I('info')}<span>${NOTES[key]}</span></div>`;
-  if (stay && stay.from === key) body += stayHtml(stay);
-  else if (stay) body += `<div class="free">${I('bed')}Spíš pořád ve stejném ubytování (${stay.city}).</div>`;
-  if (key === LAST) body += `<div class="free">${I('home')}Návrat domů.</div>`;
-  return `<section class="day" id="d${key}" data-day="${key}"><span class="day__dot"></span>
-    <div class="day__head"><h2>${d.num} <span style="font-size:inherit;color:var(--ink-3)">${d.name}</span></h2><span>${where}</span></div>
-    <div class="day__body">${body}</div></section>`;
-}).join('');
+/* ---------- vykreslení (znovu při změně jazyka) ---------- */
+function render() {
+  const L = t();
+  document.documentElement.lang = lang;
+  document.title = L.title;
+  document.querySelectorAll('[data-t]').forEach((el) => (el.innerHTML = L[el.dataset.t]));
+  document.querySelectorAll('#lang button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.lang === lang));
+  $('#route').setAttribute('aria-label', L.routeLabel);
+  $('.days-nav').setAttribute('aria-label', L.daysLabel);
+  $('#map').setAttribute('aria-label', L.mapLabel);
 
-$('#daysNav').innerHTML = DAYS.map((key) => { const d = fmtDay(key), s = stayFor(key), ls = legsOn(key); return `<a class="dchip" href="#d${key}" data-day="${key}"><b>${d.num}</b><small>${ls.length ? I('train').replace('class="i"', 'class="i" style="width:12px;height:12px;vertical-align:-1px"') : ''} ${s ? s.city : 'domů'}</small></a>`; }).join('');
+  $('#stats').innerHTML = [
+    [I('calendar'), L.days(DAYS.length)],
+    [I('train'), L.trains(LEGS.length)],
+    [I('clock'), L.hours(Math.round(totalMin / 60))],
+    [I('flag'), L.countries(7)],
+  ].map(([i, x]) => `<span class="stat">${i}${x}</span>`).join('');
+
+  $('#route').innerHTML = ROUTE.map((r, i) => `${i ? '<i class="dash"></i>' : ''}<button class="stop${r.home ? ' is-home' : ''}" data-city="${r.city}"><span>${i + 1}</span><small>${C(r.city)}</small></button>`).join('');
+
+  $('#days').innerHTML = DAYS.map((key) => {
+    const d = fmtDay(key), ls = legsOn(key), stay = stayFor(key);
+    const where = ls.length ? `${C(STATIONS[ls[0].from].city)} → ${C(STATIONS[ls[ls.length - 1].to].city)}` : stay ? C(stay.city) : '';
+    let body = ls.map(legHtml).join('');
+    if (!ls.length && stay) body += `<div class="free">${I('sun')}${L.dayIn[stay.city]}</div>`;
+    if (NOTES[key]) body += `<div class="note">${I('info')}<span>${NOTES[key][lang]}</span></div>`;
+    if (stay && stay.from === key) body += stayHtml(stay);
+    else if (stay) body += `<div class="free">${I('bed')}${L.same(C(stay.city))}</div>`;
+    if (key === LAST) body += `<div class="free">${I('home')}${L.home}</div>`;
+    return `<section class="day" id="d${key}" data-day="${key}"><span class="day__dot"></span>
+      <div class="day__head"><h2>${d.num} <span style="font-size:inherit;color:var(--ink-3)">${d.name}</span></h2><span>${where}</span></div>
+      <div class="day__body">${body}</div></section>`;
+  }).join('');
+
+  $('#daysNav').innerHTML = DAYS.map((key) => { const d = fmtDay(key), s = stayFor(key), ls = legsOn(key); return `<a class="dchip${key === curDay ? ' is-on' : ''}" href="#d${key}" data-day="${key}"><b>${d.num}</b><small>${ls.length ? I('train').replace('class="i"', 'class="i" style="width:12px;height:12px;vertical-align:-1px"') : ''} ${s ? C(s.city) : L.homeChip}</small></a>`; }).join('');
+
+  $('#checks').innerHTML = LEGS.map((l, i) => `<li><label><input type="checkbox" data-i="${i}" ${done[i] ? 'checked' : ''}/><span>${C(STATIONS[l.from].city)} → ${C(STATIONS[l.to].city)}</span><em>${l.res === 'req' ? L.must : L.should}</em></label></li>`).join('');
+
+  if (map) Object.entries(pins).forEach(([c, m]) => m.setTooltipContent(C(c)));
+  else $('#map').innerHTML = `<p style="padding:20px;color:#676c79">${L.mapFail}</p>`;
+
+  document.querySelectorAll('.day').forEach((d) => io.observe(d));
+  renderNow();
+}
 
 /* ---------- mapa ---------- */
 let map, pins = {}, lines = [];
@@ -361,7 +547,7 @@ if (window.L) {
   ROUTE.forEach((r, i) => {
     const s = STATIONS[r.st];
     const icon = L.divIcon({ className: '', html: `<div class="pin${r.home ? ' is-home' : ''}">${i + 1}</div>`, iconSize: [30, 30], iconAnchor: [15, 15] });
-    pins[r.city] = L.marker([s.lat, s.lng], { icon }).addTo(map).bindTooltip(r.city, { direction: 'top', offset: [0, -14] });
+    pins[r.city] = L.marker([s.lat, s.lng], { icon }).addTo(map).bindTooltip(C(r.city), { direction: 'top', offset: [0, -14] });
     pins[r.city].on('click', () => goDay(cityDay[r.city]));
   });
   LEGS.forEach((l, i) => {
@@ -369,8 +555,6 @@ if (window.L) {
     lines[i] = L.polyline([[a.lat, a.lng], [b.lat, b.lng]], { color: '#2563eb', weight: 3, opacity: .55, dashArray: '6 8' }).addTo(map);
   });
   map.fitBounds(L.latLngBounds(Object.values(STATIONS).map((s) => [s.lat, s.lng])), { padding: [30, 30] });
-} else {
-  $('#map').innerHTML = '<p style="padding:20px;color:#676c79">Mapa se nenačetla, zkus obnovit stránku.</p>';
 }
 
 function focusLeg(i) {
@@ -388,12 +572,14 @@ function focusCity(city) {
 function goDay(key) { document.getElementById('d' + key)?.scrollIntoView({ behavior: 'smooth' }); }
 
 document.addEventListener('click', (e) => {
+  const lb = e.target.closest('#lang button');
+  if (lb && lb.dataset.lang !== lang) { lang = lb.dataset.lang; try { localStorage.setItem('trip-lang', lang); } catch (er) {} render(); return; }
   const leg = e.target.closest('.leg');
   if (leg && !e.target.closest('a,button')) { const open = leg.classList.toggle('is-open'); leg.setAttribute('aria-expanded', open); focusLeg(+leg.dataset.leg); }
   const stop = e.target.closest('.stop');
   if (stop) { focusCity(stop.dataset.city); goDay(cityDay[stop.dataset.city]); }
   const cp = e.target.closest('[data-copy]');
-  if (cp) { navigator.clipboard?.writeText(cp.dataset.copy).then(() => { const t = cp.innerHTML; cp.textContent = 'Zkopírováno'; setTimeout(() => (cp.innerHTML = t), 1500); }); }
+  if (cp) { navigator.clipboard?.writeText(cp.dataset.copy).then(() => { const h = cp.innerHTML; cp.innerHTML = I('copy') + t().copied; setTimeout(() => (cp.innerHTML = h), 1500); }); }
 });
 document.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.classList?.contains('leg')) e.target.click(); });
 
@@ -411,33 +597,31 @@ const io = new IntersectionObserver((ents) => ents.forEach((en) => {
     if (on) { const w = c.parentElement; w.scrollTo({ left: c.offsetLeft - w.offsetLeft - (w.clientWidth - c.offsetWidth) / 2, behavior: 'smooth' }); }
   });
 }), { rootMargin: '-90px 0px -65% 0px' });
-document.querySelectorAll('.day').forEach((d) => io.observe(d));
 
 /* ---------- rezervace (pamatuje si to tvůj prohlížeč) ---------- */
 const KEY = 'trip-rezervace';
 let done = {}; try { done = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
-$('#checks').innerHTML = LEGS.map((l, i) => `<li><label><input type="checkbox" data-i="${i}" ${done[i] ? 'checked' : ''}/><span>${STATIONS[l.from].city} → ${STATIONS[l.to].city}</span><em>${l.res === 'req' ? 'povinná' : 'doporučená'}</em></label></li>`).join('');
 const prog = () => { const n = LEGS.filter((_, i) => done[i]).length; $('#prog').style.width = (n / LEGS.length) * 100 + '%'; };
 $('#checks').addEventListener('change', (e) => { done[e.target.dataset.i] = e.target.checked; try { localStorage.setItem(KEY, JSON.stringify(done)); } catch (er) {} prog(); });
-prog();
 
 /* ---------- teď ---------- */
-function cd(ms) { const m = Math.max(0, Math.round(ms / 60000)), d = Math.floor(m / 1440), h = Math.floor((m % 1440) / 60), mm = m % 60; return d ? `${d} d ${h} h` : h ? `${h} h ${mm} min` : `${mm} min`; }
+function cd(ms) { const m = Math.max(0, Math.round(ms / 60000)); return t().cd(Math.floor(m / 1440), Math.floor((m % 1440) / 60), m % 60); }
 function renderNow() {
-  const t = now(), key = todayKey();
-  const next = LEGS.find((l) => new Date(l.dep) > t);
-  const on = LEGS.find((l) => new Date(l.dep) <= t && new Date(l.arr) > t);
+  const L = t(), tm = now(), key = todayKey();
+  const next = LEGS.find((l) => new Date(l.dep) > tm);
+  const on = LEGS.find((l) => new Date(l.dep) <= tm && new Date(l.arr) > tm);
   let icon = 'clock', label, text, right = '';
-  if (t < new Date(LEGS[0].dep)) { label = 'Před cestou'; text = `První vlak: ${STATIONS.wien.name} v ${localTime(LEGS[0].dep)}, ${fmtDay(FIRST).num}`; right = `${cd(new Date(LEGS[0].dep) - t)}<em>do odjezdu</em>`; }
-  else if (on) { icon = 'train'; label = 'Právě ve vlaku'; text = `${STATIONS[on.from].city} → ${STATIONS[on.to].city}, příjezd ${localTime(on.arr)}`; right = `${cd(new Date(on.arr) - t)}<em>do příjezdu</em>`; }
-  else if (next) { const s = stayFor(key); icon = 'pin'; label = s ? `Teď: ${s.city}` : 'Na cestě'; text = `Další vlak: ${STATIONS[next.from].name} → ${STATIONS[next.to].city}, ${fmtDay(dateKey(next.dep)).num} v ${localTime(next.dep)}`; right = `${cd(new Date(next.dep) - t)}<em>do odjezdu</em>`; }
-  else { icon = 'home'; label = 'Hotovo'; text = 'Cesta skončila, vítej doma.'; }
+  if (tm < new Date(LEGS[0].dep)) { label = L.before; text = L.first(STATIONS.wien.name, localTime(LEGS[0].dep), fmtDay(FIRST).num); right = `${cd(new Date(LEGS[0].dep) - tm)}<em>${L.toDep}</em>`; }
+  else if (on) { icon = 'train'; label = L.onTrain; text = L.arrival(C(STATIONS[on.from].city), C(STATIONS[on.to].city), localTime(on.arr)); right = `${cd(new Date(on.arr) - tm)}<em>${L.toArr}</em>`; }
+  else if (next) { const s = stayFor(key); icon = 'pin'; label = s ? L.nowIn(C(s.city)) : L.onWay; text = L.next(STATIONS[next.from].name, C(STATIONS[next.to].city), fmtDay(dateKey(next.dep)).num, localTime(next.dep)); right = `${cd(new Date(next.dep) - tm)}<em>${L.toDep}</em>`; }
+  else { icon = 'home'; label = L.done; text = L.doneText; }
   $('#now').innerHTML = `<span class="now__ico">${I(icon)}</span><div><small>${label}</small><strong>${text}</strong></div><div class="now__cd">${right}</div>`;
   document.querySelectorAll('.day').forEach((d) => { d.classList.toggle('is-today', d.dataset.day === key); d.classList.toggle('is-past', d.dataset.day < key); });
   document.querySelectorAll('.dchip').forEach((c) => c.classList.toggle('is-today', c.dataset.day === key));
-  document.querySelectorAll('.day.is-today .day__head').forEach((h) => { if (!h.querySelector('.today-tag')) h.insertAdjacentHTML('beforeend', '<span class="today-tag">Dnes</span>'); });
+  document.querySelectorAll('.day.is-today .day__head').forEach((h) => { if (!h.querySelector('.today-tag')) h.insertAdjacentHTML('beforeend', `<span class="today-tag">${L.today}</span>`); });
 }
-renderNow(); setInterval(renderNow, 30000);
+
+render(); prog(); setInterval(renderNow, 30000);
 if (DAYS.includes(todayKey())) setTimeout(() => goDay(todayKey()), 300);
 </script>
 </body>
