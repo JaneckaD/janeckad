@@ -137,6 +137,10 @@ h1 em { font-style: normal; color: var(--c1); }
 .stay h4 { font: 600 18px/1.25 'Rethink Sans'; margin-top: 6px; }
 .stay p { font-size: 14px; color: var(--ink-2); margin-top: 2px; }
 .stay.is-missing { background: #fff; border: 1.5px dashed #f2b98f; }
+.stay.is-tbd { background: #fff; border: 1.5px dashed #cdd5e1; }
+.stay.is-tbd small { color: var(--ink-3); }
+.stay.is-tbd .stay__ico { background: var(--bg); color: var(--ink-3); }
+.stay__info { margin-top: 8px !important; padding-top: 8px; border-top: 1px dashed #cfdcf5; }
 .stay.is-missing small { color: var(--warn); }
 .stay.is-missing .stay__ico { background: var(--warn-soft); color: var(--warn); }
 
@@ -223,18 +227,21 @@ const LEGS = [
 ];
 
 const STAYS = [
-  { city: 'Milán', from: '2026-10-24', to: '2026-10-26', name: '', address: '' },
-  { city: 'Paříž', from: '2026-10-26', to: '2026-10-27', name: '', address: '' },
-  { city: 'Londýn', from: '2026-10-27', to: '2026-10-29', name: '', address: '' },
-  { city: 'Amsterdam', from: '2026-10-29', to: '2026-10-30', name: '', address: '' },
-  { city: 'Berlín', from: '2026-10-30', to: '2026-11-01', name: '', address: '' },
+  { city: 'Milán', from: '2026-10-24', to: '2026-10-26', name: 'Airbnb Milán', address: 'Via Privata Chioggia 7, 20125 Milano, Itálie',
+    info: 'Severně od centra (čtvrť Greco/Gorla). Na hostitele se ozvi předem, jak se dostat dovnitř.' },
+  { city: 'Paříž', from: '2026-10-26', to: '2026-10-27', name: 'Airbnb Meudon', address: '19 Route des Gardes, 1. patro, 92190 Meudon, Francie',
+    info: 'Meudon je za hranicí Paříže, z Gare de Lyon počítej s cestou kolem 45 minut. Ráno 27. 10. si nech dost času na cestu na Gare du Nord.' },
+  { city: 'Londýn', from: '2026-10-27', to: '2026-10-29', tbd: true },
+  { city: 'Amsterdam', from: '2026-10-29', to: '2026-10-30', name: 'Airbnb Amsterdam-Noord', address: 'Papaverhof 71, 1032 LX Amsterdam, Nizozemsko',
+    info: 'Číslo bytu a jak se dostat do domu přijde až po online check-inu (s.bobw.co/airbnb), udělej ho před cestou. Přijíždíš ve 23:20: z Amsterdam Centraal jede za nádražím přívoz na Buiksloterweg zdarma a nonstop.' },
+  { city: 'Berlín', from: '2026-10-30', to: '2026-11-01', tbd: true },
 ];
 
 // poznámky k jednotlivým dnům
 const NOTES = {
   '2026-10-24': 'V Curychu máš 4 a půl hodiny mezi vlaky, dá se projít centrum a jezero.',
-  '2026-10-26': 'Přijedeš na Gare de Lyon, ale do Londýna se odjíždí z Gare du Nord (metro RER D nebo B, asi 15 minut).',
-  '2026-10-27': 'Na Eurostar přijď aspoň 60 minut předem, je tam pasová a bezpečnostní kontrola. Vezmi pas.',
+  '2026-10-26': 'Přijedeš na Gare de Lyon a spíš v Meudonu za Paříží. Do Londýna se zítra odjíždí z Gare du Nord, ne z Gare de Lyon.',
+  '2026-10-27': 'Z Meudonu na Gare du Nord to trvá asi hodinu. Na Eurostar přijď aspoň 60 minut předem, je tam pasová a bezpečnostní kontrola. Vezmi pas.',
   '2026-10-29': 'Eurostar: zase aspoň 60 minut předem kvůli kontrole.',
   '2026-10-30': 'Vlak končí v Berlin-Spandau, do centra jede S-Bahn S3 nebo S9.',
   '2026-11-01': 'Zpátky se odjíždí z Berlin Hbf, ne ze Spandau.',
@@ -320,10 +327,13 @@ function legHtml(l) {
 function stayHtml(s) {
   const n = nights(s);
   const span = `${fmtDay(s.from).num} – ${fmtDay(s.to).num}, ${n} ${n === 1 ? 'noc' : 'noci'}`;
+  if (s.tbd) {
+    return `<div class="stay is-tbd"><div class="stay__ico">${I('bed')}</div><div><small>Ubytování</small><h4>${s.city}</h4><p>${span}. Bude upřesněno.</p></div></div>`;
+  }
   if (!s.address) {
     return `<div class="stay is-missing"><div class="stay__ico">${I('bed')}</div><div><small>Ubytování · doplnit</small><h4>${s.city}</h4><p>${span}. Adresa zatím chybí.</p></div></div>`;
   }
-  return `<div class="stay"><div class="stay__ico">${I('bed')}</div><div><small>Ubytování</small><h4>${esc(s.name || s.city)}</h4><p>${esc(s.address)}</p><p>${span}</p>
+  return `<div class="stay"><div class="stay__ico">${I('bed')}</div><div><small>Ubytování</small><h4>${esc(s.name || s.city)}</h4><p>${esc(s.address)}</p><p>${span}</p>${s.info ? `<p class="stay__info">${esc(s.info)}</p>` : ''}
     <div class="links"><a class="btn" href="${mapsUrl(s.address)}" target="_blank" rel="noopener">${I('map')}Navigovat</a><button class="btn" data-copy="${esc(s.address)}">${I('copy')}Kopírovat adresu</button></div></div></div>`;
 }
 
