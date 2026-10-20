@@ -19,7 +19,7 @@ const ld = (data) => `<script type="application/ld+json">${JSON.stringify(data).
 
 // stránky webu: soubor → adresa, obrázek pro sdílení a předpona cest k obrázkům
 const PAGES = {
-  'index.html': { path: '', image: 'og/david-janecka.jpg', prefix: '' },
+  'index.html': { path: '', image: 'og/david-janecka-titulni.jpg', prefix: '' },
   'portfolio/index.html': { path: 'portfolio/', image: 'og/portfolio.jpg', prefix: '../' },
 };
 
@@ -59,7 +59,7 @@ const business = {
   description: 'Tvorba webových stránek, e-shopů, log a vizuálních identit pro malé firmy a živnostníky.',
   url: abs(),
   logo: abs('ikona-512.png'),
-  image: abs('og/david-janecka.jpg'),
+  image: abs('og/david-janecka-titulni.jpg'),
   email: site.email,
   telephone: site.phone,
   founder: { '@id': ids.person },
@@ -209,7 +209,8 @@ export default function seo() {
           (page) => `
   <url>
     <loc>${abs(page.path)}</loc>
-    <lastmod>${today}</lastmod>${images(page.path ? projects : projects.filter((p) => p.featured))}
+    <lastmod>${today}</lastmod>
+    <image:image><image:loc>${abs(page.image)}</image:loc><image:title>${escapeHtml(site.brand)}: weby, loga a grafika</image:title></image:image>${images(page.path ? projects : projects.filter((p) => p.featured))}
   </url>`,
         )
         .join('');
