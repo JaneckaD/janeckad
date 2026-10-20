@@ -356,8 +356,8 @@ $('#daysNav').innerHTML = DAYS.map((key) => { const d = fmtDay(key), s = stayFor
 /* ---------- mapa ---------- */
 let map, pins = {}, lines = [];
 if (window.L) {
-  map = L.map('map', { scrollWheelZoom: false, zoomControl: true, attributionControl: true });
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; OpenStreetMap, &copy; CARTO', maxZoom: 18 }).addTo(map);
+  map = L.map('map', { scrollWheelZoom: false, dragging: !L.Browser.mobile, zoomControl: true, attributionControl: true });
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>', maxZoom: 18 }).addTo(map);
   ROUTE.forEach((r, i) => {
     const s = STATIONS[r.st];
     const icon = L.divIcon({ className: '', html: `<div class="pin${r.home ? ' is-home' : ''}">${i + 1}</div>`, iconSize: [30, 30], iconAnchor: [15, 15] });
@@ -398,10 +398,18 @@ document.addEventListener('click', (e) => {
 document.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.classList?.contains('leg')) e.target.click(); });
 
 // zvýraznění dne podle toho, kde jsi na stránce
+// lišta se dny se posouvá jen do strany, stránku samotnou nikdy nehýbe
+let curDay;
 const io = new IntersectionObserver((ents) => ents.forEach((en) => {
   if (!en.isIntersecting) return;
   const key = en.target.dataset.day;
-  document.querySelectorAll('.dchip').forEach((c) => { const on = c.dataset.day === key; c.classList.toggle('is-on', on); if (on) c.scrollIntoView({ block: 'nearest', inline: 'center' }); });
+  if (key === curDay) return;
+  curDay = key;
+  document.querySelectorAll('.dchip').forEach((c) => {
+    const on = c.dataset.day === key;
+    c.classList.toggle('is-on', on);
+    if (on) { const w = c.parentElement; w.scrollTo({ left: c.offsetLeft - w.offsetLeft - (w.clientWidth - c.offsetWidth) / 2, behavior: 'smooth' }); }
+  });
 }), { rootMargin: '-90px 0px -65% 0px' });
 document.querySelectorAll('.day').forEach((d) => io.observe(d));
 
