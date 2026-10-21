@@ -74,7 +74,10 @@ const business = {
       '@type': 'Offer',
       itemOffered: { '@type': 'Service', name: s.name, description: s.desc, provider: { '@id': ids.business } },
       ...priceOf(s),
-    })),
+    })).concat({
+      '@type': 'Offer',
+      itemOffered: { '@type': 'Service', name: 'Systémy na míru pro firmy', description: 'Aplikace na míru pro firmy, které běží v prohlížeči i na mobilu: rozvozové systémy, sklad a třídění zakázek, plánovače směn, rezervace a interní přehledy. Cena podle rozsahu.', provider: { '@id': ids.business } },
+    }),
   },
 };
 
@@ -227,10 +230,11 @@ export default function seo() {
       const llms = [
         `# ${site.brand}`,
         '',
-        `> ${site.brand}, ${site.role.toLowerCase()}. Tvorba webových stránek, e-shopů, log a vizuálních identit pro malé firmy a živnostníky po celém Česku.`,
+        `> ${site.brand}, ${site.role.toLowerCase()}. Tvorba webových stránek, e-shopů, systémů na míru pro firmy, log a vizuálních identit pro malé firmy a živnostníky po celém Česku.`,
         '',
         '## Služby a ceny',
         ...services.map((sv) => `- ${sv.name} (${cena(sv)}): ${sv.desc}`),
+        '- Systémy na míru pro firmy (cena podle rozsahu): Aplikace na míru pro firmy, které běží v prohlížeči i na mobilu: rozvozové systémy, sklad a třídění zakázek, plánovače směn, rezervace a interní přehledy. Cena podle rozsahu.',
         '',
         '## Ukázky prací',
         ...projects.map((p) => `- ${p.title} (${p.category})${p.link ? `: ${p.link}` : ''}`),

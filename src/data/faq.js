@@ -20,6 +20,10 @@ export const faq = [
     a: 'Ano, služby se dají libovolně kombinovat. Výhoda je, že web i grafiku dělá jeden člověk, takže všechno ladí dohromady a nemusíte hlídat, jestli si grafik a programátor rozumí.',
   },
   {
+    q: 'Děláte i systémy na míru pro firmy?',
+    a: 'Ano. Kromě webů programuju i aplikace pro firmy, například rozvozové systémy, sklad a třídění zakázek, plánovače směn, online rezervace nebo interní přehledy s čísly. Běží v prohlížeči na počítači i v mobilu, nic se neinstaluje. Cena se odvíjí od rozsahu, přesnou dostanete po prvním rozhovoru.',
+  },
+  {
     q: 'Pomůžete mi s doménou a hostingem?',
     a: 'Ano. Poradím, kde doménu koupit (běžná .cz doména vyjde zhruba na 200 Kč za rok) a web vám spustím na vaší adrese. Doména i přístupy zůstávají vaše.',
   },
