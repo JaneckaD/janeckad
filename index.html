@@ -19,6 +19,7 @@
       <a class="logo" href="#top" aria-label="David Janečka, zpět na začátek"><span class="logo__name">david janečka<i>.</i></span></a>
       <nav class="hd__links" id="menu" aria-label="Hlavní navigace" data-nav-links>
         <a href="#sluzby">Služby</a>
+        <a href="#systemy">Systémy</a>
         <a href="#prace">Práce</a>
         <a href="#cenik">Ceník</a>
         <a href="#postup">Postup</a>
@@ -42,11 +43,11 @@
     <section class="hero" aria-labelledby="hero-title">
       <div class="wrap hero__grid">
         <div class="hero__text">
-          <p class="eyebrow" data-intro>Weby <i></i> Loga <i></i> Grafika</p>
+          <p class="eyebrow" data-intro>Weby <i></i> Loga <i></i> Grafika <i></i> Systémy</p>
           <h1 id="hero-title" data-intro>Weby, loga a&nbsp;grafika <em>od jednoho člověka.</em></h1>
           <p class="hero__lead" data-intro>
             Jsem David Janečka, webař, který umí i&nbsp;grafiku. Navrhnu vám logo, postavím web
-            a&nbsp;pohlídám, aby všechno ladilo dohromady.
+            nebo systém pro vaši firmu a&nbsp;pohlídám, aby všechno ladilo dohromady.
           </p>
           <div class="hero__cta" data-intro>
             <a class="btn btn--accent btn--lg" href="#cenik">Spočítat cenu <span data-icon="arrowRight"></span></a>
@@ -78,6 +79,110 @@
           <p class="head__lead" data-reveal>Weby i grafiku dělám sám, od prvního návrhu až po spuštění. Objednat můžete jednu věc, nebo všechno v jednom balíku.</p>
         </div>
         <ul class="areas" data-areas></ul>
+      </div>
+    </section>
+
+    <!-- SYSTÉMY NA MÍRU PRO FIRMY -->
+    <section class="sec sys" id="systemy" aria-labelledby="sys-title">
+      <div class="wrap">
+        <div class="sys__intro">
+          <div class="head">
+            <p class="eyebrow" data-reveal>Systémy pro firmy</p>
+            <h2 id="sys-title" data-reveal>Aplikace na míru, <em>které vám ušetří práci</em></h2>
+            <p class="head__lead" data-reveal>Kromě webů programuju i systémy pro firmy. Místo tabulek, papírů a&nbsp;neustálého telefonování dostanete jednoduchou aplikaci v&nbsp;prohlížeči, která sedí přesně na váš provoz. Žádná krabicová šablona, ale řešení postavené kolem toho, jak opravdu pracujete.</p>
+            <ul class="sys__gains" data-reveal>
+              <li><span data-icon="check"></span>Méně ruční práce a&nbsp;přepisování</li>
+              <li><span data-icon="check"></span>Všechno na jednom místě, i&nbsp;v&nbsp;mobilu</li>
+              <li><span data-icon="check"></span>Hned vidíte, co se děje a&nbsp;co chybí</li>
+            </ul>
+          </div>
+
+          <!-- ilustrační ukázka aplikace (jen HTML a CSS) -->
+          <div class="app" aria-hidden="true" data-reveal>
+            <div class="app__bar"><i></i><i></i><i></i><span>váš-systém.cz/rozvoz</span></div>
+            <div class="app__body">
+              <div class="app__side">
+                <b class="app__logo">d<i>.</i></b>
+                <span class="is-on" data-icon="truck"></span>
+                <span data-icon="package"></span>
+                <span data-icon="calendarClock"></span>
+                <span data-icon="chartColumn"></span>
+              </div>
+              <div class="app__main">
+                <div class="app__head"><div><small>Dnes</small><strong>Rozvoz objednávek</strong></div><span class="app__btn"><span data-icon="plus"></span>Nová</span></div>
+                <div class="app__stats">
+                  <div><small>Objednávky</small><b>48</b></div>
+                  <div><small>Na cestě</small><b>12</b></div>
+                  <div><small>Doručeno</small><b>31</b></div>
+                </div>
+                <ul class="app__list">
+                  <li><span class="app__av">PK</span><div><b>Objednávka #1042</b><small>Řidič Petr · 11:30</small></div><em class="st st--go">Na cestě</em></li>
+                  <li><span class="app__av app__av--2">JN</span><div><b>Objednávka #1043</b><small>Řidič Jana · 11:45</small></div><em class="st st--ok">Doručeno</em></li>
+                  <li><span class="app__av app__av--3">TM</span><div><b>Objednávka #1044</b><small>Čeká na přidělení</small></div><em class="st st--wait">Nová</em></li>
+                </ul>
+                <div class="app__shifts">
+                  <small>Směny tento týden</small>
+                  <div class="app__grid"><i class="a"></i><i class="b"></i><i></i><i class="a"></i><i class="c"></i><i class="b"></i><i class="a"></i><i></i><i class="c"></i><i class="a"></i><i class="b"></i><i class="a"></i><i></i><i class="c"></i></div>
+                </div>
+              </div>
+            </div>
+            <span class="app__toast"><span data-icon="bell"></span>Objednávka #1043 doručena</span>
+          </div>
+        </div>
+
+        <ul class="sys__grid">
+          <li class="sysc" data-reveal>
+            <span class="ico" data-icon="truck"></span>
+            <h3>Rozvozový systém</h3>
+            <p>Objednávky, trasy a&nbsp;řidiči na jednom místě. Dispečer rozdělí objednávky, řidič v&nbsp;mobilu vidí, kam jet, a&nbsp;vy víte, co je doručené.</p>
+            <ul class="ticks"><li><span data-icon="check"></span>Přehled objednávek v&nbsp;reálném čase</li><li><span data-icon="check"></span>Přidělování řidičům</li><li><span data-icon="check"></span>Stav doručení a&nbsp;historie</li></ul>
+          </li>
+          <li class="sysc" data-reveal>
+            <span class="ico" data-icon="package"></span>
+            <h3>Třídění a&nbsp;sklad</h3>
+            <p>Evidence zboží, zakázek nebo dokumentů a&nbsp;jejich třídění podle vašich pravidel. Konec ručního přepisování mezi tabulkami.</p>
+            <ul class="ticks"><li><span data-icon="check"></span>Zásoby a&nbsp;pohyby zboží</li><li><span data-icon="check"></span>Automatické třídění a&nbsp;štítky</li><li><span data-icon="check"></span>Vyhledávání a&nbsp;filtry</li></ul>
+          </li>
+          <li class="sysc" data-reveal>
+            <span class="ico" data-icon="shoppingCart"></span>
+            <h3>E-shop s&nbsp;vlastní administrací</h3>
+            <p>Obchod postavený na míru, ne z&nbsp;šablony. Produkty, objednávky, platby i&nbsp;dopravu si spravujete sami v&nbsp;přehledné administraci.</p>
+            <ul class="ticks"><li><span data-icon="check"></span>Správa produktů a&nbsp;objednávek</li><li><span data-icon="check"></span>Platby a&nbsp;doprava</li><li><span data-icon="check"></span>Od <b data-price="eshop"></b></li></ul>
+          </li>
+          <li class="sysc" data-reveal>
+            <span class="ico" data-icon="calendarClock"></span>
+            <h3>Plánovač směn</h3>
+            <p>Rozpis směn pro celý tým. Zaměstnanci vidí své směny v&nbsp;telefonu, vy hned poznáte, kde chybí lidi, a&nbsp;na konci měsíce máte spočítané hodiny.</p>
+            <ul class="ticks"><li><span data-icon="check"></span>Rozpis na týden i&nbsp;měsíc</li><li><span data-icon="check"></span>Dovolené a&nbsp;výměny směn</li><li><span data-icon="check"></span>Přehled odpracovaných hodin</li></ul>
+          </li>
+          <li class="sysc" data-reveal>
+            <span class="ico" data-icon="clipboardList"></span>
+            <h3>Rezervace a&nbsp;objednávky</h3>
+            <p>Online rezervace termínů, stolů nebo služeb. Zákazník si vybere čas sám, vám se plní kalendář a&nbsp;nemusíte nic dopisovat ručně.</p>
+            <ul class="ticks"><li><span data-icon="check"></span>Kalendář volných termínů</li><li><span data-icon="check"></span>Potvrzení e-mailem</li><li><span data-icon="check"></span>Přehled pro celý tým</li></ul>
+          </li>
+          <li class="sysc" data-reveal>
+            <span class="ico" data-icon="chartColumn"></span>
+            <h3>Interní přehledy</h3>
+            <p>Jeden přehled s&nbsp;čísly, která vás zajímají: zakázky, tržby, výkon týmu. Data na jednom místě místo v&nbsp;pěti různých tabulkách.</p>
+            <ul class="ticks"><li><span data-icon="check"></span>Grafy a&nbsp;souhrny</li><li><span data-icon="check"></span>Export do Excelu a&nbsp;PDF</li><li><span data-icon="check"></span>Přístupy podle rolí</li></ul>
+          </li>
+        </ul>
+
+        <div class="sys__how">
+          <div class="sys__how-item" data-reveal><span class="ico ico--sm" data-icon="smartphone"></span><div><h3>Funguje všude</h3><p>Běží v&nbsp;prohlížeči na počítači, tabletu i&nbsp;mobilu. Nic se neinstaluje.</p></div></div>
+          <div class="sys__how-item" data-reveal><span class="ico ico--sm" data-icon="users"></span><div><h3>Role a&nbsp;přístupy</h3><p>Každý vidí jen to, co potřebuje: majitel, dispečer, řidič nebo brigádník.</p></div></div>
+          <div class="sys__how-item" data-reveal><span class="ico ico--sm" data-icon="database"></span><div><h3>Vaše data</h3><p>Data patří vám a&nbsp;dají se kdykoliv vyexportovat.</p></div></div>
+          <div class="sys__how-item" data-reveal><span class="ico ico--sm" data-icon="layers"></span><div><h3>Roste s&nbsp;vámi</h3><p>Začneme tím nejdůležitějším a&nbsp;další funkce přidáme, až budou potřeba.</p></div></div>
+        </div>
+
+        <div class="sys__cta" data-reveal>
+          <div>
+            <h3>Nevidíte tu svůj případ?</h3>
+            <p>Popište mi, co vás v&nbsp;práci zdržuje, a&nbsp;vymyslíme, jak to zjednodušit. Cena se odvíjí od rozsahu, přesnou dostanete po prvním rozhovoru.</p>
+          </div>
+          <a class="btn btn--accent btn--lg" href="#kontakt">Popsat svůj provoz <span data-icon="arrowRight"></span></a>
+        </div>
       </div>
     </section>
 
