@@ -1,6 +1,6 @@
 // Offline režim pro /games: při první návštěvě uloží všechno do mezipaměti.
 // Při změně her stačí zvýšit číslo verze, ať si telefon stáhne novou verzi.
-const CACHE = 'hry-v4';
+const CACHE = 'hry-v5';
 const FILES = ['./', './index.html', './manifest.webmanifest', './ikona-180.png', './ikona-192.png', './ikona-512.png', './rethink-sans-latin-wght-normal.woff2', './rethink-sans-latin-ext-wght-normal.woff2'];
 
 self.addEventListener('install', (e) => {
