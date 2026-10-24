@@ -23,6 +23,7 @@
   --r: 20px; --ease: cubic-bezier(.22,1,.36,1);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+[hidden] { display: none !important; }
 html, body { height: 100%; }
 body { font: 400 16px/1.5 'Rethink Sans', system-ui, sans-serif; color: var(--ink); background: var(--bg); -webkit-font-smoothing: antialiased; overscroll-behavior: none; user-select: none; -webkit-user-select: none; }
 button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; touch-action: manipulation; }
@@ -129,27 +130,26 @@ body.in-game .game { display: flex; }
 .card em { transform: rotateY(180deg); background: #fff; font-size: 34px; }
 .card.p1 em { box-shadow: 0 0 0 3px var(--p1) inset; } .card.p2 em { box-shadow: 0 0 0 3px var(--p2) inset; }
 
-/* hádej slovo */
-.word { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 6px 0 4px; }
-.word span { width: 30px; height: 42px; border-bottom: 3px solid var(--ink-2); display: grid; place-items: center; font-size: 26px; font-weight: 700; }
-.word span.sp { border: 0; width: 14px; }
-.word span.miss { color: var(--p2); }
-.hint { color: var(--ink-3); font-size: 14px; margin-bottom: 8px; text-align: center; }
-.keys { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; width: min(100%, 420px); margin-top: 12px; }
-.keys button { height: 46px; border-radius: 10px; background: var(--card); border: 1px solid var(--line); font-weight: 600; font-size: 17px; }
-.keys button.hit { background: rgba(34,197,94,.25); border-color: var(--ok); }
-.keys button.no { opacity: .25; }
-.hang { width: 150px; height: 140px; }
-.hang path, .hang line, .hang circle { stroke: var(--ink-2); stroke-width: 4; fill: none; stroke-linecap: round; }
-.hang .part { stroke: var(--p2); opacity: 0; transition: opacity .3s; }
-.hang .part.on { opacity: 1; }
-.setup { width: min(100%, 420px); display: grid; gap: 10px; }
-.setup p { color: var(--ink-2); text-align: center; }
-.field { width: 100%; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--line); background: var(--bg-2); color: var(--ink); outline: none; user-select: text; -webkit-user-select: text; }
-.field:focus { border-color: var(--p1); }
+/* hádej slovo (wordle) */
+.wgrid { display: grid; gap: 6px; width: min(100%, 330px); }
+.wrow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.wrow.shake { animation: shake .4s; }
+@keyframes shake { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+.tile { aspect-ratio: 1; border-radius: 10px; background: var(--bg-2); border: 2px solid var(--line); display: grid; place-items: center; font-size: clamp(24px, 8vw, 32px); font-weight: 700; text-transform: uppercase; }
+.tile.full { border-color: var(--ink-3); animation: pop .15s var(--ease); }
+.tile.flip { animation: flip .5s var(--ease) both; }
+.tile.ok { --c: #16a34a; } .tile.in { --c: #f08c2a; } .tile.no { --c: #3a4559; }
+@keyframes flip { 0% { transform: rotateX(0); } 49% { transform: rotateX(90deg); background: var(--bg-2); border-color: var(--ink-3); } 50% { transform: rotateX(90deg); background: var(--c); border-color: var(--c); } 100% { transform: rotateX(0); background: var(--c); border-color: var(--c); } }
+.wkeys { width: min(100%, 460px); display: grid; gap: 7px; margin-top: 16px; }
+.wkeys > div { display: flex; justify-content: center; gap: 5px; }
+.wkeys button { flex: 1; max-width: 42px; height: 52px; border-radius: 8px; background: #475569; font-weight: 700; font-size: 17px; display: grid; place-items: center; transition: background .2s; }
+.wkeys button.wide { max-width: 64px; flex: 1.5; }
+.wkeys button.ok { background: #16a34a; } .wkeys button.in { background: #f08c2a; } .wkeys button.no { background: #1e2638; color: #6b7487; }
+.wsubmit { width: min(100%, 460px); margin-top: 10px; background: #16a34a; text-transform: uppercase; letter-spacing: .04em; }
+.gcard .solo { position: absolute; right: 14px; top: 14px; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 4px 9px; border-radius: 999px; background: rgba(255,255,255,.14); }
 .lives { color: var(--ink-3); font-size: 14px; }
 
-/* zápalky */
+
 .matches { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 10px; width: min(100%, 420px); min-height: 150px; align-content: flex-start; margin: 8px 0; }
 .match { width: 9px; height: 64px; border-radius: 4px; background: linear-gradient(#ef4444 0 14px, #e8c48a 14px); transition: transform .35s var(--ease), opacity .35s; }
 .match.gone { opacity: 0; transform: translateY(-30px) rotate(25deg); }
@@ -243,7 +243,7 @@ const T = {
     turn: (n) => `Na tahu: ${n}`, wins: (n) => `Vyhrává ${n}!`, draw: 'Remíza', again: 'Hrát znovu', next: 'Další kolo', start: 'Start', exit: 'Konec',
     tapStart: 'Klepněte, až budete oba připraveni', ready: 'Připravit…', tooSoon: 'Moc brzo!', first: 'Rychlejší!', firstTo: (n) => `Hraje se do ${n} bodů`,
     games: {
-      word: ['Hádej slovo', 'Jeden zadá slovo, druhý hádá písmena.', 'Hráč, který je na řadě se zadáním, napíše tajné slovo (nebo vezme náhodné) a druhý se nedívá. Pak druhý hádá písmena. Má 7 pokusů. Uhodne celé slovo = bod pro hádajícího, jinak bod pro zadávajícího. Role se střídají.'],
+      word: ['Hádej slovo', 'Sólo: uhodni slovo na 6 pokusů.', 'Hra pro jednoho. Uhodni tajné slovo o 5 písmenech na 6 pokusů. Po každém pokusu se písmena obarví: zelená = písmeno je ve slově na správném místě, oranžová = písmeno ve slově je, ale jinde, tmavá = písmeno ve slově není. Háčky a čárky se nepíšou (Š napiš jako S). Slova se mění podle zvoleného jazyka.'],
       ttt: ['Piškvorky 3×3', 'Klasika: tři v řadě.', 'Střídáte se v kreslení křížků a koleček. Kdo první udělá tři v řadě (vodorovně, svisle nebo šikmo), vyhrává. Začínající hráč se každé kolo střídá.'],
       five: ['Pět v řadě', 'Velké piškvorky na ploše 12×12.', 'Jako piškvorky, ale na větší ploše a vyhrává až pět v řadě.'],
       c4: ['Čtyři v řadě', 'Házejte kameny do sloupců.', 'Klepnutím do sloupce do něj spadne váš kámen. Kdo první spojí čtyři své kameny vodorovně, svisle nebo šikmo, vyhrává.'],
@@ -257,13 +257,13 @@ const T = {
       math: ['Počtářský souboj', 'Kdo dřív spočítá příklad.', 'Na obou polovinách se ukáže stejný příklad a tři výsledky. Kdo dřív klepne na správný, získá bod. Za špatnou odpověď máte do dalšího příkladu stop. Hraje se do 7.'],
     },
     word: {
-      choose: (a, b) => `${a} zadává tajné slovo. ${b}, nedívej se!`, placeholder: 'Tajné slovo', hintPh: 'Nápověda (nepovinné)', random: 'Náhodné slovo', go: 'Hádat',
-      guess: (n) => `Hádá ${n}`, lives: (n) => `Zbývá pokusů: ${n}`, solved: (n) => `${n} uhodl(a) slovo!`, failed: (n, w) => `Neuhodnuto, bod pro ${n}. Slovo bylo: ${w}`,
-      hint: 'Nápověda', short: 'Slovo musí mít aspoň 2 písmena.', pass: (n) => `Podejte mobil: hádá ${n}`,
+      submit: 'Potvrdit slovo', fresh: 'Nové slovo', short: 'Slovo musí mít 5 písmen.', solo: 'Sólo',
+      win: (n) => `Uhodnuto na ${n}. pokus! 🎉`, lose: (w) => `Došly pokusy. Slovo bylo ${w}.`, try: (n) => `Pokus ${n} z 6`,
+      stats: (p, w, s) => `Odehráno ${p} · Výhry ${w} · Série ${s}`,
     },
     nim: { left: (n) => `Zbývá ${n}`, take: (n) => `Vzít ${n}`, lose: (n) => `${n} vzal(a) poslední a prohrává.` },
     rps: { pick: (n) => `${n}, vyber si (soupeř se nedívá)`, hidden: (n) => `${n} už vybral(a). Podejte mobil.`, show: 'Odhalit', names: ['Kámen', 'Nůžky', 'Papír'] },
-    pongTap: 'Tahejte prstem po své straně',
+    pongTap: 'Tahejte prstem po své straně', go: 'TEĎ!',
   },
   en: {
     title: 'Games for two', h1: 'Games <em>for two</em>',
@@ -273,7 +273,7 @@ const T = {
     turn: (n) => `${n}’s turn`, wins: (n) => `${n} wins!`, draw: 'Draw', again: 'Play again', next: 'Next round', start: 'Start', exit: 'Quit',
     tapStart: 'Tap when you are both ready', ready: 'Get ready…', tooSoon: 'Too soon!', first: 'Faster!', firstTo: (n) => `First to ${n} points`,
     games: {
-      word: ['Guess the word', 'One sets a word, the other guesses letters.', 'The player whose turn it is to set types a secret word (or takes a random one) while the other looks away. Then the other player guesses letters with 7 tries. Guess the whole word = point for the guesser, otherwise the point goes to the setter. Roles swap every round.'],
+      word: ['Guess the word', 'Solo: guess the word in 6 tries.', 'A game for one. Guess the secret five-letter word in 6 tries. After each guess the letters change colour: green = right letter in the right place, orange = the letter is in the word but somewhere else, dark = the letter is not in the word. The words change with the selected language.'],
       ttt: ['Tic-tac-toe', 'Classic three in a row.', 'Take turns placing X and O. The first to get three in a row (across, down or diagonal) wins. The starting player switches every round.'],
       five: ['Five in a row', 'Big tic-tac-toe on a 12×12 board.', 'Like tic-tac-toe, but on a bigger board and you need five in a row.'],
       c4: ['Connect four', 'Drop stones into columns.', 'Tap a column to drop your stone into it. The first to connect four of their stones across, down or diagonally wins.'],
@@ -287,13 +287,13 @@ const T = {
       math: ['Maths duel', 'Who solves it first.', 'Both halves show the same sum and three answers. The first to tap the right one scores. A wrong answer locks you out until the next sum. First to 7.'],
     },
     word: {
-      choose: (a, b) => `${a} sets the secret word. ${b}, don’t look!`, placeholder: 'Secret word', hintPh: 'Hint (optional)', random: 'Random word', go: 'Start guessing',
-      guess: (n) => `${n} is guessing`, lives: (n) => `Tries left: ${n}`, solved: (n) => `${n} guessed the word!`, failed: (n, w) => `Not guessed, point for ${n}. The word was: ${w}`,
-      hint: 'Hint', short: 'The word needs at least 2 letters.', pass: (n) => `Pass the phone: ${n} guesses`,
+      submit: 'Submit word', fresh: 'New word', short: 'The word needs 5 letters.', solo: 'Solo',
+      win: (n) => `Got it in ${n}! 🎉`, lose: (w) => `Out of tries. The word was ${w}.`, try: (n) => `Try ${n} of 6`,
+      stats: (p, w, s) => `Played ${p} · Wins ${w} · Streak ${s}`,
     },
     nim: { left: (n) => `${n} left`, take: (n) => `Take ${n}`, lose: (n) => `${n} took the last one and loses.` },
     rps: { pick: (n) => `${n}, pick (no peeking)`, hidden: (n) => `${n} has picked. Pass the phone.`, show: 'Reveal', names: ['Rock', 'Scissors', 'Paper'] },
-    pongTap: 'Drag your finger on your side',
+    pongTap: 'Drag your finger on your side', go: 'GO!',
   },
   hu: {
     title: 'Játékok kettesben', h1: 'Játékok <em>kettesben</em>',
@@ -303,7 +303,7 @@ const T = {
     turn: (n) => `Következik: ${n}`, wins: (n) => `${n} nyert!`, draw: 'Döntetlen', again: 'Újra', next: 'Következő kör', start: 'Start', exit: 'Kilépés',
     tapStart: 'Koppintsatok, ha mindketten készen álltok', ready: 'Figyelem…', tooSoon: 'Túl korán!', first: 'Gyorsabb!', firstTo: (n) => `${n} pontig megy`,
     games: {
-      word: ['Találd ki a szót', 'Egyikőtök feladja, a másik betűket tippel.', 'Aki éppen feladó, beír egy titkos szót (vagy kér egy véletlent), a másik közben nem néz oda. Utána a másik betűket tippel, 7 próbája van. Ha kitalálja a szót, ő kap pontot, ha nem, a feladó. A szerepek körönként cserélődnek.'],
+      word: ['Találd ki a szót', 'Egyedül: találd ki a szót 6 próbából.', 'Egyszemélyes játék. Találd ki az ötbetűs titkos szót 6 próbálkozásból. Minden tipp után a betűk színt váltanak: zöld = jó betű jó helyen, narancs = a betű benne van a szóban, de máshol, sötét = a betű nincs a szóban. Az ékezeteket nem kell beírni (az Ö-t írd O-nak). A szavak a kiválasztott nyelvtől függnek.'],
       ttt: ['Amőba 3×3', 'A klasszikus három egy sorban.', 'Felváltva raktok X-et és O-t. Aki először kirak hármat egy sorban (vízszintesen, függőlegesen vagy átlósan), nyer. A kezdő játékos minden körben cserélődik.'],
       five: ['Ötös amőba', 'Nagy amőba 12×12-es táblán.', 'Mint az amőba, csak nagyobb táblán, és öt kell egy sorban.'],
       c4: ['Négy egy sorban', 'Dobjátok a korongokat az oszlopokba.', 'Koppints egy oszlopra, és beleesik a korongod. Aki először köt össze négyet vízszintesen, függőlegesen vagy átlósan, nyer.'],
@@ -317,25 +317,22 @@ const T = {
       math: ['Számolópárbaj', 'Ki számol gyorsabban.', 'Mindkét félen ugyanaz a feladat és három eredmény jelenik meg. Aki előbb koppint a helyesre, pontot kap. Rossz válasz után a következő feladatig nem tippelhetsz. 7 pontig megy.'],
     },
     word: {
-      choose: (a, b) => `${a} adja fel a titkos szót. ${b}, ne nézz oda!`, placeholder: 'Titkos szó', hintPh: 'Segítség (nem kötelező)', random: 'Véletlen szó', go: 'Tippelés',
-      guess: (n) => `${n} tippel`, lives: (n) => `Hátralévő próbák: ${n}`, solved: (n) => `${n} kitalálta a szót!`, failed: (n, w) => `Nem sikerült, pont ${n} részére. A szó: ${w}`,
-      hint: 'Segítség', short: 'A szónak legalább 2 betűből kell állnia.', pass: (n) => `Add tovább a telefont: ${n} tippel`,
+      submit: 'Szó beküldése', fresh: 'Új szó', short: 'A szónak 5 betűből kell állnia.', solo: 'Egyedül',
+      win: (n) => `Kitaláltad ${n}. próbára! 🎉`, lose: (w) => `Elfogytak a próbák. A szó: ${w}.`, try: (n) => `${n}. próba a 6-ból`,
+      stats: (p, w, s) => `Játszott ${p} · Nyert ${w} · Sorozat ${s}`,
     },
     nim: { left: (n) => `Maradt ${n}`, take: (n) => `Elvesz ${n}`, lose: (n) => `${n} vette el az utolsót, és veszített.` },
     rps: { pick: (n) => `${n}, válassz (a másik ne nézzen oda)`, hidden: (n) => `${n} már választott. Add tovább a telefont.`, show: 'Felfedés', names: ['Kő', 'Olló', 'Papír'] },
-    pongTap: 'Húzd az ujjad a saját oldaladon',
+    pongTap: 'Húzd az ujjad a saját oldaladon', go: 'RAJTA!',
   },
 };
 
-// slova pro „náhodné slovo“ (s nápovědou)
-const WORDS = {
-  cs: [['VELRYBA', 'zvíře'], ['ŽIRAFA', 'zvíře'], ['JEŽEK', 'zvíře'], ['KROKODÝL', 'zvíře'], ['PAPOUŠEK', 'zvíře'], ['ČOKOLÁDA', 'jídlo'], ['PALAČINKA', 'jídlo'], ['BRAMBORA', 'jídlo'], ['ZMRZLINA', 'jídlo'], ['ŠPAGETY', 'jídlo'], ['LETADLO', 'doprava'], ['TRAMVAJ', 'doprava'], ['PONORKA', 'doprava'], ['KOLOBĚŽKA', 'doprava'], ['DEŠTNÍK', 'věc'], ['KYTARA', 'hudba'], ['BUBENÍK', 'hudba'], ['FOTBAL', 'sport'], ['LYŽOVÁNÍ', 'sport'], ['HOKEJ', 'sport'], ['SOPKA', 'příroda'], ['DUHA', 'příroda'], ['VODOPÁD', 'příroda'], ['HVĚZDA', 'vesmír'], ['RAKETA', 'vesmír'], ['KNIHOVNA', 'místo'], ['NÁDRAŽÍ', 'místo'], ['ZÁMEK', 'místo'], ['POČÍTAČ', 'technika'], ['TELEFON', 'technika'], ['SNĚHULÁK', 'zima'], ['HOUSLE', 'hudba'], ['PRÁZDNINY', 'léto'], ['MAJÁK', 'moře'], ['PIRÁT', 'moře']],
-  en: [['WHALE', 'animal'], ['GIRAFFE', 'animal'], ['HEDGEHOG', 'animal'], ['CROCODILE', 'animal'], ['PARROT', 'animal'], ['CHOCOLATE', 'food'], ['PANCAKE', 'food'], ['POTATO', 'food'], ['ICE CREAM', 'food'], ['SPAGHETTI', 'food'], ['AIRPLANE', 'transport'], ['TRAM', 'transport'], ['SUBMARINE', 'transport'], ['SCOOTER', 'transport'], ['UMBRELLA', 'thing'], ['GUITAR', 'music'], ['DRUMMER', 'music'], ['FOOTBALL', 'sport'], ['SKIING', 'sport'], ['HOCKEY', 'sport'], ['VOLCANO', 'nature'], ['RAINBOW', 'nature'], ['WATERFALL', 'nature'], ['STAR', 'space'], ['ROCKET', 'space'], ['LIBRARY', 'place'], ['STATION', 'place'], ['CASTLE', 'place'], ['COMPUTER', 'tech'], ['TELEPHONE', 'tech'], ['SNOWMAN', 'winter'], ['VIOLIN', 'music'], ['HOLIDAYS', 'summer'], ['LIGHTHOUSE', 'sea'], ['PIRATE', 'sea']],
-  hu: [['BÁLNA', 'állat'], ['ZSIRÁF', 'állat'], ['SÜNDISZNÓ', 'állat'], ['KROKODIL', 'állat'], ['PAPAGÁJ', 'állat'], ['CSOKOLÁDÉ', 'étel'], ['PALACSINTA', 'étel'], ['KRUMPLI', 'étel'], ['FAGYLALT', 'étel'], ['SPAGETTI', 'étel'], ['REPÜLŐ', 'közlekedés'], ['VILLAMOS', 'közlekedés'], ['TENGERALATTJÁRÓ', 'közlekedés'], ['ROLLER', 'közlekedés'], ['ESERNYŐ', 'tárgy'], ['GITÁR', 'zene'], ['DOBOS', 'zene'], ['FOCI', 'sport'], ['SÍELÉS', 'sport'], ['JÉGKORONG', 'sport'], ['VULKÁN', 'természet'], ['SZIVÁRVÁNY', 'természet'], ['VÍZESÉS', 'természet'], ['CSILLAG', 'világűr'], ['RAKÉTA', 'világűr'], ['KÖNYVTÁR', 'hely'], ['PÁLYAUDVAR', 'hely'], ['KASTÉLY', 'hely'], ['SZÁMÍTÓGÉP', 'technika'], ['TELEFON', 'technika'], ['HÓEMBER', 'tél'], ['HEGEDŰ', 'zene'], ['NYARALÁS', 'nyár'], ['VILLÁGÍTÓTORONY', 'tenger'], ['KALÓZ', 'tenger']],
-};
+// slova pro Hádej slovo (5 písmen, podle jazyka)
+const WORDS = {"cs": ["KOČKA", "MOTÝL", "VČELA", "RYBKA", "KOZEL", "LIŠKA", "KONÍK", "VRÁNA", "ŽELVA", "SRNKA", "LABUŤ", "HOLUB", "ZEBRA", "PANDA", "KOALA", "KRÁVA", "KOBRA", "HROCH", "CHLEB", "SALÁT", "MÁSLO", "MRKEV", "PIZZA", "TĚSTO", "ŘÍZEK", "MLÉKO", "VEJCE", "KAKAO", "ŽIDLE", "DVEŘE", "KNIHA", "TUŽKA", "SEŠIT", "LAMPA", "RÁDIO", "MOBIL", "BATOH", "MÍČEK", "BUBEN", "PIANO", "STROM", "LOUKA", "SKÁLA", "PÍSEK", "OBLAK", "BOUŘE", "TRÁVA", "MĚSÍC", "MĚSTO", "ŠKOLA", "ZÁMEK", "DOMOV", "ULICE", "SRDCE", "LÁSKA", "PÍSEŇ", "HUDBA", "FOTKA", "BARVA", "DÁREK", "PRÁCE", "CESTA", "KOLÁČ", "PEKAŘ", "ZUBAŘ", "LÉKAŘ", "PILOT", "ŘIDIČ", "PRINC", "RYTÍŘ", "VÍTĚZ", "ŠACHY", "TENIS", "HOKEJ", "SPORT", "LETEC", "ZÁKON", "HOUBA", "BOTKY", "SUKNĚ", "TRIKO", "KABÁT", "ŠÁTEK", "POHÁR", "TÁBOR", "MAPKA", "SKŘÍŇ", "HRNEK", "TALÍŘ", "VIDLE", "NŮŽKY", "PILKA", "ŠROUB", "OBRAZ", "DOPIS", "BALÍK", "PLÁŽE", "VLNKA", "KOTVA", "MUŠLE", "PERLA", "ROBOT", "KOMÍN", "PATRO", "SKLEP", "POUŠŤ", "SOPKA", "BRÁNA", "PLOTY", "VÝLET", "LÉTAT", "MALÍŘ", "TANEC", "VTIPY", "KARTY", "HOLKA", "KLUCI", "DĚDEK", "STRÝC", "BRATR", "ŠTĚNĚ", "PRASE", "KRTEK", "JEŽEK", "VYDRA", "LOSOS", "ŠTIKA", "TULEŇ", "SOKOL", "DROZD", "KRŮTA", "RAJČE", "GULÁŠ", "ŠUNKA", "SALÁM", "PÁREK"], "en": ["APPLE", "BEACH", "BREAD", "BRICK", "CHAIR", "CLOUD", "DANCE", "DREAM", "EARTH", "FIELD", "FLAME", "FRUIT", "GHOST", "GRAPE", "GREEN", "HEART", "HORSE", "HOUSE", "JUICE", "KNIFE", "LEMON", "LIGHT", "MAGIC", "MONEY", "MOUSE", "MUSIC", "NIGHT", "OCEAN", "PAINT", "PARTY", "PEACH", "PIANO", "PLANT", "PLATE", "QUEEN", "RIVER", "ROBOT", "SALAD", "SHEEP", "SHIRT", "SMILE", "SNAKE", "SPACE", "SPOON", "STONE", "STORM", "SUGAR", "TABLE", "TIGER", "TOAST", "TRAIN", "TRUCK", "WATER", "WHALE", "WORLD", "ZEBRA", "BRUSH", "CANDY", "CHEST", "CROWN", "EAGLE", "FROST", "GLASS", "HONEY", "NURSE", "OLIVE", "PIZZA", "RADIO", "SCARF", "SHELL", "SKATE", "SOLAR", "SWEET", "TOWER", "UNCLE", "VOICE", "WHEEL", "YACHT", "BEARD", "CABIN", "DRUMS", "FLOOR", "GIANT", "IGLOO", "JELLY", "KOALA", "LLAMA", "MANGO", "NOVEL", "ONION", "PEARL", "QUILT", "RANCH", "SAUCE", "TULIP", "VIDEO", "WITCH", "BRAVE", "CLOCK", "FENCE", "GRASS", "HAPPY", "LAUGH", "MOVIE", "NORTH", "PLANE", "SHARK", "STAMP", "STORY", "SUNNY", "THUMB", "TRAIL", "WAGON", "BLOOM", "CHALK", "CREAM", "DAISY", "FAIRY", "FLUTE", "GLOVE", "HIPPO", "HOTEL", "INDEX", "JEANS", "LASER", "LEAFY", "MAPLE", "MEDAL", "MELON", "METAL", "OTTER", "OWNER", "PANDA", "PASTA", "PEDAL", "PUPPY", "RAVEN", "ROUND", "SCOUT", "SKIRT", "SLEEP", "SNOWY", "SOUTH", "SPICE", "SQUID", "STEAM", "SWING", "THING", "TORCH", "TOWEL", "UNITY", "VALUE", "VIOLA", "WOMAN", "YOUTH", "ANGEL", "ARROW", "BACON", "BADGE", "BASIL", "BENCH", "BERRY", "BIRCH", "BLAZE", "BOARD", "BOOTS", "BRAIN", "CAMEL", "CANOE", "CARGO", "CHESS", "CIDER", "CLIFF", "CORAL", "COUCH", "CRANE", "DELTA", "DEVIL", "DINER", "DONUT", "ELBOW", "FERRY", "GECKO", "GUARD", "HATCH", "HUMOR", "IVORY", "JEWEL", "KAYAK", "LEMUR", "LOBBY", "LUNAR", "MARCH", "MOOSE", "OASIS", "ORBIT", "PILOT", "PLAZA", "POLAR", "PRISM", "RHINO", "SAUNA", "SCALE", "SHORE", "SLOTH", "SPARK", "TACOS", "TEMPO", "TRACK"], "hu": ["KUTYA", "VIRÁG", "ABLAK", "KÖNYV", "TÁSKA", "LABDA", "GITÁR", "DOBOS", "VONAT", "HAJÓK", "AUTÓK", "FOLYÓ", "ERDŐK", "FELHŐ", "VIHAR", "TORTA", "LEVES", "KÖRTE", "CUKOR", "KANÁL", "BÖGRE", "PÁRNA", "TÜKÖR", "MEDVE", "GÓLYA", "HALAK", "BÁLNA", "BIRKA", "LOVAK", "TEHÉN", "KAKAS", "CSIBE", "KACSA", "TANÁR", "ORVOS", "LOVAG", "KINCS", "KALÓZ", "HOMOK", "JÁTÉK", "VÁROS", "SPORT", "ÚSZÁS", "FUTÁS", "KOSÁR", "BARÁT", "APUKA", "NAGYI", "KABÁT", "CIPŐK", "SAPKA", "RUHÁK", "LÁMPA", "RÁDIÓ", "ROBOT", "TÉGLA", "MAJOM", "RÓKÁK", "PATKÓ", "TOJÁS", "CSOKI", "FAGYI", "PIZZA", "BANÁN", "SZŐLŐ", "MÁLNA", "RÉPÁK", "GOMBA", "DIÓFA", "FENYŐ", "TÖLGY", "RÓZSA", "NAPOS", "HAVAS", "KÖDÖS", "MELEG", "HIDEG", "MESÉK", "FESTŐ", "BOHÓC", "ÓRIÁS", "TÖRPE", "OVODA", "TAVAK", "VÖLGY", "CSIGA", "RÁKOK", "POLIP", "SASOK", "BAGLY", "VARJÚ", "VERÉB", "PÁVÁK", "LIBÁK", "MALAC", "TEVÉK", "ZEBRA", "ŐZIKE", "MÓKUS", "SÜNIK", "HÓDOK", "VIDRA", "PONTY", "CÁPÁK", "BÉKÁK", "KÍGYÓ", "MÉHEK", "PILLE", "LEPKE", "BOGÁR", "PÓKOK"]};
+const KEYS = { cs: ['QWERTZUIOP', 'ASDFGHJKL', 'YXCVBNM'], en: ['QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM'], hu: ['QWERTZUIOP', 'ASDFGHJKL', 'YXCVBNM'] };
 
 const GAMES = [
-  { id: 'word', emo: '🔤', feat: true }, { id: 'ttt', emo: '❌' }, { id: 'five', emo: '⭕' }, { id: 'c4', emo: '🟠' }, { id: 'dots', emo: '🔲' }, { id: 'memo', emo: '🃏' },
+  { id: 'word', emo: '🔤', feat: true, solo: true }, { id: 'ttt', emo: '❌' }, { id: 'five', emo: '⭕' }, { id: 'c4', emo: '🟠' }, { id: 'dots', emo: '🔲' }, { id: 'memo', emo: '🃏' },
   { id: 'nim', emo: '🔥' }, { id: 'rps', emo: '✊' }, { id: 'react', emo: '⚡' }, { id: 'tug', emo: '🪢' }, { id: 'pong', emo: '🏓' }, { id: 'math', emo: '🧮' },
 ];
 
@@ -362,7 +359,7 @@ function renderHome() {
   document.querySelectorAll('#lang button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.lang === lang));
   $('#n1').placeholder = t().p1; $('#n2').placeholder = t().p2;
   $('#n1').value = names[0] || ''; $('#n2').value = names[1] || '';
-  $('#list').innerHTML = GAMES.map((g) => { const [n, d] = t().games[g.id]; return `<button class="gcard${g.feat ? ' is-feat' : ''}" data-game="${g.id}"><span class="emo">${g.emo}</span><b>${n}</b><small>${d}</small></button>`; }).join('');
+  $('#list').innerHTML = GAMES.map((g) => { const [n, d] = t().games[g.id]; return `<button class="gcard${g.feat ? ' is-feat' : ''}" data-game="${g.id}"><span class="emo">${g.emo}</span>${g.solo ? `<span class="solo">${t().word.solo}</span>` : ''}<b>${n}</b><small>${d}</small></button>`; }).join('');
 }
 $('#lang').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; lang = b.dataset.lang; store.set('lang', lang); renderHome(); if (cur) openGame(cur.id, true); });
 ['n1', 'n2'].forEach((id, i) => $('#' + id).addEventListener('input', (e) => { names[i] = e.target.value; store.set('names', names); }));
@@ -389,6 +386,7 @@ function openGame(id, keep) {
   $('#rules').classList.toggle('is-open', !keep && !store.get('seen-' + id, false));
   store.set('seen-' + id, true);
   $('#stage').innerHTML = ''; status('');
+  $('#score').hidden = !!GAMES.find((g) => g.id === id).solo;
   setScore();
   if (!keep) { history.pushState({ g: id }, ''); scrollTo(0, 0); }
   cur.cleanup = GAME[id]($('#stage')) || null;
@@ -443,56 +441,59 @@ const GAME = {
   five: (el) => gridGame(el, { R: 12, C: 12, need: 5, small: true }),
   c4: (el) => gridGame(el, { R: 6, C: 7, need: 4, gravity: true }),
 
-  /* ---------- hádej slovo ---------- */
+  /* ---------- hádej slovo (sólo, 5 písmen, 6 pokusů) ---------- */
   word(el) {
-    let setter = store.get('word-setter', 0) % 2;
-    const norm = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase();
-    function setup() {
-      const g = 1 - setter; setScore(setter);
-      status(t().word.choose(who(setter), who(g)));
-      el.innerHTML = `<div class="setup">
-        <input class="field" id="w" type="password" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="${t().word.placeholder}" maxlength="24" />
-        <input class="field" id="h" autocomplete="off" placeholder="${t().word.hintPh}" maxlength="30" />
-        <p id="err" style="color:var(--p2);min-height:24px"></p>
-        <div class="row" style="margin-top:0"><button class="btn btn--ghost" id="rand">🎲 ${t().word.random}</button><button class="btn" id="ok">${t().word.go}</button></div>
-      </div>`;
-      $('#rand', el).onclick = () => { const [w, h] = WORDS[lang][rnd(WORDS[lang].length)]; play(w, h); };
-      $('#ok', el).onclick = () => {
-        const w = $('#w', el).value.trim().toUpperCase().replace(/\s+/g, ' ');
-        if (norm(w).replace(/[^A-Z]/g, '').length < 2) { $('#err', el).textContent = t().word.short; return; }
-        play(w, $('#h', el).value.trim());
-      };
-      $('#w', el).addEventListener('keydown', (e) => { if (e.key === 'Enter') $('#ok', el).click(); });
+    const norm = (x) => x.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
+    let answer, plain, row, cur, over, keyState, timer;
+    function start() {
+      const list = WORDS[lang]; let last = store.get('word-last-' + lang, '');
+      do { answer = list[rnd(list.length)]; } while (answer === last && list.length > 1);
+      store.set('word-last-' + lang, answer);
+      plain = norm(answer); row = 0; cur = ''; over = false; keyState = {};
+      el.innerHTML = `<div class="wgrid">${'<div class="wrow">' + '<span class="tile"></span>'.repeat(5) + '</div>'}${'<div class="wrow">' + '<span class="tile"></span>'.repeat(5) + '</div>'}${('<div class="wrow">' + '<span class="tile"></span>'.repeat(5) + '</div>').repeat(4)}</div>
+        <p class="lives" id="wstat"></p>
+        <div class="wkeys" id="wk">${KEYS[lang].map((r, i) => `<div>${i === 2 ? '' : ''}${r.split('').map((k) => `<button data-k="${k}">${k}</button>`).join('')}${i === 2 ? '<button data-k="DEL" class="wide" aria-label="Smazat"><svg class="i" viewBox="0 0 24 24"><path d="M10 5h11v14H10l-7-7z"/><path d="m18 9-6 6"/><path d="m12 9 6 6"/></svg></button>' : ''}</div>`).join('')}</div>
+        <button class="btn wsubmit" id="wsub">${t().word.submit}</button>`;
+      status(t().word.try(1)); stats();
     }
-    function play(word, hint) {
-      const g = 1 - setter, guessed = new Set(); let miss = 0; const MAX = 7;
-      const letters = new Set(norm(word).replace(/[^A-Z]/g, '').split(''));
-      setScore(g);
-      el.innerHTML = `<svg class="hang" viewBox="0 0 150 140"><line x1="10" y1="132" x2="90" y2="132"/><line x1="30" y1="132" x2="30" y2="8"/><line x1="30" y1="8" x2="100" y2="8"/>
-        <line class="part" x1="100" y1="8" x2="100" y2="26"/><circle class="part" cx="100" cy="38" r="12"/><line class="part" x1="100" y1="50" x2="100" y2="86"/><line class="part" x1="100" y1="60" x2="84" y2="74"/><line class="part" x1="100" y1="60" x2="116" y2="74"/><line class="part" x1="100" y1="86" x2="86" y2="108"/><line class="part" x1="100" y1="86" x2="114" y2="108"/></svg>
-        <div class="word" id="ww"></div>${hint ? `<p class="hint">${t().word.hint}: ${esc(hint)}</p>` : ''}<p class="lives" id="lv"></p>
-        <div class="keys" id="kb">${'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map((k) => `<button data-k="${k}">${k}</button>`).join('')}</div>`;
-      const draw = (end) => {
-        $('#ww', el).innerHTML = [...word].map((ch) => { const n = norm(ch); if (!/[A-Z]/.test(n)) return `<span class="sp">${ch === ' ' ? '' : esc(ch)}</span>`; const shown = guessed.has(n) || end; return `<span class="${!guessed.has(n) && end ? 'miss' : ''}">${shown ? esc(ch) : ''}</span>`; }).join('');
-        $('#lv', el).textContent = t().word.lives(MAX - miss);
-        el.querySelectorAll('.hang .part').forEach((p, i) => p.classList.toggle('on', i < miss));
-      };
-      status(t().word.guess(who(g))); draw(false);
-      $('#kb', el).onclick = (e) => {
-        const k = e.target.closest('[data-k]'); if (!k || k.disabled) return;
-        const L = k.dataset.k; k.disabled = true; guessed.add(L); buzz();
-        if (letters.has(L)) k.classList.add('hit'); else { k.classList.add('no'); miss++; }
-        const solved = [...letters].every((x) => guessed.has(x));
-        if (solved || miss >= MAX) {
-          $('#kb', el).onclick = null; el.querySelectorAll('#kb button').forEach((b) => (b.disabled = true));
-          draw(true);
-          if (solved) { status(t().word.solved(who(g))); point(g, g); } else { status(t().word.failed(who(setter), esc(word))); point(setter, g); }
-          setter = 1 - setter; store.set('word-setter', setter);
-          el.append(againBtn(setup, t().next)); buzz(60);
-        } else draw(false);
-      };
+    const stats = () => { const st = store.get('word-stats-' + lang, { p: 0, w: 0, s: 0 }); $('#wstat', el).textContent = t().word.stats(st.p, st.w, st.s); };
+    const tiles = (r) => el.querySelectorAll('.wrow')[r].children;
+    const paint = () => [...tiles(row)].forEach((tl, i) => { tl.textContent = cur[i] || ''; tl.classList.toggle('full', !!cur[i]); });
+    function key(k) {
+      if (over) return;
+      if (k === 'DEL') cur = cur.slice(0, -1);
+      else if (k === 'ENTER') return submit();
+      else if (/^[A-Z]$/.test(k) && cur.length < 5) cur += k;
+      paint();
     }
-    setup();
+    function submit() {
+      if (cur.length < 5) { const r = el.querySelectorAll('.wrow')[row]; r.classList.remove('shake'); void r.offsetWidth; r.classList.add('shake'); status(t().word.short); buzz(80); return; }
+      // vyhodnocení i s opakovanými písmeny
+      const res = Array(5).fill('no'), pool = {};
+      for (let i = 0; i < 5; i++) { if (cur[i] === plain[i]) res[i] = 'ok'; else pool[plain[i]] = (pool[plain[i]] || 0) + 1; }
+      for (let i = 0; i < 5; i++) if (res[i] !== 'ok' && pool[cur[i]]) { res[i] = 'in'; pool[cur[i]]--; }
+      const rank = { no: 0, in: 1, ok: 2 };
+      [...tiles(row)].forEach((tl, i) => { tl.style.animationDelay = i * 120 + 'ms'; tl.classList.add('flip', res[i]); });
+      const guess = cur; over = true;
+      timer = setTimeout(() => {
+        for (let i = 0; i < 5; i++) { const k = guess[i]; if (!keyState[k] || rank[res[i]] > rank[keyState[k]]) keyState[k] = res[i]; }
+        el.querySelectorAll('#wk [data-k]').forEach((b) => { const st = keyState[b.dataset.k]; b.className = (b.classList.contains('wide') ? 'wide ' : '') + (st || ''); });
+        const st = store.get('word-stats-' + lang, { p: 0, w: 0, s: 0 });
+        if (guess === plain) {
+          st.p++; st.w++; st.s++; store.set('word-stats-' + lang, st);
+          status(`${t().word.win(row + 1)} <b style="color:var(--ok)">${esc(answer)}</b>`); end(); buzz(60);
+        } else if (row === 5) {
+          st.p++; st.s = 0; store.set('word-stats-' + lang, st);
+          status(t().word.lose(`<b style="color:var(--ok)">${esc(answer)}</b>`)); end(); buzz(120);
+        } else { row++; cur = ''; over = false; status(t().word.try(row + 1)); }
+      }, 5 * 120 + 380);
+    }
+    function end() { over = true; stats(); $('#wsub', el).remove(); el.append(againBtn(start, t().word.fresh)); }
+    el.onclick = (e) => { if (e.target.closest('#wsub')) return key('ENTER'); const b = e.target.closest('[data-k]'); if (b) { buzz(8); key(b.dataset.k); } };
+    const onKey = (e) => { if (e.metaKey || e.ctrlKey || e.altKey) return; if (e.key === 'Enter') key('ENTER'); else if (e.key === 'Backspace') key('DEL'); else { const k = norm(e.key); if (/^[A-Z]$/.test(k)) key(k); } };
+    addEventListener('keydown', onKey);
+    start();
+    return () => { el.onclick = null; clearTimeout(timer); removeEventListener('keydown', onKey); };
   },
 
   /* ---------- tečky a čtverečky ---------- */
@@ -671,7 +672,7 @@ const GAME = {
       const h = e.target.closest('.half'); if (!h) return; const p = +h.dataset.p;
       if (state === 'idle') {
         state = 'count'; let n = 3; text(() => `<div class="big">${n}</div>`);
-        timer = setInterval(() => { n--; if (n > 0) text(() => `<div class="big">${n}</div>`); else { clearInterval(timer); state = 'go'; text(() => '<div class="big">GO!</div>'); buzz(40); } }, 700);
+        timer = setInterval(() => { n--; if (n > 0) text(() => `<div class="big">${n}</div>`); else { clearInterval(timer); state = 'go'; text(() => `<div class="big">${t().go}</div>`); buzz(40); } }, 700);
         return;
       }
       if (state !== 'go') return;
