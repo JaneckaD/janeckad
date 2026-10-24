@@ -154,6 +154,25 @@ body.in-game .game { display: flex; }
 .match { width: 9px; height: 64px; border-radius: 4px; background: linear-gradient(#ef4444 0 14px, #e8c48a 14px); transition: transform .35s var(--ease), opacity .35s; }
 .match.gone { opacity: 0; transform: translateY(-30px) rotate(25deg); }
 
+/* matičky */
+.ntools { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.nlabel { color: var(--ink-3); font-size: 14px; }
+.seg { display: inline-flex; padding: 3px; border-radius: 999px; background: var(--bg-2); border: 1px solid var(--line); }
+.seg button { min-width: 40px; padding: 8px 12px; border-radius: 999px; font-weight: 700; color: var(--ink-3); }
+.seg button.on { background: var(--p1); color: #fff; }
+.nboard { display: grid; gap: 18px 8px; width: min(100%, 460px); margin: 6px 0 4px; }
+.bolt { position: relative; height: calc(var(--h) * 26px + 64px); display: block; border-radius: 16px; transition: background .2s; }
+.bolt.sel { background: rgba(255,255,255,.05); }
+.bolt.done { background: rgba(34,197,94,.1); }
+.bolt.shake { animation: shake .35s; }
+.rod { position: absolute; left: 50%; bottom: 10px; width: 10px; margin-left: -5px; height: calc(var(--h) * 26px + 34px); border-radius: 6px 6px 2px 2px; background: repeating-linear-gradient(#cbd5e1 0 3px, #94a3b8 3px 6px); }
+.base { position: absolute; left: 12%; right: 12%; bottom: 4px; height: 10px; border-radius: 5px; background: #64748b; }
+.nut { position: absolute; left: 50%; bottom: calc(14px + var(--j) * 26px); width: min(56px, 86%); height: 24px; transform: translateX(-50%); border-radius: 8px; background: var(--c); box-shadow: inset 0 -5px 0 rgba(0,0,0,.22), inset 0 3px 0 rgba(255,255,255,.3); transition: transform .22s var(--ease); }
+.nut::after { content: ''; position: absolute; left: 50%; top: 50%; width: 14px; height: 8px; margin: -4px 0 0 -7px; border-radius: 4px; background: rgba(0,0,0,.28); }
+.nut.up { transform: translateX(-50%) translateY(-36px); }
+.nut.land { animation: land .3s var(--ease); }
+@keyframes land { from { transform: translateX(-50%) translateY(-40px); opacity: .4; } to { transform: translateX(-50%); opacity: 1; } }
+
 /* kámen nůžky papír */
 .rps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: min(100%, 420px); }
 .rps button { aspect-ratio: 1; border-radius: 18px; background: var(--card); border: 1px solid var(--line); font-size: 46px; display: grid; place-items: center; }
@@ -258,6 +277,7 @@ const T = {
       react: ['Reakce', 'Kdo dřív klepne na zelenou.', 'Položte mobil mezi sebe, každý má svou polovinu. Až obrazovka zezelená, klepněte co nejrychleji na svou půlku. Kdo klepne moc brzo, bod dostane soupeř. Hraje se do 5.'],
       tug: ['Přetahovaná', 'Ťukejte co nejrychleji.', 'Každý ťuká na svou polovinu obrazovky. Kdo přetáhne kolečko až na svou stranu, vyhrává.'],
       pong: ['Pong', 'Ping-pong prsty.', 'Každý ovládá pálku na své straně tažením prstu do stran. Kdo nechytí míček, dává bod soupeři. Hraje se do 5.'],
+      nuts: ['Matičky', 'Sólo: seřaď matičky podle barev.', 'Hra pro jednoho. Klepni na šroub a pak na jiný: horní matičky se přesunou. Matičku můžeš dát jen na prázdný šroub nebo na matičku stejné barvy a na šroub se vejde jen tolik matiček, kolik má pater. Úroveň je hotová, když má každý šroub jen jednu barvu. Nahoře si vybereš počet pater (3 až 6), s každou úrovní přibývají barvy.'],
       math: ['Počtářský souboj', 'Kdo dřív spočítá příklad.', 'Na obou polovinách se ukáže stejný příklad a tři výsledky. Kdo dřív klepne na správný, získá bod. Za špatnou odpověď máte do dalšího příkladu stop. Hraje se do 7.'],
     },
     word: {
@@ -268,6 +288,7 @@ const T = {
     nim: { left: (n) => `Zbývá ${n}`, take: (n) => `Vzít ${n}`, lose: (n) => `${n} vzal(a) poslední a prohrává.` },
     rps: { pick: (n) => `${n}, vyber si (soupeř se nedívá)`, hidden: (n) => `${n} už vybral(a). Podejte mobil.`, show: 'Odhalit', names: ['Kámen', 'Nůžky', 'Papír'] },
     pongTap: 'Tahejte prstem po své straně', go: 'TEĎ!',
+    nuts: { floors: 'pater', undo: 'Zpět', restart: 'Znovu', next: 'Další úroveň', level: (n) => `Úroveň ${n}`, win: (n) => `Úroveň ${n} hotová!` },
   },
   en: {
     title: 'Games for two', h1: 'Games <em>for two</em>',
@@ -288,6 +309,7 @@ const T = {
       react: ['Reaction', 'Tap first when it turns green.', 'Put the phone between you, each player has their own half. When the screen turns green, tap your half as fast as you can. Tap too early and your opponent gets the point. First to 5.'],
       tug: ['Tug of war', 'Tap as fast as you can.', 'Each player taps their half of the screen. Pull the circle all the way to your side to win.'],
       pong: ['Pong', 'Table tennis with fingers.', 'Each player moves the paddle on their side by dragging a finger left and right. Miss the ball and your opponent scores. First to 5.'],
+      nuts: ['Nut sort', 'Solo: sort the nuts by colour.', 'A game for one. Tap a bolt, then another one, and the top nuts move over. A nut can only go onto an empty bolt or onto a nut of the same colour, and each bolt only holds as many nuts as it has floors. The level is done when every bolt holds just one colour. Pick the number of floors at the top (3 to 6); each level adds more colours.'],
       math: ['Maths duel', 'Who solves it first.', 'Both halves show the same sum and three answers. The first to tap the right one scores. A wrong answer locks you out until the next sum. First to 7.'],
     },
     word: {
@@ -298,6 +320,7 @@ const T = {
     nim: { left: (n) => `${n} left`, take: (n) => `Take ${n}`, lose: (n) => `${n} took the last one and loses.` },
     rps: { pick: (n) => `${n}, pick (no peeking)`, hidden: (n) => `${n} has picked. Pass the phone.`, show: 'Reveal', names: ['Rock', 'Scissors', 'Paper'] },
     pongTap: 'Drag your finger on your side', go: 'GO!',
+    nuts: { floors: 'floors', undo: 'Undo', restart: 'Restart', next: 'Next level', level: (n) => `Level ${n}`, win: (n) => `Level ${n} done!` },
   },
   hu: {
     title: 'Játékok kettesben', h1: 'Játékok <em>kettesben</em>',
@@ -318,6 +341,7 @@ const T = {
       react: ['Reakció', 'Ki koppint előbb a zöldre.', 'Tegyétek a telefont kettőtök közé, mindenkinek megvan a saját fele. Amikor a képernyő zöldre vált, koppints a saját feledre minél gyorsabban. Aki túl korán koppint, annak az ellenfele kap pontot. 5 pontig megy.'],
       tug: ['Kötélhúzás', 'Kopogj, amilyen gyorsan csak tudsz.', 'Mindenki a saját képernyőfelét kopogtatja. Aki a korongot egészen a saját oldalára húzza, nyer.'],
       pong: ['Pong', 'Pingpong ujjal.', 'Mindenki a saját oldalán lévő ütőt irányítja, az ujját jobbra-balra húzva. Aki elengedi a labdát, az ellenfele kap pontot. 5 pontig megy.'],
+      nuts: ['Anyacsavarok', 'Egyedül: rendezd szín szerint az anyákat.', 'Egyszemélyes játék. Koppints egy csavarra, majd egy másikra, és a felső anyák átkerülnek. Anyát csak üres csavarra vagy ugyanolyan színű anyára tehetsz, és egy csavarra csak annyi fér, ahány emelete van. A szint akkor kész, ha minden csavaron csak egy szín van. Fent választhatod ki az emeletek számát (3–6), szintenként egyre több a szín.'],
       math: ['Számolópárbaj', 'Ki számol gyorsabban.', 'Mindkét félen ugyanaz a feladat és három eredmény jelenik meg. Aki előbb koppint a helyesre, pontot kap. Rossz válasz után a következő feladatig nem tippelhetsz. 7 pontig megy.'],
     },
     word: {
@@ -328,6 +352,7 @@ const T = {
     nim: { left: (n) => `Maradt ${n}`, take: (n) => `Elvesz ${n}`, lose: (n) => `${n} vette el az utolsót, és veszített.` },
     rps: { pick: (n) => `${n}, válassz (a másik ne nézzen oda)`, hidden: (n) => `${n} már választott. Add tovább a telefont.`, show: 'Felfedés', names: ['Kő', 'Olló', 'Papír'] },
     pongTap: 'Húzd az ujjad a saját oldaladon', go: 'RAJTA!',
+    nuts: { floors: 'emelet', undo: 'Vissza', restart: 'Újra', next: 'Következő szint', level: (n) => `${n}. szint`, win: (n) => `A(z) ${n}. szint kész!` },
   },
 };
 
@@ -336,7 +361,7 @@ const WORDS = {"cs": ["KOČKA", "MOTÝL", "VČELA", "RYBKA", "KOZEL", "LIŠKA", 
 const KEYS = { cs: ['QWERTZUIOP', 'ASDFGHJKL', 'YXCVBNM'], en: ['QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM'], hu: ['QWERTZUIOP', 'ASDFGHJKL', 'YXCVBNM'] };
 
 const GAMES = [
-  { id: 'word', emo: '🔤', feat: true, solo: true }, { id: 'ttt', emo: '❌' }, { id: 'five', emo: '⭕' }, { id: 'c4', emo: '🟠' }, { id: 'dots', emo: '🔲' }, { id: 'memo', emo: '🃏' },
+  { id: 'word', emo: '🔤', feat: true, solo: true }, { id: 'nuts', emo: '🔩', feat: true, solo: true }, { id: 'ttt', emo: '❌' }, { id: 'five', emo: '⭕' }, { id: 'c4', emo: '🟠' }, { id: 'dots', emo: '🔲' }, { id: 'memo', emo: '🃏' },
   { id: 'nim', emo: '🔥' }, { id: 'rps', emo: '✊' }, { id: 'react', emo: '⚡' }, { id: 'tug', emo: '🪢' }, { id: 'pong', emo: '🏓' }, { id: 'math', emo: '🧮' },
 ];
 
@@ -498,6 +523,89 @@ const GAME = {
     addEventListener('keydown', onKey);
     start();
     return () => { el.onclick = null; clearTimeout(timer); removeEventListener('keydown', onKey); };
+  },
+
+  /* ---------- matičky (sólo): seřaď matičky podle barev ---------- */
+  nuts(el) {
+    const COL = ['#ef4444', '#3b82f6', '#22c55e', '#facc15', '#a855f7', '#f97316', '#14b8a6', '#ec4899', '#94a3b8', '#84cc16', '#92400e', '#f5f5f4'];
+    let H = store.get('nuts-h', 4), level, bolts, sel, hist, won;
+    const colorsFor = (lv) => Math.min(3 + Math.floor((lv - 1) / 2), 12);
+    const spares = (lv) => (lv >= 9 ? 2 : 2);
+    // mohu přesunout horní skupinu z a na b?
+    const topRun = (b) => { if (!b.length) return 0; let n = 1; while (n < b.length && b[b.length - 1 - n] === b[b.length - 1]) n++; return n; };
+    const canMove = (st, a, b) => a !== b && st[a].length && st[b].length < H && (!st[b].length || st[b][st[b].length - 1] === st[a][st[a].length - 1]);
+    const doMove = (st, a, b) => { const n = Math.min(topRun(st[a]), H - st[b].length); for (let i = 0; i < n; i++) st[b].push(st[a].pop()); return n; };
+    const solved = (st) => st.every((b) => !b.length || (b.length === H && b.every((x) => x === b[0])));
+    // ověření, že zamíchaná úroveň jde vyřešit (prohledávání s pamětí, s limitem)
+    function solvable(st) {
+      const seen = new Set(); let budget = 60000;
+      const key = (s) => s.map((b) => b.join('.')).sort().join('|');
+      function dfs(s) {
+        if (solved(s)) return true; if (--budget < 0) return false;
+        const k = key(s); if (seen.has(k)) return false; seen.add(k);
+        for (let a = 0; a < s.length; a++) for (let b = 0; b < s.length; b++) {
+          if (!canMove(s, a, b)) continue;
+          if (!s[b].length && topRun(s[a]) === s[a].length) continue; // zbytečný přesun celé věže na prázdný
+          const c = s.map((x) => x.slice()); doMove(c, a, b); if (dfs(c)) return true;
+        }
+        return false;
+      }
+      return dfs(st);
+    }
+    function make(lv) {
+      const C = colorsFor(lv);
+      for (let tries = 0; tries < 40; tries++) {
+        const all = shuffle([].concat(...Array.from({ length: C }, (_, c) => Array(H).fill(c))));
+        const st = Array.from({ length: C }, (_, i) => all.slice(i * H, i * H + H)).concat(Array.from({ length: spares(lv) }, () => []));
+        if (!solved(st) && solvable(st.map((b) => b.slice()))) return st;
+      }
+      const all = shuffle([].concat(...Array.from({ length: C }, (_, c) => Array(H).fill(c))));
+      return Array.from({ length: C }, (_, i) => all.slice(i * H, i * H + H)).concat([[], [], []]);
+    }
+    function start(lv) {
+      level = lv; won = false; sel = -1; hist = [];
+      bolts = make(lv); store.set('nuts-lv-' + H, lv);
+      el.innerHTML = `<div class="ntools">
+          <div class="seg" id="nh">${[3, 4, 5, 6].map((h) => `<button data-h="${h}" class="${h === H ? 'on' : ''}">${h}</button>`).join('')}</div>
+          <span class="nlabel">${t().nuts.floors}</span>
+        </div>
+        <div class="nboard" id="nb"></div>
+        <div class="row"><button class="btn btn--ghost" id="nundo">↩ ${t().nuts.undo}</button><button class="btn btn--ghost" id="nre">⟳ ${t().nuts.restart}</button></div>`;
+      draw(); status(t().nuts.level(lv));
+    }
+    function draw(fromTo) {
+      const per = bolts.length <= 5 ? bolts.length : Math.ceil(bolts.length / 2);
+      $('#nb', el).style.gridTemplateColumns = `repeat(${per}, 1fr)`;
+      $('#nb', el).innerHTML = bolts.map((b, i) => {
+        const run = sel === i ? topRun(b) : 0;
+        return `<button class="bolt${sel === i ? ' sel' : ''}${b.length === H && b.every((x) => x === b[0]) ? ' done' : ''}" data-b="${i}" style="--h:${H}">
+          <span class="rod"></span><span class="base"></span>
+          ${b.map((c, j) => `<span class="nut${j >= b.length - run ? ' up' : ''}${fromTo && fromTo[1] === i && j >= b.length - fromTo[2] ? ' land' : ''}" style="--c:${COL[c]};--j:${j}"></span>`).join('')}
+        </button>`;
+      }).join('');
+      $('#nundo', el).disabled = !hist.length;
+    }
+    el.onclick = (e) => {
+      const hb = e.target.closest('[data-h]');
+      if (hb) { H = +hb.dataset.h; store.set('nuts-h', H); start(store.get('nuts-lv-' + H, 1)); return; }
+      if (e.target.closest('#nundo')) { if (hist.length) { bolts = hist.pop(); sel = -1; draw(); } return; }
+      if (e.target.closest('#nre')) { start(level); return; }
+      const bt = e.target.closest('[data-b]'); if (!bt || won) return;
+      const i = +bt.dataset.b;
+      if (sel < 0) { if (bolts[i].length) { sel = i; buzz(8); draw(); } return; }
+      if (sel === i) { sel = -1; draw(); return; }
+      if (canMove(bolts, sel, i)) {
+        hist.push(bolts.map((x) => x.slice())); if (hist.length > 200) hist.shift();
+        const n = doMove(bolts, sel, i); const a = sel; sel = -1; buzz(15); draw([a, i, n]);
+        if (solved(bolts)) {
+          won = true; buzz(80); status(`🎉 ${t().nuts.win(level)}`);
+          el.querySelector('.row').innerHTML = ''; el.querySelector('.row').append(againBtn(() => start(level + 1), t().nuts.next).firstChild);
+        }
+      } else if (bolts[i].length) { sel = i; buzz(8); draw(); }
+      else { const b = el.querySelector(`[data-b="${sel}"]`); b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); buzz(60); }
+    };
+    start(store.get('nuts-lv-' + H, 1));
+    return () => (el.onclick = null);
   },
 
   /* ---------- tečky a čtverečky ---------- */
