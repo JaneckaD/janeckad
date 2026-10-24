@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#0f172a" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
 <meta name="apple-mobile-web-app-title" content="Hry pro dva" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="icon" href="ikona-192.png" type="image/png" />
@@ -32,7 +32,7 @@ input { font: inherit; }
 .i { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
 
 /* hlavička */
-.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: max(18px, env(safe-area-inset-top)) 0 10px; }
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: calc(env(safe-area-inset-top, 0px) + 22px) 0 10px; }
 .brand { font: 700 20px/1 'Rethink Sans'; letter-spacing: -.035em; }
 .brand i { font-style: normal; color: var(--p1); }
 .lang { display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg-2); }
@@ -60,14 +60,14 @@ input { font: inherit; }
 .gcard b { font-size: 17px; font-weight: 600; letter-spacing: -.02em; }
 .gcard small { font-size: 13px; color: var(--ink-3); line-height: 1.35; }
 .gcard.is-feat { grid-column: 1 / -1; background: linear-gradient(120deg, rgba(59,130,246,.28), rgba(249,115,22,.18)); }
-.tip { display: flex; gap: 10px; align-items: flex-start; padding: 14px 16px; border-radius: 16px; background: var(--bg-2); border: 1px solid var(--line); color: var(--ink-2); font-size: 14px; margin-bottom: max(24px, env(safe-area-inset-bottom)); }
+.tip { display: flex; gap: 10px; align-items: flex-start; padding: 14px 16px; border-radius: 16px; background: var(--bg-2); border: 1px solid var(--line); color: var(--ink-2); font-size: 14px; margin-bottom: calc(env(safe-area-inset-bottom, 0px) + 32px); }
 .tip .i { color: var(--p1); margin-top: 1px; }
 
 /* obrazovka hry */
 .game { display: none; min-height: 100%; flex-direction: column; }
 body.in-game .home { display: none; }
 body.in-game .game { display: flex; }
-.ghead { display: flex; align-items: center; gap: 10px; padding: max(14px, env(safe-area-inset-top)) 0 10px; }
+.ghead { display: flex; align-items: center; gap: 10px; padding: calc(env(safe-area-inset-top, 0px) + 20px) 0 10px; }
 .back { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; background: var(--bg-2); border: 1px solid var(--line); }
 .ghead h2 { flex: 1; font-size: 20px; font-weight: 600; letter-spacing: -.03em; }
 .info { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; background: var(--bg-2); border: 1px solid var(--line); }
@@ -83,7 +83,7 @@ body.in-game .game { display: flex; }
 .rules.is-open { display: block; }
 .status { text-align: center; font-weight: 600; font-size: 18px; letter-spacing: -.02em; padding: 14px 0 10px; min-height: 52px; }
 .status .p1 { color: var(--p1); } .status .p2 { color: var(--p2); }
-.stage { flex: 1; display: flex; flex-direction: column; align-items: center; padding-bottom: max(20px, env(safe-area-inset-bottom)); }
+.stage { flex: 1; display: flex; flex-direction: column; align-items: center; padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 40px); }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 50px; padding: 0 22px; border-radius: 999px; background: var(--p1); color: #fff; font-weight: 600; transition: transform .2s var(--ease), opacity .2s; }
 .btn:active { transform: scale(.97); }
 .btn--ghost { background: var(--bg-2); border: 1px solid var(--line); color: var(--ink); }
@@ -164,7 +164,11 @@ body.in-game .game { display: flex; }
 /* dělená obrazovka (reakce, přetahovaná, pong, počty) */
 .split { position: fixed; inset: 0; z-index: 30; display: grid; grid-template-rows: 1fr 1fr; background: var(--bg); touch-action: none; }
 .half { position: relative; display: grid; place-items: center; text-align: center; padding: 16px; overflow: hidden; transition: background .15s; }
-.half.top { transform: rotate(180deg); background: var(--p2-soft); }
+.half.top { transform: rotate(180deg); background: var(--p2-soft); padding-bottom: calc(env(safe-area-inset-top, 0px) + 48px); }
+.half.bot { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 48px); }
+.half.top .pts { bottom: calc(env(safe-area-inset-top, 0px) + 22px) !important; }
+.half.bot .pts { bottom: calc(env(safe-area-inset-bottom, 0px) + 22px) !important; }
+.half { padding-left: calc(env(safe-area-inset-left, 0px) + 16px); padding-right: calc(env(safe-area-inset-right, 0px) + 16px); }
 .half.bot { background: var(--p1-soft); }
 .half h3 { font-size: clamp(22px, 6vw, 32px); font-weight: 600; letter-spacing: -.03em; }
 .half p { color: var(--ink-2); margin-top: 6px; }
@@ -698,12 +702,13 @@ const GAME = {
     const size = () => { dpr = Math.min(devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); };
     const PW = () => Math.max(70, W * 0.24), R = () => Math.max(8, Math.min(W, H) * 0.022);
     const serve = (dir) => { const sp = Math.min(W, H) * 0.65; const a = (Math.random() * 0.8 - 0.4); ball = { x: W / 2, y: H / 2, vx: Math.sin(a) * sp, vy: Math.cos(a) * sp * dir }; };
-    const touches = new Map();
+    const probe = document.createElement('div'); probe.style.cssText = 'position:fixed;visibility:hidden;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)'; document.body.append(probe);
+    const safe = { t: parseFloat(getComputedStyle(probe).paddingTop) || 0, b: parseFloat(getComputedStyle(probe).paddingBottom) || 0 }; probe.remove();
     const onMove = (e) => { if (!running && e.type === 'pointerdown') { running = true; msg = ''; serve(Math.random() < 0.5 ? 1 : -1); last = performance.now(); } const p = e.clientY > H / 2 ? 0 : 1; pad[p] = Math.min(1, Math.max(0, e.clientX / W)); };
     cv.addEventListener('pointerdown', onMove); cv.addEventListener('pointermove', (e) => { if (e.pressure > 0 || e.pointerType === 'mouse' && e.buttons) onMove(e); });
     function step(now) {
       const dt = Math.min(0.032, (now - last) / 1000 || 0); last = now;
-      const pw = PW(), r = R(), py = [H - 46, 46];
+      const pw = PW(), r = R(), py = [H - 72 - safe.b, 72 + safe.t];
       if (running && ball) {
         ball.x += ball.vx * dt; ball.y += ball.vy * dt;
         if (ball.x < r) { ball.x = r; ball.vx *= -1; } if (ball.x > W - r) { ball.x = W - r; ball.vx *= -1; }
