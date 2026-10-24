@@ -1,0 +1,777 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+<!-- skrytá stránka: nikam se na ni neodkazuje a vyhledávače ji nemají indexovat -->
+<meta name="robots" content="noindex, nofollow, noarchive" />
+<title>Hry pro dva</title>
+<meta name="theme-color" content="#0f172a" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Hry pro dva" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" href="ikona-192.png" type="image/png" />
+<link rel="apple-touch-icon" href="ikona-180.png" />
+<style>
+@font-face { font-family: 'Rethink Sans'; font-weight: 400 800; font-display: swap; src: url(rethink-sans-latin-wght-normal.woff2) format('woff2'); }
+@font-face { font-family: 'Rethink Sans'; font-weight: 400 800; font-display: swap; src: url(rethink-sans-latin-ext-wght-normal.woff2) format('woff2'); unicode-range: U+0100-02BA, U+1E00-1EFF; }
+:root {
+  --bg: #0f172a; --bg-2: #162036; --card: #1b2640; --line: rgba(255,255,255,.1); --ink: #f1f5fb; --ink-2: #b9c1cf; --ink-3: #8a93a6;
+  --p1: #3b82f6; --p1-soft: rgba(59,130,246,.18); --p2: #f97316; --p2-soft: rgba(249,115,22,.18); --ok: #22c55e;
+  --r: 20px; --ease: cubic-bezier(.22,1,.36,1);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body { font: 400 16px/1.5 'Rethink Sans', system-ui, sans-serif; color: var(--ink); background: var(--bg); -webkit-font-smoothing: antialiased; overscroll-behavior: none; user-select: none; -webkit-user-select: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; touch-action: manipulation; }
+input { font: inherit; }
+.wrap { width: min(760px, 100% - 32px); margin-inline: auto; }
+.i { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+/* hlavička */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: max(18px, env(safe-area-inset-top)) 0 10px; }
+.brand { font: 700 20px/1 'Rethink Sans'; letter-spacing: -.035em; }
+.brand i { font-style: normal; color: var(--p1); }
+.lang { display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg-2); }
+.lang button { font: 600 12px/1 'Rethink Sans'; letter-spacing: .04em; color: var(--ink-3); border-radius: 999px; padding: 8px 11px; }
+.lang button[aria-pressed="true"] { background: var(--p1); color: #fff; }
+
+/* úvod */
+.hero { padding: 22px 0 18px; position: relative; }
+.hero h1 { font: 400 clamp(38px, 10vw, 60px)/1 'Rethink Sans'; letter-spacing: -.045em; }
+.hero h1 em { font-style: normal; background: linear-gradient(90deg, var(--p1), var(--p2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero p { margin-top: 12px; color: var(--ink-2); max-width: 520px; }
+.names { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center; margin-top: 20px; }
+.names label { display: flex; align-items: center; gap: 10px; padding: 6px 6px 6px 14px; border-radius: 16px; background: var(--bg-2); border: 1px solid var(--line); }
+.names label:first-child { box-shadow: inset 3px 0 0 var(--p1); }
+.names label:last-child { box-shadow: inset 3px 0 0 var(--p2); }
+.names input { width: 100%; min-width: 0; background: none; border: 0; color: var(--ink); padding: 8px 4px; outline: none; font-weight: 600; user-select: text; -webkit-user-select: text; }
+.names .vs { font-weight: 700; color: var(--ink-3); font-size: 13px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.dot.p1 { background: var(--p1); } .dot.p2 { background: var(--p2); }
+
+.grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 14px 0 22px; }
+.gcard { text-align: left; display: flex; flex-direction: column; gap: 6px; padding: 16px; border-radius: var(--r); background: var(--card); border: 1px solid var(--line); transition: transform .3s var(--ease); position: relative; overflow: hidden; }
+.gcard:active { transform: scale(.97); }
+.gcard .emo { font-size: 30px; line-height: 1; margin-bottom: 6px; }
+.gcard b { font-size: 17px; font-weight: 600; letter-spacing: -.02em; }
+.gcard small { font-size: 13px; color: var(--ink-3); line-height: 1.35; }
+.gcard.is-feat { grid-column: 1 / -1; background: linear-gradient(120deg, rgba(59,130,246,.28), rgba(249,115,22,.18)); }
+.tip { display: flex; gap: 10px; align-items: flex-start; padding: 14px 16px; border-radius: 16px; background: var(--bg-2); border: 1px solid var(--line); color: var(--ink-2); font-size: 14px; margin-bottom: max(24px, env(safe-area-inset-bottom)); }
+.tip .i { color: var(--p1); margin-top: 1px; }
+
+/* obrazovka hry */
+.game { display: none; min-height: 100%; flex-direction: column; }
+body.in-game .home { display: none; }
+body.in-game .game { display: flex; }
+.ghead { display: flex; align-items: center; gap: 10px; padding: max(14px, env(safe-area-inset-top)) 0 10px; }
+.back { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; background: var(--bg-2); border: 1px solid var(--line); }
+.ghead h2 { flex: 1; font-size: 20px; font-weight: 600; letter-spacing: -.03em; }
+.info { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; background: var(--bg-2); border: 1px solid var(--line); }
+.score { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 16px; background: var(--bg-2); border: 1px solid var(--line); }
+.score div { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.score div:last-child { justify-content: flex-end; }
+.score span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; font-size: 15px; }
+.score b { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.score em { font-style: normal; color: var(--ink-3); font-size: 13px; }
+.score .on { position: relative; }
+.score .on::after { content: ''; position: absolute; left: 0; right: 0; bottom: -6px; height: 3px; border-radius: 3px; background: currentColor; }
+.rules { margin-top: 10px; padding: 12px 14px; border-radius: 14px; background: var(--bg-2); color: var(--ink-2); font-size: 14px; display: none; }
+.rules.is-open { display: block; }
+.status { text-align: center; font-weight: 600; font-size: 18px; letter-spacing: -.02em; padding: 14px 0 10px; min-height: 52px; }
+.status .p1 { color: var(--p1); } .status .p2 { color: var(--p2); }
+.stage { flex: 1; display: flex; flex-direction: column; align-items: center; padding-bottom: max(20px, env(safe-area-inset-bottom)); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 50px; padding: 0 22px; border-radius: 999px; background: var(--p1); color: #fff; font-weight: 600; transition: transform .2s var(--ease), opacity .2s; }
+.btn:active { transform: scale(.97); }
+.btn--ghost { background: var(--bg-2); border: 1px solid var(--line); color: var(--ink); }
+.btn--p2 { background: var(--p2); }
+.btn[disabled] { opacity: .35; pointer-events: none; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
+
+/* deska (piškvorky, 4 v řadě, …) */
+.board { display: grid; gap: 6px; width: min(100%, 420px); }
+.cell { aspect-ratio: 1; border-radius: 14px; background: var(--card); border: 1px solid var(--line); display: grid; place-items: center; font-size: 40px; font-weight: 700; line-height: 1; }
+.cell.x { color: var(--p1); } .cell.o { color: var(--p2); }
+.cell.win { background: rgba(34,197,94,.22); border-color: var(--ok); }
+.board.small { gap: 2px; }
+.board.small .cell { border-radius: 5px; font-size: clamp(12px, 4.2vw, 22px); }
+.cell .stone { width: 72%; height: 72%; border-radius: 50%; }
+.stone.p1 { background: var(--p1); } .stone.p2 { background: var(--p2); }
+.c4 { background: #1e3a8a; padding: 8px; border-radius: 18px; gap: 6px; width: min(100%, 440px); }
+.c4 .cell { background: var(--bg); border: 0; border-radius: 50%; }
+.c4 .cell .stone { width: 100%; height: 100%; animation: drop .35s var(--ease); }
+.c4 .cell.win .stone { box-shadow: 0 0 0 4px #fff inset; }
+@keyframes drop { from { transform: translateY(-260%); } to { transform: none; } }
+.pop { animation: pop .25s var(--ease); }
+@keyframes pop { from { transform: scale(.4); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* tečky a čtverečky */
+.dots { display: grid; width: min(100%, 400px); aspect-ratio: 1; }
+.dots .d { background: var(--ink-2); border-radius: 50%; width: 12px; height: 12px; place-self: center; }
+.dots .h, .dots .v { position: relative; }
+.dots .h::before, .dots .v::before { content: ''; position: absolute; border-radius: 4px; background: rgba(255,255,255,.08); }
+.dots .h::before { left: 0; right: 0; top: 50%; height: 6px; margin-top: -3px; }
+.dots .v::before { top: 0; bottom: 0; left: 50%; width: 6px; margin-left: -3px; }
+.dots .p1::before { background: var(--p1); } .dots .p2::before { background: var(--p2); }
+.dots .b { border-radius: 6px; margin: 4px; display: grid; place-items: center; font-weight: 700; font-size: 18px; }
+.dots .b.p1 { background: var(--p1-soft); color: var(--p1); } .dots .b.p2 { background: var(--p2-soft); color: var(--p2); }
+
+/* pexeso */
+.memo { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; width: min(100%, 420px); }
+.card { aspect-ratio: 1; border-radius: 14px; perspective: 600px; }
+.card > span { position: relative; display: block; width: 100%; height: 100%; transition: transform .45s var(--ease); transform-style: preserve-3d; }
+.card.open > span { transform: rotateY(180deg); }
+.card i, .card em { position: absolute; inset: 0; display: grid; place-items: center; border-radius: 14px; backface-visibility: hidden; -webkit-backface-visibility: hidden; font-style: normal; }
+.card i { background: linear-gradient(135deg, #24324f, #1b2640); border: 1px solid var(--line); }
+.card i::after { content: '?'; color: var(--ink-3); font-weight: 700; font-size: 22px; }
+.card em { transform: rotateY(180deg); background: #fff; font-size: 34px; }
+.card.p1 em { box-shadow: 0 0 0 3px var(--p1) inset; } .card.p2 em { box-shadow: 0 0 0 3px var(--p2) inset; }
+
+/* hádej slovo */
+.word { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 6px 0 4px; }
+.word span { width: 30px; height: 42px; border-bottom: 3px solid var(--ink-2); display: grid; place-items: center; font-size: 26px; font-weight: 700; }
+.word span.sp { border: 0; width: 14px; }
+.word span.miss { color: var(--p2); }
+.hint { color: var(--ink-3); font-size: 14px; margin-bottom: 8px; text-align: center; }
+.keys { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; width: min(100%, 420px); margin-top: 12px; }
+.keys button { height: 46px; border-radius: 10px; background: var(--card); border: 1px solid var(--line); font-weight: 600; font-size: 17px; }
+.keys button.hit { background: rgba(34,197,94,.25); border-color: var(--ok); }
+.keys button.no { opacity: .25; }
+.hang { width: 150px; height: 140px; }
+.hang path, .hang line, .hang circle { stroke: var(--ink-2); stroke-width: 4; fill: none; stroke-linecap: round; }
+.hang .part { stroke: var(--p2); opacity: 0; transition: opacity .3s; }
+.hang .part.on { opacity: 1; }
+.setup { width: min(100%, 420px); display: grid; gap: 10px; }
+.setup p { color: var(--ink-2); text-align: center; }
+.field { width: 100%; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--line); background: var(--bg-2); color: var(--ink); outline: none; user-select: text; -webkit-user-select: text; }
+.field:focus { border-color: var(--p1); }
+.lives { color: var(--ink-3); font-size: 14px; }
+
+/* zápalky */
+.matches { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 10px; width: min(100%, 420px); min-height: 150px; align-content: flex-start; margin: 8px 0; }
+.match { width: 9px; height: 64px; border-radius: 4px; background: linear-gradient(#ef4444 0 14px, #e8c48a 14px); transition: transform .35s var(--ease), opacity .35s; }
+.match.gone { opacity: 0; transform: translateY(-30px) rotate(25deg); }
+
+/* kámen nůžky papír */
+.rps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: min(100%, 420px); }
+.rps button { aspect-ratio: 1; border-radius: 18px; background: var(--card); border: 1px solid var(--line); font-size: 46px; display: grid; place-items: center; }
+.reveal { display: flex; gap: 30px; align-items: center; font-size: 64px; margin: 10px 0; }
+.reveal small { display: block; font-size: 14px; text-align: center; color: var(--ink-3); }
+.cover { width: min(100%, 420px); padding: 26px 18px; border-radius: 18px; background: var(--bg-2); border: 1px dashed var(--line); text-align: center; color: var(--ink-2); }
+
+/* dělená obrazovka (reakce, přetahovaná, pong, počty) */
+.split { position: fixed; inset: 0; z-index: 30; display: grid; grid-template-rows: 1fr 1fr; background: var(--bg); touch-action: none; }
+.half { position: relative; display: grid; place-items: center; text-align: center; padding: 16px; overflow: hidden; transition: background .15s; }
+.half.top { transform: rotate(180deg); background: var(--p2-soft); }
+.half.bot { background: var(--p1-soft); }
+.half h3 { font-size: clamp(22px, 6vw, 32px); font-weight: 600; letter-spacing: -.03em; }
+.half p { color: var(--ink-2); margin-top: 6px; }
+.half > div { width: 100%; display: flex; flex-direction: column; align-items: center; }
+.half .big { font-size: clamp(40px, 13vw, 76px); font-weight: 700; letter-spacing: -.04em; }
+.half .pts { position: absolute; left: 16px; bottom: 14px; font-size: 15px; font-weight: 600; color: var(--ink-2); }
+.half.go { background: rgba(34,197,94,.35); }
+.half.bad { background: rgba(239,68,68,.3); }
+.split .mid { position: absolute; left: 0; right: 0; top: 50%; height: 2px; background: var(--line); }
+.split .exit { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); z-index: 2; width: 44px; height: 44px; border-radius: 50%; background: var(--bg-2); border: 1px solid var(--line); display: grid; place-items: center; }
+.rope { position: absolute; left: 0; right: 0; top: 50%; height: 0; pointer-events: none; z-index: 1; }
+.rope i { position: absolute; left: 50%; top: -22px; width: 44px; height: 44px; margin-left: -22px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 6px rgba(255,255,255,.15); transition: transform .12s linear; }
+.answers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 16px; width: min(100%, 360px); }
+.answers button { height: 64px; border-radius: 16px; background: var(--card); border: 1px solid var(--line); font-size: 24px; font-weight: 700; }
+.answers button.ok { background: rgba(34,197,94,.35); border-color: var(--ok); }
+.answers button.bad { background: rgba(239,68,68,.3); }
+.answers.locked button { opacity: .4; }
+canvas.pong { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 30; touch-action: none; background: var(--bg); }
+.overlay { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; background: rgba(15,23,42,.75); }
+.overlay > div { text-align: center; padding: 24px; }
+.overlay h3 { font-size: 28px; font-weight: 600; letter-spacing: -.03em; margin-bottom: 14px; }
+@media (min-width: 640px) { .grid { grid-template-columns: repeat(3, 1fr); } .gcard.is-feat { grid-column: span 3; } }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="home">
+  <div class="wrap">
+    <div class="top">
+      <span class="brand">david janečka<i>.</i></span>
+      <div class="lang" id="lang" role="group" aria-label="Jazyk / Language / Nyelv">
+        <button type="button" data-lang="cs" lang="cs">CZ</button><button type="button" data-lang="en" lang="en">EN</button><button type="button" data-lang="hu" lang="hu">HU</button>
+      </div>
+    </div>
+    <div class="hero">
+      <h1 data-t="h1"></h1>
+      <p data-t="sub"></p>
+      <div class="names">
+        <label><span class="dot p1"></span><input id="n1" maxlength="14" autocomplete="off" /></label>
+        <span class="vs">VS</span>
+        <label><span class="dot p2"></span><input id="n2" maxlength="14" autocomplete="off" /></label>
+      </div>
+    </div>
+    <div class="grid" id="list"></div>
+    <div class="tip"><svg class="i" viewBox="0 0 24 24"><path d="M12 15V3"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg><span data-t="install"></span></div>
+  </div>
+</div>
+
+<div class="game">
+  <div class="wrap" style="display:flex;flex-direction:column;flex:1">
+    <div class="ghead">
+      <button class="back" id="back" type="button"><svg class="i" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>
+      <h2 id="gtitle"></h2>
+      <button class="info" id="info" type="button"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></button>
+    </div>
+    <div class="score" id="score"></div>
+    <div class="rules" id="rules"></div>
+    <div class="status" id="status"></div>
+    <div class="stage" id="stage"></div>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   HRY PRO DVA – skrytá stránka /games
+   Funguje offline (sw.js) a jde přidat na plochu (manifest.webmanifest).
+   Texty jsou ve třech jazycích: cs, en, hu (objekt T a slova WORDS).
+   ===================================================================== */
+const T = {
+  cs: {
+    title: 'Hry pro dva', h1: 'Hry <em>pro dva</em>',
+    sub: 'Jeden mobil, dva hráči. Napište si jména, vyberte hru a hrajte. Funguje i bez internetu.',
+    p1: 'Hráč 1', p2: 'Hráč 2',
+    install: 'Na plochu: v Safari dejte Sdílet → Přidat na plochu, v Chromu ⋮ → Přidat na plochu. Hry pak fungují i offline.',
+    turn: (n) => `Na tahu: ${n}`, wins: (n) => `Vyhrává ${n}!`, draw: 'Remíza', again: 'Hrát znovu', next: 'Další kolo', start: 'Start', exit: 'Konec',
+    tapStart: 'Klepněte, až budete oba připraveni', ready: 'Připravit…', tooSoon: 'Moc brzo!', first: 'Rychlejší!', firstTo: (n) => `Hraje se do ${n} bodů`,
+    games: {
+      word: ['Hádej slovo', 'Jeden zadá slovo, druhý hádá písmena.', 'Hráč, který je na řadě se zadáním, napíše tajné slovo (nebo vezme náhodné) a druhý se nedívá. Pak druhý hádá písmena. Má 7 pokusů. Uhodne celé slovo = bod pro hádajícího, jinak bod pro zadávajícího. Role se střídají.'],
+      ttt: ['Piškvorky 3×3', 'Klasika: tři v řadě.', 'Střídáte se v kreslení křížků a koleček. Kdo první udělá tři v řadě (vodorovně, svisle nebo šikmo), vyhrává. Začínající hráč se každé kolo střídá.'],
+      five: ['Pět v řadě', 'Velké piškvorky na ploše 12×12.', 'Jako piškvorky, ale na větší ploše a vyhrává až pět v řadě.'],
+      c4: ['Čtyři v řadě', 'Házejte kameny do sloupců.', 'Klepnutím do sloupce do něj spadne váš kámen. Kdo první spojí čtyři své kameny vodorovně, svisle nebo šikmo, vyhrává.'],
+      dots: ['Tečky a čtverečky', 'Uzavírejte čtverečky.', 'Střídavě spojujete dvě sousední tečky čárou. Kdo dokreslí čtvrtou stranu čtverečku, získá ho a hraje znovu. Vyhrává ten, kdo má víc čtverečků.'],
+      memo: ['Pexeso', 'Hledejte dvojice obrázků.', 'Otočíte dvě kartičky. Když jsou stejné, berete si je a hrajete znovu. Když ne, otočí se zpátky a hraje soupeř. Vyhrává víc dvojic.'],
+      nim: ['Zápalky', 'Kdo vezme poslední, prohrál.', 'Na stole je 21 zápalek. Střídavě berete 1, 2 nebo 3. Kdo musí vzít poslední zápalku, prohrává.'],
+      rps: ['Kámen, nůžky, papír', 'Tajná volba, pak odhalení.', 'Nejdřív volí první hráč (druhý se nedívá), pak druhý. Kámen tupí nůžky, nůžky stříhají papír, papír balí kámen. Hraje se do 3 výher.'],
+      react: ['Reakce', 'Kdo dřív klepne na zelenou.', 'Položte mobil mezi sebe, každý má svou polovinu. Až obrazovka zezelená, klepněte co nejrychleji na svou půlku. Kdo klepne moc brzo, bod dostane soupeř. Hraje se do 5.'],
+      tug: ['Přetahovaná', 'Ťukejte co nejrychleji.', 'Každý ťuká na svou polovinu obrazovky. Kdo přetáhne kolečko až na svou stranu, vyhrává.'],
+      pong: ['Pong', 'Ping-pong prsty.', 'Každý ovládá pálku na své straně tažením prstu do stran. Kdo nechytí míček, dává bod soupeři. Hraje se do 5.'],
+      math: ['Počtářský souboj', 'Kdo dřív spočítá příklad.', 'Na obou polovinách se ukáže stejný příklad a tři výsledky. Kdo dřív klepne na správný, získá bod. Za špatnou odpověď máte do dalšího příkladu stop. Hraje se do 7.'],
+    },
+    word: {
+      choose: (a, b) => `${a} zadává tajné slovo. ${b}, nedívej se!`, placeholder: 'Tajné slovo', hintPh: 'Nápověda (nepovinné)', random: 'Náhodné slovo', go: 'Hádat',
+      guess: (n) => `Hádá ${n}`, lives: (n) => `Zbývá pokusů: ${n}`, solved: (n) => `${n} uhodl(a) slovo!`, failed: (n, w) => `Neuhodnuto, bod pro ${n}. Slovo bylo: ${w}`,
+      hint: 'Nápověda', short: 'Slovo musí mít aspoň 2 písmena.', pass: (n) => `Podejte mobil: hádá ${n}`,
+    },
+    nim: { left: (n) => `Zbývá ${n}`, take: (n) => `Vzít ${n}`, lose: (n) => `${n} vzal(a) poslední a prohrává.` },
+    rps: { pick: (n) => `${n}, vyber si (soupeř se nedívá)`, hidden: (n) => `${n} už vybral(a). Podejte mobil.`, show: 'Odhalit', names: ['Kámen', 'Nůžky', 'Papír'] },
+    pongTap: 'Tahejte prstem po své straně',
+  },
+  en: {
+    title: 'Games for two', h1: 'Games <em>for two</em>',
+    sub: 'One phone, two players. Enter your names, pick a game and play. Works without internet too.',
+    p1: 'Player 1', p2: 'Player 2',
+    install: 'Add to home screen: in Safari tap Share → Add to Home Screen, in Chrome ⋮ → Add to Home screen. The games then work offline.',
+    turn: (n) => `${n}’s turn`, wins: (n) => `${n} wins!`, draw: 'Draw', again: 'Play again', next: 'Next round', start: 'Start', exit: 'Quit',
+    tapStart: 'Tap when you are both ready', ready: 'Get ready…', tooSoon: 'Too soon!', first: 'Faster!', firstTo: (n) => `First to ${n} points`,
+    games: {
+      word: ['Guess the word', 'One sets a word, the other guesses letters.', 'The player whose turn it is to set types a secret word (or takes a random one) while the other looks away. Then the other player guesses letters with 7 tries. Guess the whole word = point for the guesser, otherwise the point goes to the setter. Roles swap every round.'],
+      ttt: ['Tic-tac-toe', 'Classic three in a row.', 'Take turns placing X and O. The first to get three in a row (across, down or diagonal) wins. The starting player switches every round.'],
+      five: ['Five in a row', 'Big tic-tac-toe on a 12×12 board.', 'Like tic-tac-toe, but on a bigger board and you need five in a row.'],
+      c4: ['Connect four', 'Drop stones into columns.', 'Tap a column to drop your stone into it. The first to connect four of their stones across, down or diagonally wins.'],
+      dots: ['Dots and boxes', 'Close the boxes.', 'Take turns joining two neighbouring dots with a line. Whoever draws the fourth side of a box claims it and goes again. Most boxes wins.'],
+      memo: ['Memory', 'Find matching pairs.', 'Turn over two cards. If they match, keep them and go again. If not, they flip back and it is the other player’s turn. Most pairs wins.'],
+      nim: ['Matches', 'Whoever takes the last one loses.', 'There are 21 matches on the table. Take turns removing 1, 2 or 3. Whoever has to take the last match loses.'],
+      rps: ['Rock, paper, scissors', 'Secret pick, then reveal.', 'Player one picks first (the other looks away), then player two. Rock blunts scissors, scissors cut paper, paper wraps rock. First to 3 wins.'],
+      react: ['Reaction', 'Tap first when it turns green.', 'Put the phone between you, each player has their own half. When the screen turns green, tap your half as fast as you can. Tap too early and your opponent gets the point. First to 5.'],
+      tug: ['Tug of war', 'Tap as fast as you can.', 'Each player taps their half of the screen. Pull the circle all the way to your side to win.'],
+      pong: ['Pong', 'Table tennis with fingers.', 'Each player moves the paddle on their side by dragging a finger left and right. Miss the ball and your opponent scores. First to 5.'],
+      math: ['Maths duel', 'Who solves it first.', 'Both halves show the same sum and three answers. The first to tap the right one scores. A wrong answer locks you out until the next sum. First to 7.'],
+    },
+    word: {
+      choose: (a, b) => `${a} sets the secret word. ${b}, don’t look!`, placeholder: 'Secret word', hintPh: 'Hint (optional)', random: 'Random word', go: 'Start guessing',
+      guess: (n) => `${n} is guessing`, lives: (n) => `Tries left: ${n}`, solved: (n) => `${n} guessed the word!`, failed: (n, w) => `Not guessed, point for ${n}. The word was: ${w}`,
+      hint: 'Hint', short: 'The word needs at least 2 letters.', pass: (n) => `Pass the phone: ${n} guesses`,
+    },
+    nim: { left: (n) => `${n} left`, take: (n) => `Take ${n}`, lose: (n) => `${n} took the last one and loses.` },
+    rps: { pick: (n) => `${n}, pick (no peeking)`, hidden: (n) => `${n} has picked. Pass the phone.`, show: 'Reveal', names: ['Rock', 'Scissors', 'Paper'] },
+    pongTap: 'Drag your finger on your side',
+  },
+  hu: {
+    title: 'Játékok kettesben', h1: 'Játékok <em>kettesben</em>',
+    sub: 'Egy telefon, két játékos. Írjátok be a neveteket, válasszatok játékot, és játsszatok. Internet nélkül is működik.',
+    p1: '1. játékos', p2: '2. játékos',
+    install: 'Kezdőképernyőre: Safariban Megosztás → Főképernyőhöz adás, Chrome-ban ⋮ → Hozzáadás a kezdőképernyőhöz. Így a játékok offline is mennek.',
+    turn: (n) => `Következik: ${n}`, wins: (n) => `${n} nyert!`, draw: 'Döntetlen', again: 'Újra', next: 'Következő kör', start: 'Start', exit: 'Kilépés',
+    tapStart: 'Koppintsatok, ha mindketten készen álltok', ready: 'Figyelem…', tooSoon: 'Túl korán!', first: 'Gyorsabb!', firstTo: (n) => `${n} pontig megy`,
+    games: {
+      word: ['Találd ki a szót', 'Egyikőtök feladja, a másik betűket tippel.', 'Aki éppen feladó, beír egy titkos szót (vagy kér egy véletlent), a másik közben nem néz oda. Utána a másik betűket tippel, 7 próbája van. Ha kitalálja a szót, ő kap pontot, ha nem, a feladó. A szerepek körönként cserélődnek.'],
+      ttt: ['Amőba 3×3', 'A klasszikus három egy sorban.', 'Felváltva raktok X-et és O-t. Aki először kirak hármat egy sorban (vízszintesen, függőlegesen vagy átlósan), nyer. A kezdő játékos minden körben cserélődik.'],
+      five: ['Ötös amőba', 'Nagy amőba 12×12-es táblán.', 'Mint az amőba, csak nagyobb táblán, és öt kell egy sorban.'],
+      c4: ['Négy egy sorban', 'Dobjátok a korongokat az oszlopokba.', 'Koppints egy oszlopra, és beleesik a korongod. Aki először köt össze négyet vízszintesen, függőlegesen vagy átlósan, nyer.'],
+      dots: ['Pontok és dobozok', 'Zárjátok be a négyzeteket.', 'Felváltva összekötötök két szomszédos pontot egy vonallal. Aki megrajzolja egy négyzet negyedik oldalát, megkapja, és újra jön. Akinek több négyzete van, nyer.'],
+      memo: ['Memória', 'Keressétek a párokat.', 'Fordíts fel két kártyát. Ha egyformák, megtartod őket, és újra jössz. Ha nem, visszafordulnak, és a másik jön. Aki több párt gyűjt, nyer.'],
+      nim: ['Gyufák', 'Aki az utolsót veszi el, veszít.', 'Az asztalon 21 gyufa van. Felváltva 1, 2 vagy 3 gyufát vesztek el. Akinek az utolsót kell elvennie, veszít.'],
+      rps: ['Kő, papír, olló', 'Titkos választás, aztán felfedés.', 'Először az első játékos választ (a másik nem néz oda), utána a második. A kő csorbítja az ollót, az olló vágja a papírt, a papír becsomagolja a követ. 3 győzelemig megy.'],
+      react: ['Reakció', 'Ki koppint előbb a zöldre.', 'Tegyétek a telefont kettőtök közé, mindenkinek megvan a saját fele. Amikor a képernyő zöldre vált, koppints a saját feledre minél gyorsabban. Aki túl korán koppint, annak az ellenfele kap pontot. 5 pontig megy.'],
+      tug: ['Kötélhúzás', 'Kopogj, amilyen gyorsan csak tudsz.', 'Mindenki a saját képernyőfelét kopogtatja. Aki a korongot egészen a saját oldalára húzza, nyer.'],
+      pong: ['Pong', 'Pingpong ujjal.', 'Mindenki a saját oldalán lévő ütőt irányítja, az ujját jobbra-balra húzva. Aki elengedi a labdát, az ellenfele kap pontot. 5 pontig megy.'],
+      math: ['Számolópárbaj', 'Ki számol gyorsabban.', 'Mindkét félen ugyanaz a feladat és három eredmény jelenik meg. Aki előbb koppint a helyesre, pontot kap. Rossz válasz után a következő feladatig nem tippelhetsz. 7 pontig megy.'],
+    },
+    word: {
+      choose: (a, b) => `${a} adja fel a titkos szót. ${b}, ne nézz oda!`, placeholder: 'Titkos szó', hintPh: 'Segítség (nem kötelező)', random: 'Véletlen szó', go: 'Tippelés',
+      guess: (n) => `${n} tippel`, lives: (n) => `Hátralévő próbák: ${n}`, solved: (n) => `${n} kitalálta a szót!`, failed: (n, w) => `Nem sikerült, pont ${n} részére. A szó: ${w}`,
+      hint: 'Segítség', short: 'A szónak legalább 2 betűből kell állnia.', pass: (n) => `Add tovább a telefont: ${n} tippel`,
+    },
+    nim: { left: (n) => `Maradt ${n}`, take: (n) => `Elvesz ${n}`, lose: (n) => `${n} vette el az utolsót, és veszített.` },
+    rps: { pick: (n) => `${n}, válassz (a másik ne nézzen oda)`, hidden: (n) => `${n} már választott. Add tovább a telefont.`, show: 'Felfedés', names: ['Kő', 'Olló', 'Papír'] },
+    pongTap: 'Húzd az ujjad a saját oldaladon',
+  },
+};
+
+// slova pro „náhodné slovo“ (s nápovědou)
+const WORDS = {
+  cs: [['VELRYBA', 'zvíře'], ['ŽIRAFA', 'zvíře'], ['JEŽEK', 'zvíře'], ['KROKODÝL', 'zvíře'], ['PAPOUŠEK', 'zvíře'], ['ČOKOLÁDA', 'jídlo'], ['PALAČINKA', 'jídlo'], ['BRAMBORA', 'jídlo'], ['ZMRZLINA', 'jídlo'], ['ŠPAGETY', 'jídlo'], ['LETADLO', 'doprava'], ['TRAMVAJ', 'doprava'], ['PONORKA', 'doprava'], ['KOLOBĚŽKA', 'doprava'], ['DEŠTNÍK', 'věc'], ['KYTARA', 'hudba'], ['BUBENÍK', 'hudba'], ['FOTBAL', 'sport'], ['LYŽOVÁNÍ', 'sport'], ['HOKEJ', 'sport'], ['SOPKA', 'příroda'], ['DUHA', 'příroda'], ['VODOPÁD', 'příroda'], ['HVĚZDA', 'vesmír'], ['RAKETA', 'vesmír'], ['KNIHOVNA', 'místo'], ['NÁDRAŽÍ', 'místo'], ['ZÁMEK', 'místo'], ['POČÍTAČ', 'technika'], ['TELEFON', 'technika'], ['SNĚHULÁK', 'zima'], ['HOUSLE', 'hudba'], ['PRÁZDNINY', 'léto'], ['MAJÁK', 'moře'], ['PIRÁT', 'moře']],
+  en: [['WHALE', 'animal'], ['GIRAFFE', 'animal'], ['HEDGEHOG', 'animal'], ['CROCODILE', 'animal'], ['PARROT', 'animal'], ['CHOCOLATE', 'food'], ['PANCAKE', 'food'], ['POTATO', 'food'], ['ICE CREAM', 'food'], ['SPAGHETTI', 'food'], ['AIRPLANE', 'transport'], ['TRAM', 'transport'], ['SUBMARINE', 'transport'], ['SCOOTER', 'transport'], ['UMBRELLA', 'thing'], ['GUITAR', 'music'], ['DRUMMER', 'music'], ['FOOTBALL', 'sport'], ['SKIING', 'sport'], ['HOCKEY', 'sport'], ['VOLCANO', 'nature'], ['RAINBOW', 'nature'], ['WATERFALL', 'nature'], ['STAR', 'space'], ['ROCKET', 'space'], ['LIBRARY', 'place'], ['STATION', 'place'], ['CASTLE', 'place'], ['COMPUTER', 'tech'], ['TELEPHONE', 'tech'], ['SNOWMAN', 'winter'], ['VIOLIN', 'music'], ['HOLIDAYS', 'summer'], ['LIGHTHOUSE', 'sea'], ['PIRATE', 'sea']],
+  hu: [['BÁLNA', 'állat'], ['ZSIRÁF', 'állat'], ['SÜNDISZNÓ', 'állat'], ['KROKODIL', 'állat'], ['PAPAGÁJ', 'állat'], ['CSOKOLÁDÉ', 'étel'], ['PALACSINTA', 'étel'], ['KRUMPLI', 'étel'], ['FAGYLALT', 'étel'], ['SPAGETTI', 'étel'], ['REPÜLŐ', 'közlekedés'], ['VILLAMOS', 'közlekedés'], ['TENGERALATTJÁRÓ', 'közlekedés'], ['ROLLER', 'közlekedés'], ['ESERNYŐ', 'tárgy'], ['GITÁR', 'zene'], ['DOBOS', 'zene'], ['FOCI', 'sport'], ['SÍELÉS', 'sport'], ['JÉGKORONG', 'sport'], ['VULKÁN', 'természet'], ['SZIVÁRVÁNY', 'természet'], ['VÍZESÉS', 'természet'], ['CSILLAG', 'világűr'], ['RAKÉTA', 'világűr'], ['KÖNYVTÁR', 'hely'], ['PÁLYAUDVAR', 'hely'], ['KASTÉLY', 'hely'], ['SZÁMÍTÓGÉP', 'technika'], ['TELEFON', 'technika'], ['HÓEMBER', 'tél'], ['HEGEDŰ', 'zene'], ['NYARALÁS', 'nyár'], ['VILLÁGÍTÓTORONY', 'tenger'], ['KALÓZ', 'tenger']],
+};
+
+const GAMES = [
+  { id: 'word', emo: '🔤', feat: true }, { id: 'ttt', emo: '❌' }, { id: 'five', emo: '⭕' }, { id: 'c4', emo: '🟠' }, { id: 'dots', emo: '🔲' }, { id: 'memo', emo: '🃏' },
+  { id: 'nim', emo: '🔥' }, { id: 'rps', emo: '✊' }, { id: 'react', emo: '⚡' }, { id: 'tug', emo: '🪢' }, { id: 'pong', emo: '🏓' }, { id: 'math', emo: '🧮' },
+];
+
+/* ---------- stav, jazyk, jména ---------- */
+const $ = (s, el = document) => el.querySelector(s);
+const store = { get(k, d) { try { const v = localStorage.getItem('hry-' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem('hry-' + k, JSON.stringify(v)); } catch (e) {} } };
+const LANGS = ['cs', 'en', 'hu'];
+let lang = new URLSearchParams(location.search).get('lang');
+if (!LANGS.includes(lang)) lang = store.get('lang', 'cs');
+if (!LANGS.includes(lang)) lang = 'cs';
+const t = () => T[lang];
+let names = store.get('names', ['', '']);
+const nm = (i) => (names[i] || '').trim() || t()['p' + (i + 1)];
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+const who = (i) => `<span class="p${i + 1}">${esc(nm(i))}</span>`;
+const rnd = (n) => Math.floor(Math.random() * n);
+const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = rnd(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const buzz = (ms = 15) => { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} };
+
+function renderHome() {
+  document.documentElement.lang = lang;
+  document.title = t().title;
+  document.querySelectorAll('[data-t]').forEach((el) => (el.innerHTML = t()[el.dataset.t]));
+  document.querySelectorAll('#lang button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.lang === lang));
+  $('#n1').placeholder = t().p1; $('#n2').placeholder = t().p2;
+  $('#n1').value = names[0] || ''; $('#n2').value = names[1] || '';
+  $('#list').innerHTML = GAMES.map((g) => { const [n, d] = t().games[g.id]; return `<button class="gcard${g.feat ? ' is-feat' : ''}" data-game="${g.id}"><span class="emo">${g.emo}</span><b>${n}</b><small>${d}</small></button>`; }).join('');
+}
+$('#lang').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; lang = b.dataset.lang; store.set('lang', lang); renderHome(); if (cur) openGame(cur.id, true); });
+['n1', 'n2'].forEach((id, i) => $('#' + id).addEventListener('input', (e) => { names[i] = e.target.value; store.set('names', names); }));
+$('#list').addEventListener('click', (e) => { const b = e.target.closest('[data-game]'); if (b) openGame(b.dataset.game); });
+
+/* ---------- obrazovka hry ---------- */
+let cur = null; // { id, cleanup, score }
+const scores = {};
+function setScore(turn) {
+  const s = scores[cur.id];
+  $('#score').innerHTML = `<div><span class="dot p1"></span><span class="${turn === 0 ? 'on' : ''}" style="color:var(--p1)">${esc(nm(0))}</span></div><div><b>${s[0]}</b> <em>:</em> <b>${s[1]}</b></div><div><span class="${turn === 1 ? 'on' : ''}" style="color:var(--p2)">${esc(nm(1))}</span><span class="dot p2"></span></div>`;
+}
+const status = (html) => ($('#status').innerHTML = html);
+function point(i, turn) { if (i === 0 || i === 1) scores[cur.id][i]++; setScore(turn); }
+
+function openGame(id, keep) {
+  if (cur && cur.cleanup) cur.cleanup();
+  scores[id] = scores[id] || [0, 0];
+  cur = { id };
+  document.body.classList.add('in-game');
+  const [n, , rules] = t().games[id];
+  $('#gtitle').textContent = n;
+  $('#rules').textContent = rules;
+  $('#rules').classList.toggle('is-open', !keep && !store.get('seen-' + id, false));
+  store.set('seen-' + id, true);
+  $('#stage').innerHTML = ''; status('');
+  setScore();
+  if (!keep) { history.pushState({ g: id }, ''); scrollTo(0, 0); }
+  cur.cleanup = GAME[id]($('#stage')) || null;
+}
+function closeGame() {
+  if (cur && cur.cleanup) cur.cleanup();
+  cur = null;
+  document.body.classList.remove('in-game');
+  renderHome();
+}
+$('#back').addEventListener('click', () => history.back());
+window.addEventListener('popstate', () => { if (cur) closeGame(); });
+$('#info').addEventListener('click', () => $('#rules').classList.toggle('is-open'));
+const againBtn = (fn, label) => { const b = document.createElement('button'); b.className = 'btn'; b.textContent = label || t().again; b.onclick = fn; const r = document.createElement('div'); r.className = 'row'; r.append(b); return r; };
+
+/* ---------- desky: piškvorky, pět v řadě, čtyři v řadě ---------- */
+function lineFrom(get, r, c, p, need, R, C) {
+  for (const [dr, dc] of [[0, 1], [1, 0], [1, 1], [1, -1]]) {
+    const cells = [[r, c]];
+    for (const s of [1, -1]) { let rr = r + dr * s, cc = c + dc * s; while (rr >= 0 && rr < R && cc >= 0 && cc < C && get(rr, cc) === p) { cells.push([rr, cc]); rr += dr * s; cc += dc * s; } }
+    if (cells.length >= need) return cells;
+  }
+  return null;
+}
+function gridGame(el, { R, C, need, small, gravity }) {
+  let starter = 0, b, turn, over, moves;
+  function round() {
+    b = Array.from({ length: R }, () => Array(C).fill(-1)); turn = starter; over = false; moves = 0;
+    el.innerHTML = `<div class="board${small ? ' small' : ''}${gravity ? ' c4' : ''}" style="grid-template-columns:repeat(${C},1fr)">${'<button class="cell"></button>'.repeat(R * C)}</div>`;
+    status(t().turn(who(turn))); setScore(turn);
+  }
+  el.onclick = (e) => {
+    const cell = e.target.closest('.cell'); if (!cell || over) return;
+    const idx = [...cell.parentNode.children].indexOf(cell); let r = Math.floor(idx / C); const c = idx % C;
+    if (gravity) { r = -1; for (let i = R - 1; i >= 0; i--) if (b[i][c] === -1) { r = i; break; } if (r < 0) return; }
+    if (b[r][c] !== -1) return;
+    b[r][c] = turn; moves++; buzz();
+    const target = el.querySelector('.board').children[r * C + c];
+    target.innerHTML = gravity || small ? `<span class="stone p${turn + 1}${small ? ' pop' : ''}"></span>` : `<span class="pop">${turn ? '○' : '✕'}</span>`;
+    if (!gravity && !small) target.classList.add(turn ? 'o' : 'x');
+    const win = lineFrom((rr, cc) => b[rr][cc], r, c, turn, need, R, C);
+    if (win) { over = true; win.forEach(([rr, cc]) => el.querySelector('.board').children[rr * C + cc].classList.add('win')); status(t().wins(who(turn))); point(turn); starter = 1 - starter; el.append(againBtn(round)); buzz(60); return; }
+    if (moves === R * C) { over = true; status(t().draw); starter = 1 - starter; el.append(againBtn(round)); return; }
+    turn = 1 - turn; status(t().turn(who(turn))); setScore(turn);
+  };
+  round();
+  return () => (el.onclick = null);
+}
+
+const GAME = {
+  ttt: (el) => gridGame(el, { R: 3, C: 3, need: 3 }),
+  five: (el) => gridGame(el, { R: 12, C: 12, need: 5, small: true }),
+  c4: (el) => gridGame(el, { R: 6, C: 7, need: 4, gravity: true }),
+
+  /* ---------- hádej slovo ---------- */
+  word(el) {
+    let setter = store.get('word-setter', 0) % 2;
+    const norm = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase();
+    function setup() {
+      const g = 1 - setter; setScore(setter);
+      status(t().word.choose(who(setter), who(g)));
+      el.innerHTML = `<div class="setup">
+        <input class="field" id="w" type="password" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="${t().word.placeholder}" maxlength="24" />
+        <input class="field" id="h" autocomplete="off" placeholder="${t().word.hintPh}" maxlength="30" />
+        <p id="err" style="color:var(--p2);min-height:24px"></p>
+        <div class="row" style="margin-top:0"><button class="btn btn--ghost" id="rand">🎲 ${t().word.random}</button><button class="btn" id="ok">${t().word.go}</button></div>
+      </div>`;
+      $('#rand', el).onclick = () => { const [w, h] = WORDS[lang][rnd(WORDS[lang].length)]; play(w, h); };
+      $('#ok', el).onclick = () => {
+        const w = $('#w', el).value.trim().toUpperCase().replace(/\s+/g, ' ');
+        if (norm(w).replace(/[^A-Z]/g, '').length < 2) { $('#err', el).textContent = t().word.short; return; }
+        play(w, $('#h', el).value.trim());
+      };
+      $('#w', el).addEventListener('keydown', (e) => { if (e.key === 'Enter') $('#ok', el).click(); });
+    }
+    function play(word, hint) {
+      const g = 1 - setter, guessed = new Set(); let miss = 0; const MAX = 7;
+      const letters = new Set(norm(word).replace(/[^A-Z]/g, '').split(''));
+      setScore(g);
+      el.innerHTML = `<svg class="hang" viewBox="0 0 150 140"><line x1="10" y1="132" x2="90" y2="132"/><line x1="30" y1="132" x2="30" y2="8"/><line x1="30" y1="8" x2="100" y2="8"/>
+        <line class="part" x1="100" y1="8" x2="100" y2="26"/><circle class="part" cx="100" cy="38" r="12"/><line class="part" x1="100" y1="50" x2="100" y2="86"/><line class="part" x1="100" y1="60" x2="84" y2="74"/><line class="part" x1="100" y1="60" x2="116" y2="74"/><line class="part" x1="100" y1="86" x2="86" y2="108"/><line class="part" x1="100" y1="86" x2="114" y2="108"/></svg>
+        <div class="word" id="ww"></div>${hint ? `<p class="hint">${t().word.hint}: ${esc(hint)}</p>` : ''}<p class="lives" id="lv"></p>
+        <div class="keys" id="kb">${'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map((k) => `<button data-k="${k}">${k}</button>`).join('')}</div>`;
+      const draw = (end) => {
+        $('#ww', el).innerHTML = [...word].map((ch) => { const n = norm(ch); if (!/[A-Z]/.test(n)) return `<span class="sp">${ch === ' ' ? '' : esc(ch)}</span>`; const shown = guessed.has(n) || end; return `<span class="${!guessed.has(n) && end ? 'miss' : ''}">${shown ? esc(ch) : ''}</span>`; }).join('');
+        $('#lv', el).textContent = t().word.lives(MAX - miss);
+        el.querySelectorAll('.hang .part').forEach((p, i) => p.classList.toggle('on', i < miss));
+      };
+      status(t().word.guess(who(g))); draw(false);
+      $('#kb', el).onclick = (e) => {
+        const k = e.target.closest('[data-k]'); if (!k || k.disabled) return;
+        const L = k.dataset.k; k.disabled = true; guessed.add(L); buzz();
+        if (letters.has(L)) k.classList.add('hit'); else { k.classList.add('no'); miss++; }
+        const solved = [...letters].every((x) => guessed.has(x));
+        if (solved || miss >= MAX) {
+          $('#kb', el).onclick = null; el.querySelectorAll('#kb button').forEach((b) => (b.disabled = true));
+          draw(true);
+          if (solved) { status(t().word.solved(who(g))); point(g, g); } else { status(t().word.failed(who(setter), esc(word))); point(setter, g); }
+          setter = 1 - setter; store.set('word-setter', setter);
+          el.append(againBtn(setup, t().next)); buzz(60);
+        } else draw(false);
+      };
+    }
+    setup();
+  },
+
+  /* ---------- tečky a čtverečky ---------- */
+  dots(el) {
+    const N = 4, S = 2 * N + 1; let starter = 0;
+    function round() {
+      let turn = starter, owned = [0, 0], left = N * N;
+      const lines = new Set(), boxes = {};
+      const cols = Array.from({ length: S }, (_, i) => (i % 2 ? '1fr' : '14px')).join(' ');
+      let html = `<div class="dots" style="grid-template-columns:${cols};grid-template-rows:${cols}">`;
+      for (let r = 0; r < S; r++) for (let c = 0; c < S; c++) {
+        if (r % 2 === 0 && c % 2 === 0) html += '<span class="d"></span>';
+        else if (r % 2 === 0) html += `<button class="h" data-l="${r},${c}" aria-label="line"></button>`;
+        else if (c % 2 === 0) html += `<button class="v" data-l="${r},${c}" aria-label="line"></button>`;
+        else html += `<span class="b" data-b="${r},${c}"></span>`;
+      }
+      el.innerHTML = html + '</div>';
+      status(t().turn(who(turn))); setScore(turn);
+      el.onclick = (e) => {
+        const ln = e.target.closest('[data-l]'); if (!ln || lines.has(ln.dataset.l) || !left) return;
+        lines.add(ln.dataset.l); ln.classList.add('p' + (turn + 1)); buzz();
+        const [r, c] = ln.dataset.l.split(',').map(Number);
+        const around = r % 2 === 0 ? [[r - 1, c], [r + 1, c]] : [[r, c - 1], [r, c + 1]];
+        let got = 0;
+        for (const [br, bc] of around) {
+          if (br < 0 || bc < 0 || br >= S || bc >= S || boxes[br + ',' + bc] !== undefined) continue;
+          if ([[br - 1, bc], [br + 1, bc], [br, bc - 1], [br, bc + 1]].every(([a, b]) => lines.has(a + ',' + b))) {
+            boxes[br + ',' + bc] = turn; got++; left--; owned[turn]++;
+            const bx = el.querySelector(`[data-b="${br},${bc}"]`); bx.classList.add('p' + (turn + 1), 'pop'); bx.textContent = nm(turn).slice(0, 1).toUpperCase();
+          }
+        }
+        if (!left) {
+          const w = owned[0] === owned[1] ? -1 : owned[0] > owned[1] ? 0 : 1;
+          status(w < 0 ? `${t().draw} ${owned[0]} : ${owned[1]}` : `${t().wins(who(w))} ${owned[0]} : ${owned[1]}`);
+          if (w >= 0) point(w); starter = 1 - starter; el.append(againBtn(round)); buzz(60); return;
+        }
+        if (!got) turn = 1 - turn;
+        status(`${t().turn(who(turn))} · ${owned[0]} : ${owned[1]}`); setScore(turn);
+      };
+    }
+    round();
+    return () => (el.onclick = null);
+  },
+
+  /* ---------- pexeso ---------- */
+  memo(el) {
+    const EMO = ['🍕', '🚀', '🐙', '🌵', '🎸', '🦊', '🍩', '⚽', '🐳', '🌈', '🍓', '🎈'];
+    let starter = 0, timer;
+    function round() {
+      const deck = shuffle(shuffle(EMO.slice()).slice(0, 8).flatMap((x) => [x, x]));
+      let turn = starter, open = [], found = 0, pairs = [0, 0], lock = false;
+      el.innerHTML = `<div class="memo">${deck.map((x, i) => `<button class="card" data-i="${i}"><span><i></i><em>${x}</em></span></button>`).join('')}</div>`;
+      status(t().turn(who(turn))); setScore(turn);
+      el.onclick = (e) => {
+        const cd = e.target.closest('.card'); if (!cd || lock || cd.classList.contains('open')) return;
+        cd.classList.add('open'); open.push(cd); buzz();
+        if (open.length < 2) return;
+        const [a, b] = open; open = [];
+        if (deck[a.dataset.i] === deck[b.dataset.i]) {
+          a.classList.add('p' + (turn + 1)); b.classList.add('p' + (turn + 1)); pairs[turn]++; found++;
+          if (found === 8) {
+            const w = pairs[0] === pairs[1] ? -1 : pairs[0] > pairs[1] ? 0 : 1;
+            status(w < 0 ? `${t().draw} ${pairs[0]} : ${pairs[1]}` : `${t().wins(who(w))} ${pairs[0]} : ${pairs[1]}`);
+            if (w >= 0) point(w); starter = 1 - starter; el.append(againBtn(round)); buzz(60); return;
+          }
+          status(`${t().turn(who(turn))} · ${pairs[0]} : ${pairs[1]}`);
+        } else {
+          lock = true;
+          timer = setTimeout(() => { a.classList.remove('open'); b.classList.remove('open'); lock = false; turn = 1 - turn; status(`${t().turn(who(turn))} · ${pairs[0]} : ${pairs[1]}`); setScore(turn); }, 900);
+        }
+      };
+    }
+    round();
+    return () => { el.onclick = null; clearTimeout(timer); };
+  },
+
+  /* ---------- zápalky ---------- */
+  nim(el) {
+    let starter = 0;
+    function round() {
+      let left = 21, turn = starter;
+      el.innerHTML = `<p class="lives" id="left"></p><div class="matches">${'<i class="match"></i>'.repeat(21)}</div><div class="row">${[1, 2, 3].map((n) => `<button class="btn" data-n="${n}">${t().nim.take(n)}</button>`).join('')}</div>`;
+      const upd = () => { $('#left', el).textContent = t().nim.left(left); el.querySelectorAll('[data-n]').forEach((b) => { b.disabled = +b.dataset.n > left; b.classList.toggle('btn--p2', turn === 1); }); status(t().turn(who(turn))); setScore(turn); };
+      upd();
+      el.onclick = (e) => {
+        const b = e.target.closest('[data-n]'); if (!b || b.disabled) return;
+        const n = +b.dataset.n, ms = el.querySelectorAll('.match:not(.gone)');
+        for (let i = 0; i < n; i++) ms[ms.length - 1 - i].classList.add('gone');
+        left -= n; buzz();
+        if (left === 0) { $('#left', el).textContent = t().nim.left(0); el.querySelector('[data-n]').parentNode.remove(); status(`${t().nim.lose(who(turn))} ${t().wins(who(1 - turn))}`); point(1 - turn); starter = 1 - starter; el.onclick = null; el.append(againBtn(round)); buzz(60); return; }
+        turn = 1 - turn; upd();
+      };
+    }
+    round();
+    return () => (el.onclick = null);
+  },
+
+  /* ---------- kámen nůžky papír ---------- */
+  rps(el) {
+    const E = ['✊', '✌️', '✋'];
+    let wins = [0, 0];
+    function pick(p, first) {
+      setScore(p);
+      status(t().rps.pick(who(p)) + ` · ${wins[0]} : ${wins[1]}`);
+      el.innerHTML = `<div class="rps">${E.map((x, i) => `<button data-i="${i}" aria-label="${t().rps.names[i]}">${x}</button>`).join('')}</div>`;
+      el.onclick = (e) => {
+        const b = e.target.closest('[data-i]'); if (!b) return; buzz();
+        if (p === 0) {
+          el.onclick = null;
+          status(t().rps.hidden(who(0)));
+          el.innerHTML = `<div class="cover">🙈</div>`; el.append(againBtn(() => pick(1, +b.dataset.i), t().start));
+        } else showdown(first, +b.dataset.i);
+      };
+    }
+    function showdown(a, b) {
+      el.onclick = null;
+      const w = a === b ? -1 : (a + 1) % 3 === b ? 0 : 1; // kámen(0) bije nůžky(1), nůžky(1) bijí papír(2), papír(2) bije kámen(0)
+      if (w >= 0) wins[w]++;
+      el.innerHTML = `<div class="reveal"><div class="pop">${E[a]}<small style="color:var(--p1)">${esc(nm(0))}</small></div><div class="pop">${E[b]}<small style="color:var(--p2)">${esc(nm(1))}</small></div></div>`;
+      if (wins[0] === 3 || wins[1] === 3) {
+        const W = wins[0] === 3 ? 0 : 1; status(`${t().wins(who(W))} ${wins[0]} : ${wins[1]}`); point(W); wins = [0, 0];
+        el.append(againBtn(() => pick(0))); buzz(60);
+      } else {
+        status(`${w < 0 ? t().draw : t().wins(who(w))} · ${wins[0]} : ${wins[1]}`);
+        el.append(againBtn(() => pick(0), t().next));
+      }
+    }
+    pick(0);
+    return () => (el.onclick = null);
+  },
+
+  /* ---------- dělená obrazovka: reakce ---------- */
+  react(el) {
+    const TO = 5; let pts = [0, 0], state = 'idle', timer;
+    const sp = document.createElement('div'); sp.className = 'split';
+    sp.innerHTML = `<div class="half top" data-p="1"></div><div class="half bot" data-p="0"></div><span class="mid"></span><button class="exit" aria-label="${t().exit}"><svg class="i" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>`;
+    document.body.append(sp);
+    const H = [sp.querySelector('.bot'), sp.querySelector('.top')];
+    const paint = (txt, cls = '') => H.forEach((h, i) => { h.className = 'half ' + (i ? 'top' : 'bot') + (cls ? ' ' + cls : ''); h.innerHTML = `<div><h3>${txt(i)}</h3><p>${t().firstTo(TO)}</p></div><span class="pts">${esc(nm(i))}: ${pts[i]}</span>`; });
+    const idle = (msg) => { state = 'idle'; paint((i) => msg ? msg(i) : t().tapStart); };
+    const arm = () => { state = 'wait'; paint(() => t().ready); timer = setTimeout(() => { state = 'go'; paint(() => '👆', 'go'); buzz(40); }, 1500 + rnd(3000)); };
+    sp.addEventListener('pointerdown', (e) => {
+      if (e.target.closest('.exit')) return;
+      const h = e.target.closest('.half'); if (!h) return; const p = +h.dataset.p;
+      if (state === 'idle') { arm(); return; }
+      if (state === 'wait') { clearTimeout(timer); pts[1 - p]++; end(p, false); return; }
+      if (state === 'go') { pts[p]++; end(p, true); }
+    });
+    function end(p, good) {
+      state = 'done'; buzz(60);
+      const fin = pts[0] >= TO || pts[1] >= TO;
+      paint((i) => (good ? (i === p ? t().first : '😬') : (i === p ? t().tooSoon : '😎')), '');
+      H[p].classList.add(good ? 'go' : 'bad');
+      setTimeout(() => {
+        if (fin) { const W = pts[0] >= TO ? 0 : 1; pts = [0, 0]; point(W); idle((i) => (i === W ? '🏆 ' : '') + t().wins(esc(nm(W)))); }
+        else idle();
+      }, 1100);
+    }
+    sp.querySelector('.exit').onclick = () => history.back();
+    idle();
+    return () => { clearTimeout(timer); sp.remove(); };
+  },
+
+  /* ---------- dělená obrazovka: přetahovaná ---------- */
+  tug(el) {
+    let pos = 0, state = 'idle', timer; const LIMIT = 30;
+    const sp = document.createElement('div'); sp.className = 'split';
+    sp.innerHTML = `<div class="half top" data-p="1"></div><div class="half bot" data-p="0"></div><div class="rope"><i></i></div><button class="exit" aria-label="${t().exit}"><svg class="i" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>`;
+    document.body.append(sp);
+    const H = [sp.querySelector('.bot'), sp.querySelector('.top')], knob = sp.querySelector('.rope i');
+    const text = (fn) => H.forEach((h, i) => (h.innerHTML = `<div>${fn(i)}</div>`));
+    const move = () => { const span = sp.clientHeight / 2 - 40; knob.style.transform = `translateY(${(pos / LIMIT) * span}px)`; };
+    const idle = (msg) => { state = 'idle'; pos = 0; move(); text((i) => `<h3>${msg ? msg(i) : t().tapStart}</h3>`); };
+    sp.addEventListener('pointerdown', (e) => {
+      if (e.target.closest('.exit')) return;
+      const h = e.target.closest('.half'); if (!h) return; const p = +h.dataset.p;
+      if (state === 'idle') {
+        state = 'count'; let n = 3; text(() => `<div class="big">${n}</div>`);
+        timer = setInterval(() => { n--; if (n > 0) text(() => `<div class="big">${n}</div>`); else { clearInterval(timer); state = 'go'; text(() => '<div class="big">GO!</div>'); buzz(40); } }, 700);
+        return;
+      }
+      if (state !== 'go') return;
+      pos += p === 0 ? 1 : -1; move();
+      if (Math.abs(pos) >= LIMIT) {
+        state = 'done'; const W = pos > 0 ? 0 : 1; point(W); buzz(80);
+        text((i) => `<h3>${i === W ? '🏆 ' : ''}${t().wins(esc(nm(W)))}</h3>`);
+        setTimeout(() => idle(), 1600);
+      }
+    });
+    sp.querySelector('.exit').onclick = () => history.back();
+    addEventListener('resize', move);
+    idle();
+    return () => { clearInterval(timer); removeEventListener('resize', move); sp.remove(); };
+  },
+
+  /* ---------- pong ---------- */
+  pong(el) {
+    const TO = 5; const cv = document.createElement('canvas'); cv.className = 'pong'; document.body.append(cv);
+    const ex = document.createElement('button'); ex.className = 'split exit'; ex.style.cssText = 'position:fixed;inset:auto;right:12px;top:50%;transform:translateY(-50%);z-index:41;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--bg-2);border:1px solid var(--line);grid-template-rows:none';
+    ex.innerHTML = '<svg class="i" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>'; ex.onclick = () => history.back(); document.body.append(ex);
+    const ctx = cv.getContext('2d'); let W, H, dpr, raf, pts = [0, 0], ball, pad = [0.5, 0.5], running = false, msg = t().tapStart, last = 0;
+    const size = () => { dpr = Math.min(devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); };
+    const PW = () => Math.max(70, W * 0.24), R = () => Math.max(8, Math.min(W, H) * 0.022);
+    const serve = (dir) => { const sp = Math.min(W, H) * 0.65; const a = (Math.random() * 0.8 - 0.4); ball = { x: W / 2, y: H / 2, vx: Math.sin(a) * sp, vy: Math.cos(a) * sp * dir }; };
+    const touches = new Map();
+    const onMove = (e) => { if (!running && e.type === 'pointerdown') { running = true; msg = ''; serve(Math.random() < 0.5 ? 1 : -1); last = performance.now(); } const p = e.clientY > H / 2 ? 0 : 1; pad[p] = Math.min(1, Math.max(0, e.clientX / W)); };
+    cv.addEventListener('pointerdown', onMove); cv.addEventListener('pointermove', (e) => { if (e.pressure > 0 || e.pointerType === 'mouse' && e.buttons) onMove(e); });
+    function step(now) {
+      const dt = Math.min(0.032, (now - last) / 1000 || 0); last = now;
+      const pw = PW(), r = R(), py = [H - 46, 46];
+      if (running && ball) {
+        ball.x += ball.vx * dt; ball.y += ball.vy * dt;
+        if (ball.x < r) { ball.x = r; ball.vx *= -1; } if (ball.x > W - r) { ball.x = W - r; ball.vx *= -1; }
+        for (const p of [0, 1]) {
+          const px = pad[p] * W, hit = p === 0 ? ball.vy > 0 && ball.y + r >= py[0] - 7 && ball.y < py[0] + 8 : ball.vy < 0 && ball.y - r <= py[1] + 7 && ball.y > py[1] - 8;
+          if (hit && Math.abs(ball.x - px) < pw / 2 + r) { const off = (ball.x - px) / (pw / 2); const sp = Math.hypot(ball.vx, ball.vy) * 1.05; const a = off * 1.0; ball.vx = Math.sin(a) * sp; ball.vy = Math.cos(a) * sp * (p === 0 ? -1 : 1); buzz(10); }
+        }
+        if (ball.y > H + r || ball.y < -r) {
+          const scorer = ball.y > H ? 1 : 0; pts[scorer]++; buzz(60);
+          if (pts[scorer] >= TO) { point(scorer); running = false; msg = '🏆 ' + t().wins(nm(scorer)); pts = [0, 0]; ball = null; }
+          else serve(scorer === 0 ? 1 : -1);
+        }
+      }
+      ctx.fillStyle = '#0f172a'; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = 'rgba(249,115,22,.08)'; ctx.fillRect(0, 0, W, H / 2); ctx.fillStyle = 'rgba(59,130,246,.08)'; ctx.fillRect(0, H / 2, W, H / 2);
+      ctx.strokeStyle = 'rgba(255,255,255,.12)'; ctx.setLineDash([8, 10]); ctx.beginPath(); ctx.moveTo(0, H / 2); ctx.lineTo(W, H / 2); ctx.stroke(); ctx.setLineDash([]);
+      ctx.font = '700 48px Rethink Sans, sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(255,255,255,.18)';
+      ctx.fillText(pts[0], W / 2, H / 2 + 64);
+      ctx.save(); ctx.translate(W / 2, H / 2 - 64); ctx.rotate(Math.PI); ctx.fillText(pts[1], 0, 0); ctx.restore();
+      [['#3b82f6', 0], ['#f97316', 1]].forEach(([col, p]) => { ctx.fillStyle = col; const x = pad[p] * W - pw / 2; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, py[p] - 7, pw, 14, 7) : ctx.rect(x, py[p] - 7, pw, 14); ctx.fill(); });
+      if (ball) { ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(ball.x, ball.y, r, 0, Math.PI * 2); ctx.fill(); }
+      if (msg) {
+        ctx.font = '600 20px Rethink Sans, sans-serif'; ctx.fillStyle = '#f1f5fb';
+        ctx.fillText(msg, W / 2, H * 0.75); ctx.fillStyle = '#8a93a6'; ctx.font = '400 15px Rethink Sans, sans-serif'; ctx.fillText(t().pongTap, W / 2, H * 0.75 + 26);
+        ctx.save(); ctx.translate(W / 2, H * 0.25); ctx.rotate(Math.PI); ctx.font = '600 20px Rethink Sans, sans-serif'; ctx.fillStyle = '#f1f5fb'; ctx.fillText(msg, 0, 0); ctx.fillStyle = '#8a93a6'; ctx.font = '400 15px Rethink Sans, sans-serif'; ctx.fillText(t().pongTap, 0, 26); ctx.restore();
+      }
+      raf = requestAnimationFrame(step);
+    }
+    size(); addEventListener('resize', size); raf = requestAnimationFrame(step);
+    return () => { cancelAnimationFrame(raf); removeEventListener('resize', size); cv.remove(); ex.remove(); };
+  },
+
+  /* ---------- dělená obrazovka: počtářský souboj ---------- */
+  math(el) {
+    const TO = 7; let pts = [0, 0], state = 'idle', q, locked = [false, false], timer;
+    const sp = document.createElement('div'); sp.className = 'split';
+    sp.innerHTML = `<div class="half top" data-p="1"></div><div class="half bot" data-p="0"></div><span class="mid"></span><button class="exit" aria-label="${t().exit}"><svg class="i" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>`;
+    document.body.append(sp);
+    const H = [sp.querySelector('.bot'), sp.querySelector('.top')];
+    const gen = () => {
+      const op = rnd(3); let a, b, r, s;
+      if (op === 0) { a = 5 + rnd(45); b = 5 + rnd(45); r = a + b; s = '+'; } else if (op === 1) { a = 20 + rnd(60); b = 3 + rnd(a - 3); r = a - b; s = '−'; } else { a = 2 + rnd(9); b = 2 + rnd(9); r = a * b; s = '×'; }
+      const opts = new Set([r]); while (opts.size < 3) { const d = (1 + rnd(5)) * (Math.random() < 0.5 ? -1 : 1) * (op === 2 ? (Math.random() < 0.5 ? a : 1) : 1); if (r + d >= 0) opts.add(r + d); }
+      return { text: `${a} ${s} ${b}`, r, opts: shuffle([...opts]) };
+    };
+    const show = () => H.forEach((h, i) => (h.innerHTML = `<div><div class="big">${q.text}</div><div class="answers${locked[i] ? ' locked' : ''}">${q.opts.map((o) => `<button data-v="${o}">${o}</button>`).join('')}</div></div><span class="pts">${esc(nm(i))}: ${pts[i]}</span>`));
+    const idle = (msg) => { state = 'idle'; H.forEach((h, i) => (h.innerHTML = `<div><h3>${msg ? msg(i) : t().tapStart}</h3><p>${t().firstTo(TO)}</p></div><span class="pts">${esc(nm(i))}: ${pts[i]}</span>`)); };
+    const next = () => { q = gen(); locked = [false, false]; state = 'go'; show(); };
+    sp.addEventListener('pointerdown', (e) => {
+      if (e.target.closest('.exit')) return;
+      const h = e.target.closest('.half'); if (!h) return; const p = +h.dataset.p;
+      if (state === 'idle') { next(); return; }
+      const b = e.target.closest('[data-v]'); if (state !== 'go' || !b || locked[p]) return;
+      if (+b.dataset.v === q.r) {
+        state = 'wait'; pts[p]++; b.classList.add('ok'); buzz(40);
+        if (pts[p] >= TO) { timer = setTimeout(() => { const W = p; pts = [0, 0]; point(W); idle((i) => (i === W ? '🏆 ' : '') + t().wins(esc(nm(W)))); }, 700); }
+        else timer = setTimeout(next, 700);
+      } else { locked[p] = true; b.classList.add('bad'); h.querySelector('.answers').classList.add('locked'); buzz(80); if (locked[0] && locked[1]) { state = 'wait'; timer = setTimeout(next, 700); } }
+    });
+    sp.querySelector('.exit').onclick = () => history.back();
+    idle();
+    return () => { clearTimeout(timer); sp.remove(); };
+  },
+};
+
+renderHome();
+
+/* ---------- offline: service worker ---------- */
+if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+</script>
+</body>
+</html>
