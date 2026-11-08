@@ -13,9 +13,9 @@ const FIREBASE_CONFIG = { // z konzole Firebase (projekt flashcards-663fd); nen�
   apiKey: 'AIzaSyA3zzb5ZmReIpOK5tq6jfiIC_EF-3IId6A', authDomain: 'flashcards-663fd.firebaseapp.com', projectId: 'flashcards-663fd',
   storageBucket: 'flashcards-663fd.firebasestorage.app', messagingSenderId: '804475670634', appId: '1:804475670634:web:6f851aa49f3909c613ba13',
 };
-const APP_VERSION = '2.1';
+const APP_VERSION = '2.2';
 const DOMAIN = 'flashcards.davidjanecka.cz'; // uživatelská jména se převádí na e-mail jméno@DOMAIN (e-maily se nikam neposílají)
-const ADMIN_EMAIL = 'admin@' + DOMAIN;
+const ADMIN_EMAILS = ['admin@' + DOMAIN, 'djanecka6@gmail.com']; // tyhle účty jsou správci vždycky (stejný seznam je ve firestore.rules)
 const TIME_LIMIT = 60, LIVES = 3, DAY = 864e5;
 const EMU = new URLSearchParams(location.search).has('emu') && /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 const CONFIG = EMU ? { apiKey: 'demo-key', authDomain: 'demo-flashcards.firebaseapp.com', projectId: 'demo-flashcards', appId: 'demo' } : FIREBASE_CONFIG;
@@ -83,7 +83,8 @@ const T = {
     backup: 'Stáhnout zálohu', restore: 'Nahrát zálohu', restoreConfirm: 'Nahradit všechny složky obsahem zálohy?', restoreErr: 'Tohle není platná záloha.', restored: 'Záloha nahraná.',
     // účty
     usersTitle: 'Účty', usersSub: 'Registrace není, účty zakládáš tady.', addUser: 'Přidat účet', name: 'Jméno', created: 'Účet je založený.',
-    badUsername: 'Uživatelské jméno: 3–30 znaků, jen malá písmena bez diakritiky, čísla, tečka, pomlčka.', shortPass: 'Heslo musí mít aspoň 6 znaků.',
+    badUsername: 'Uživatelské jméno: 3–30 znaků, jen malá písmena bez diakritiky, čísla, tečka, pomlčka. Nebo celý e-mail.', makeAdmin: 'Správce (může upravovat otázky a účty)',
+    setAdmin: 'Udělat správcem', unsetAdmin: 'Odebrat práva správce', roleSet: 'Hotovo, práva jsou změněná. Projeví se po obnovení stránky.', shortPass: 'Heslo musí mít aspoň 6 znaků.',
     userTaken: 'Tohle uživatelské jméno už bylo použité. Vyber jiné.', noUsers: 'Zatím žádné účty.', lastSeen: (d) => `naposledy ${d}`, never: 'ještě se neučil',
     delUser: 'Smazat účet', delUserConfirm: (n) => `Smazat účet „${n}“ i s jeho statistikami?`, deleted: 'Účet je smazaný.',
     passHelp: 'Heslo si každý může změnit v Můj účet. Když ho někdo zapomene, smaž mu účet a založ nový s jiným jménem.',
@@ -228,10 +229,16 @@ const deckRef = () => doc(db, 'decks', 'main');
 const progRef = (u = me.uid) => doc(db, 'progress', u);
 
 async function enter(user) {
-  const isAdmin = user.email === ADMIN_EMAIL;
   let profile = null;
   try { const s = await getDoc(doc(db, 'users', user.uid)); profile = s.exists() ? s.data() : null; lsSet('fc-me-' + user.uid, profile); }
   catch (e) { profile = lsGet('fc-me-' + user.uid, null); }
+  // správce je hlavní účet admin a každý, komu správce dal roli „správce“
+  const isAdmin = ADMIN_EMAILS.includes(user.email) || (profile && profile.role === 'admin');
+  // správce ze seznamu, který ještě nemá svůj záznam v Účtech, si ho založí sám (ať je vidět v seznamu)
+  if (isAdmin && !profile && user.email !== ADMIN_EMAILS[0]) {
+    profile = { name: user.email === 'djanecka6@gmail.com' ? 'David' : user.email.split('@')[0], username: user.email, role: 'admin', created: new Date().toISOString() };
+    setDoc(doc(db, 'users', user.uid), profile).catch((e) => console.warn(e));
+  }
   if (!profile && !isAdmin) { renderMessage(t().noAccess, true); return; }
   me = { uid: user.uid, email: user.email, isAdmin, name: (profile && profile.name) || (isAdmin ? 'Admin' : user.email.split('@')[0]), username: (profile && profile.username) || user.email.split('@')[0] };
   renderShell();
@@ -454,9 +461,10 @@ function viewUsers() {
   return `<p class="eyebrow">${t().nav.users}</p><h1>${t().usersTitle}</h1><p class="sub">${t().usersSub}</p>
     <h2>${t().addUser}</h2><form class="box form" id="adduser"><div class="adduser">
       <div><label class="lbl" for="nu-n">${t().name}</label><input class="field" id="nu-n" name="n" required maxlength="40" autocomplete="off" /></div>
-      <div><label class="lbl" for="nu-u">${t().user}</label><input class="field" id="nu-u" name="u" required maxlength="30" autocomplete="off" autocapitalize="none" spellcheck="false" /></div>
+      <div><label class="lbl" for="nu-u">${t().user}</label><input class="field" id="nu-u" name="u" required maxlength="60" autocomplete="off" autocapitalize="none" spellcheck="false" /></div>
       <div><label class="lbl" for="nu-p">${t().pass}</label><input class="field" id="nu-p" name="p" required minlength="6" autocomplete="new-password" /></div>
       <button class="btn primary" id="nu-b">${I('plus')}${t().add}</button></div>
+      <label class="toggle"><input type="checkbox" name="adm" />${t().makeAdmin}</label>
       <p class="err" id="nu-err" hidden></p><p class="small muted">${t().passHelp}</p></form>
     <h2>${t().usersTitle}</h2><div class="users" id="ulist">${usersCache ? usersList() : '<div class="spin"></div>'}</div>`;
 }
@@ -465,7 +473,7 @@ function usersList() {
   const items = allCards();
   return usersCache.map((u) => {
     const c = catCounts(items, u.cards || {}); const last = Math.max(0, ...Object.values(u.cards || {}).map((s) => s.l || 0));
-    return `<a class="urow" href="#/users/${encodeURIComponent(u.uid)}"><span class="av">${esc((u.name || '?')[0])}</span><span style="min-width:0"><b>${esc(u.name)}</b><small>@${esc(u.username)} · ${last ? t().lastSeen(fmtDate(last)) : t().never}</small></span><span class="kb">${kbar(c.k)}</span>${I('chev')}</a>`;
+    return `<a class="urow" href="#/users/${encodeURIComponent(u.uid)}"><span class="av">${esc((u.name || '?')[0])}</span><span style="min-width:0"><b>${esc(u.name)}</b><small>@${esc(u.username)}${u.role === 'admin' ? ' · ' + t().role.admin : ''} · ${last ? t().lastSeen(fmtDate(last)) : t().never}</small></span><span class="kb">${kbar(c.k)}</span>${I('chev')}</a>`;
   }).join('');
 }
 async function loadUsers(sel) {
@@ -487,9 +495,9 @@ function viewUser(id) {
   statsBody.days = u.days;
   return `<nav class="crumbs"><a href="#/users">${t().usersTitle}</a></nav><h1>${esc(u.name)}</h1><p class="sub">@${esc(u.username)} · ${t().role[u.role] || u.role}</p>
     <div style="margin-top:22px">${statsBody(u.cards, false)}</div>
-    <h2></h2><button class="btn danger" data-act="delUser" data-uid="${esc(u.uid)}">${I('trash')}${t().delUser}</button>`;
+    ${u.uid === me.uid ? '' : `<h2></h2><div class="toolbar"><button class="btn" data-act="toggleRole" data-uid="${esc(u.uid)}">${u.role === 'admin' ? t().unsetAdmin : t().setAdmin}</button><button class="btn danger" data-act="delUser" data-uid="${esc(u.uid)}">${I('trash')}${t().delUser}</button></div>`}`;
 }
-async function createUser(name, username, pw) {
+async function createUser(name, username, pw, role = 'user') {
   const email = toEmail(username);
   const sec = initializeApp(CONFIG, 'novy-' + Date.now());
   const a2 = initializeAuth(sec, { persistence: inMemoryPersistence });
@@ -501,7 +509,7 @@ async function createUser(name, username, pw) {
       if (e.code !== 'auth/email-already-in-use') throw e;
       try { cred = await signInWithEmailAndPassword(a2, email, pw); } catch (e2) { throw new Error(t().userTaken); }
     }
-    await setDoc(doc(db, 'users', cred.user.uid), { name, username, role: 'user', created: new Date().toISOString() });
+    await setDoc(doc(db, 'users', cred.user.uid), { name, username, role, created: new Date().toISOString() });
     await signOut(a2);
   } finally { deleteApp(sec).catch(() => {}); }
 }
@@ -867,6 +875,12 @@ document.addEventListener('click', async (e) => {
   if (act === 'logout') { flush(); await signOut(auth); return; }
   if (act === 'update') return manualUpdate(a);
   if (act === 'install' && installEvt) { installEvt.prompt(); installEvt = null; return; }
+  if (act === 'toggleRole') {
+    const u = usersCache.find((x) => x.uid === a.dataset.uid); if (!u) return;
+    const role = u.role === 'admin' ? 'user' : 'admin';
+    try { await setDoc(doc(db, 'users', u.uid), { role }, { merge: true }); u.role = role; toast(t().roleSet); render(); } catch (er) { toast(er.message); }
+    return;
+  }
   if (act === 'delUser') {
     const u = usersCache.find((x) => x.uid === a.dataset.uid); if (!u || !confirm(t().delUserConfirm(u.name))) return;
     try { await deleteDoc(doc(db, 'users', u.uid)); await deleteDoc(progRef(u.uid)); usersCache = usersCache.filter((x) => x !== u); toast(t().deleted); go('#/users'); } catch (er) { toast(er.message); }
@@ -934,10 +948,10 @@ document.addEventListener('submit', async (e) => {
     e.preventDefault();
     const err = $('#nu-err'), name = fm.n.value.trim(), username = fm.u.value.trim().toLowerCase(), pw = fm.p.value;
     err.hidden = true;
-    if (!/^[a-z0-9._-]{3,30}$/.test(username)) { err.textContent = t().badUsername; err.hidden = false; return; }
+    if (!/^[a-z0-9._-]{3,30}$/.test(username) && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(username)) { err.textContent = t().badUsername; err.hidden = false; return; }
     if (pw.length < 6) { err.textContent = t().shortPass; err.hidden = false; return; }
     const btn = $('#nu-b'); btn.disabled = true;
-    try { await createUser(name, username, pw); fm.reset(); toast(t().created); loadUsers(); }
+    try { await createUser(name, username, pw, fm.adm.checked ? 'admin' : 'user'); fm.reset(); toast(t().created); loadUsers(); }
     catch (er) { err.textContent = er.code === 'auth/weak-password' ? t().shortPass : er.message; err.hidden = false; }
     btn.disabled = false;
     return;

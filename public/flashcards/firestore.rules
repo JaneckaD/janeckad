@@ -2,7 +2,11 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
-    function isAdmin() { return signedIn() && request.auth.token.email == 'admin@flashcards.davidjanecka.cz'; }
+    function isAdmin() {
+      return signedIn() && (request.auth.token.email in ['admin@flashcards.davidjanecka.cz', 'djanecka6@gmail.com']
+        || (exists(/databases/$(database)/documents/users/$(request.auth.uid))
+            && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', 'user') == 'admin'));
+    }
     function member() { return isAdmin() || (signedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid))); }
 
     // otázky a složky: čtou jen přihlášení členové, mění jen správce
