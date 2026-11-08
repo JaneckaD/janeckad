@@ -30,6 +30,13 @@ a { color: inherit; }
 .login-box h1 { font: 500 30px/1.1 'Rethink Sans'; letter-spacing: -.035em; margin-top: 6px; }
 .login-box p { color: var(--ink-2); font-size: 15px; }
 
+/* nápis flashcards. (nahoře v navigaci, na telefonu nad obsahem) */
+.brand { font: 700 22px/1 'Rethink Sans'; letter-spacing: -.035em; color: var(--ink); text-decoration: none; }
+.brand i { font-style: normal; color: var(--c1); }
+.brand.big { font-size: 30px; margin-bottom: 4px; }
+.nav a.brand { display: block; padding: 4px 14px 22px; color: var(--ink); background: none; font: 700 22px/1 'Rethink Sans'; letter-spacing: -.035em; }
+.top-m { display: none; margin-bottom: 18px; }
+
 /* rozložení: navigace vlevo (počítač) / dole (telefon) */
 .nav { position: fixed; z-index: 30; display: flex; background: var(--card); border-color: var(--line); border-style: solid; }
 .nav a { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink-3); font-weight: 600; font-size: 15px; border-radius: 14px; transition: background .2s, color .2s; position: relative; }
@@ -45,6 +52,8 @@ a { color: inherit; }
   .main { margin-left: var(--nav); padding-top: 40px; }
 }
 @media (max-width: 899px) {
+  .nav a.brand { display: none; }
+  .top-m { display: block; }
   .nav { left: 0; right: 0; bottom: 0; justify-content: space-around; padding: 6px 6px max(6px, env(safe-area-inset-bottom)); border-width: 1px 0 0; }
   .nav a { flex: 1; flex-direction: column; gap: 3px; padding: 7px 2px 6px; font-size: 11px; text-align: center; max-width: 110px; }
   .nav a.on { background: transparent; }

@@ -9,8 +9,11 @@ import {
 } from './firebase.js';
 
 // ===== nastavení =====
-const FIREBASE_CONFIG = null; // sem patří firebaseConfig z konzole Firebase
-const APP_VERSION = '2.0';
+const FIREBASE_CONFIG = { // z konzole Firebase (projekt flashcards-663fd); není to tajné, zabezpečení řeší firestore.rules
+  apiKey: 'AIzaSyA3zzb5ZmReIpOK5tq6jfiIC_EF-3IId6A', authDomain: 'flashcards-663fd.firebaseapp.com', projectId: 'flashcards-663fd',
+  storageBucket: 'flashcards-663fd.firebasestorage.app', messagingSenderId: '804475670634', appId: '1:804475670634:web:6f851aa49f3909c613ba13',
+};
+const APP_VERSION = '2.1';
 const DOMAIN = 'flashcards.davidjanecka.cz'; // uživatelská jména se převádí na e-mail jméno@DOMAIN (e-maily se nikam neposílají)
 const ADMIN_EMAIL = 'admin@' + DOMAIN;
 const TIME_LIMIT = 60, LIVES = 3, DAY = 864e5;
@@ -25,7 +28,7 @@ const SAMPLE = { folders: [
   { id: 'gkp1y2ug1t', name: 'Ekonomika', cards: [], folders: [] },
 ] };
 
-// ===== texty CZ / EN / HU =====
+// ===== texty (stránka je jen česky) =====
 const cz = (n, one, few, many) => (n === 1 ? one : n >= 2 && n <= 4 ? few : many);
 const T = {
   cs: {
@@ -89,120 +92,9 @@ const T = {
     app: 'Aplikace', version: (v) => `Verze ${v}`, update: 'Aktualizovat', upToDate: 'Máš nejnovější verzi.', updating: 'Hledám novou verzi…',
     newVersion: 'Je tu nová verze aplikace.', install: 'Nainstalovat na plochu', installIos: 'Na iPhonu: Sdílet → Přidat na plochu.', role: { admin: 'správce', user: 'uživatel' },
   },
-  en: {
-    cards: (n) => `${n} ${n === 1 ? 'card' : 'cards'}`, folders: (n) => `${n} ${n === 1 ? 'folder' : 'folders'}`,
-    nav: { learn: 'Learn', stats: 'Stats', admin: 'Manage', users: 'Accounts', account: 'My account' },
-    cat: ['Not tried', 'Don’t know', 'Know a bit', 'Know it'],
-    login: 'Log in', loginSub: 'Your account is created by the admin. There is no sign-up.', user: 'Username', pass: 'Password', signIn: 'Log in',
-    badLogin: 'Wrong username or password.', tooMany: 'Too many attempts. Try again later.', offline: 'You are offline.',
-    noAccess: 'This account has no access. Ask the admin.', logout: 'Log out', notReady: 'The database is not connected yet.',
-    hello: (n) => `Hi, <em>${n}</em>`, all: 'All folders', subfolders: 'Subfolders', fold: 'Folders',
-    dueLine: (d, n) => d || n ? `${d} to review · ${n} new` : 'You are done for today. Practise anything you like.',
-    smart: 'Smart review', smartAll: 'Smart review of everything', other: 'Other mode', start: 'Start', due: (n) => `${n} to review`, done: 'done',
-    empty: 'Nothing here yet.', emptyAll: 'No questions yet. The admin will add them.', notFound: 'This folder no longer exists.',
-    playTitle: (n) => `Start: ${n}`, mode: 'Mode', dir: 'Direction', count: 'Number of cards', allCnt: 'All', smartOrder: 'More often what you struggle with',
-    modes: {
-      smart: ['Smart review', 'Recommended. The algorithm picks what needs reviewing and adds a few new cards.'],
-      weak: ['My weak spots', 'Only cards in Don’t know and Know a bit.'],
-      classic: ['Flashcards', 'Go through all cards. Missed ones come back.'],
-      write: ['Typing', 'Type the answer, a small typo is forgiven.'],
-      quiz: ['Quiz', 'Pick the right one out of 4.'],
-      tf: ['True or false?', 'Does the answer fit the question? Quick decisions.'],
-      match: ['Matching', 'Match questions with the right answers.'],
-      time: ['Against the clock', `How many in ${TIME_LIMIT} seconds?`],
-      lives: ['3 lives', 'A quiz, three mistakes and you are out.'],
-    },
-    needTwo: 'Needs at least 2 different answers.', noWeak: 'Nothing like that here, you know it all.',
-    dirs: { qa: 'Question → answer', aq: 'Answer → question', mix: 'Mixed' }, go: 'Start',
-    front: 'Question', back: 'Answer', tap: 'Tap to flip', show: 'Show answer', g: ['Don’t know', 'A bit', 'Know it'],
-    check: 'Check', next: 'Next', typePh: 'Type the answer…', correct: 'Correct!', wrong: 'Wrong. The answer is:', near: 'Almost, a small typo. Answer:', countIt: 'I was right', dunno: 'Don’t know',
-    yes: 'True', no: 'False', tfWrong: 'The right answer is:',
-    keysFlip: 'Space flips · 1 don’t know · 2 a bit · 3 know it', keysQuiz: 'Keys 1–4', keysWrite: 'Enter checks · Enter next', keysTf: '← true · → false',
-    left: (n) => `${n} left`, of: (a, b) => `${a} of ${b}`, round: (a, b) => `round ${a} of ${b}`, quit: 'Quit', quitConfirm: 'Really quit? Answers so far stay saved.',
-    res: ['Try again', 'Good start', 'Nice work', 'Great!', 'Perfect!'], resLine: (a, b) => `Right first time: ${a} of ${b}`,
-    resTime: (n) => `${n} correct in ${TIME_LIMIT} s`, best: (n) => `Best: ${n}`, newBest: 'New record!', time: 'Time',
-    nowCats: 'Where these cards are now', up: (n) => `${n} ${n === 1 ? 'card' : 'cards'} moved up`,
-    missed: 'These were tricky', again: 'Again', againMissed: 'Practise mistakes', backTo: 'Back',
-    statsTitle: 'Stats', statsSub: 'How you are doing and what needs reviewing.', answers: 'Total answers', accuracy: 'Accuracy', streak: 'Day streak', dueNow: 'To review now',
-    activity: 'Last 14 days', today: 'Today', timeToday: (m) => `${m} min of learning today`,
-    hard: 'You struggle with', good: 'You are good at', rare: 'Rarely tried', unseen: (n) => `And ${n} ${n === 1 ? 'card' : 'cards'} not tried yet.`, byFolder: 'By folder',
-    nothingYet: 'No answers yet. Start a folder.', tries: (n) => `${n}×`, catHelp: 'Don’t know = wrong last time. Know a bit = you know it but still forget. Know it = you know it well. If you skip it for too long, it drops back.',
-    adminTitle: 'Manage questions', adminSub: 'Changes save to the database automatically and everyone sees them right away.',
-    saving: 'Saving…', saved: 'Saved', savedOffline: 'Will save once you are online', saveErr: 'Saving failed',
-    newFolder: 'New folder', newSub: 'New subfolder', rename: 'Rename', move: 'Move', del: 'Delete folder', moveTo: 'Move to', top: '(top level)',
-    delConfirm: (name, n) => `Delete folder “${name}” with everything inside (${n} cards)?`, cancel: 'Cancel', save: 'Save', close: 'Close',
-    questions: 'Questions in this folder', q: 'Question', a: 'Answer', add: 'Add', bulk: 'Paste many at once', delCard: 'Delete card',
-    bulkHelp: 'One card per line: question and answer separated by a semicolon or a tab (e.g. copied from Excel).', bulkPh: 'France ; Paris\nAustria ; Vienna',
-    bulkDone: (n) => `Added ${n} cards.`, bulkSkip: (n) => `Skipped ${n} lines without a semicolon.`,
-    backup: 'Download backup', restore: 'Upload backup', restoreConfirm: 'Replace all folders with the backup?', restoreErr: 'This is not a valid backup.', restored: 'Backup loaded.',
-    usersTitle: 'Accounts', usersSub: 'There is no sign-up, you create accounts here.', addUser: 'Add account', name: 'Name', created: 'Account created.',
-    badUsername: 'Username: 3–30 characters, lowercase letters without accents, digits, dot, dash.', shortPass: 'Password must have at least 6 characters.',
-    userTaken: 'This username was already used. Pick another.', noUsers: 'No accounts yet.', lastSeen: (d) => `last seen ${d}`, never: 'not started yet',
-    delUser: 'Delete account', delUserConfirm: (n) => `Delete account “${n}” with its stats?`, deleted: 'Account deleted.',
-    passHelp: 'Everyone can change their password in My account. If someone forgets it, delete the account and create a new one with another username.',
-    accTitle: 'My account', lang: 'Language', changePass: 'Change password', curPass: 'Current password', newPass: 'New password', passChanged: 'Password changed.', badCur: 'Current password is wrong.',
-    app: 'App', version: (v) => `Version ${v}`, update: 'Update', upToDate: 'You have the latest version.', updating: 'Looking for a new version…',
-    newVersion: 'A new version of the app is available.', install: 'Install on home screen', installIos: 'On iPhone: Share → Add to Home Screen.', role: { admin: 'admin', user: 'user' },
-  },
-  hu: {
-    cards: (n) => `${n} kártya`, folders: (n) => `${n} mappa`,
-    nav: { learn: 'Tanulás', stats: 'Statisztika', admin: 'Kezelés', users: 'Fiókok', account: 'Fiókom' },
-    cat: ['Nem próbált', 'Nem tudom', 'Kicsit tudom', 'Tudom'],
-    login: 'Belépés', loginSub: 'A fiókot az admin hozza létre. Regisztráció nincs.', user: 'Felhasználónév', pass: 'Jelszó', signIn: 'Belépés',
-    badLogin: 'Rossz név vagy jelszó.', tooMany: 'Túl sok próbálkozás. Próbáld később.', offline: 'Nincs internetkapcsolat.',
-    noAccess: 'Ennek a fióknak nincs hozzáférése. Kérd az admint.', logout: 'Kilépés', notReady: 'Az adatbázis még nincs csatlakoztatva.',
-    hello: (n) => `Szia, <em>${n}</em>`, all: 'Összes mappa', subfolders: 'Almappák', fold: 'Mappák',
-    dueLine: (d, n) => d || n ? `Ismétlésre ${d} · új ${n}` : 'Mára kész vagy. Gyakorolj bármit.',
-    smart: 'Okos ismétlés', smartAll: 'Mindennek az okos ismétlése', other: 'Más mód', start: 'Indítás', due: (n) => `${n} ismétlésre`, done: 'kész',
-    empty: 'Itt még nincs semmi.', emptyAll: 'Még nincsenek kérdések. Az admin hozzáadja őket.', notFound: 'Ez a mappa már nem létezik.',
-    playTitle: (n) => `Indítás: ${n}`, mode: 'Mód', dir: 'Irány', count: 'Kártyák száma', allCnt: 'Mind', smartOrder: 'Gyakrabban, ami nem megy',
-    modes: {
-      smart: ['Okos ismétlés', 'Ajánlott. Az algoritmus kiválasztja, mit kell ismételni, és hozzáad pár újat.'],
-      weak: ['Ami nem megy', 'Csak a Nem tudom és Kicsit tudom kártyák.'],
-      classic: ['Kártyák', 'Végigmész az összesen. Amit nem tudsz, visszajön.'],
-      write: ['Gépelés', 'Begépeled a választ, kis elírás nem számít.'],
-      quiz: ['Kvíz', 'A helyeset választod a 4 közül.'],
-      tf: ['Igaz vagy hamis?', 'Illik a válasz a kérdéshez? Gyors döntések.'],
-      match: ['Párosítás', 'Párosítsd a kérdéseket a válaszokkal.'],
-      time: ['Időre', `Mennyi megy ${TIME_LIMIT} másodperc alatt?`],
-      lives: ['3 élet', 'Kvíz, három hiba után vége.'],
-    },
-    needTwo: 'Legalább 2 különböző válasz kell.', noWeak: 'Itt nincs ilyen, minden megy.',
-    dirs: { qa: 'Kérdés → válasz', aq: 'Válasz → kérdés', mix: 'Vegyesen' }, go: 'Kezdés',
-    front: 'Kérdés', back: 'Válasz', tap: 'Koppints a megfordításhoz', show: 'Válasz mutatása', g: ['Nem tudom', 'Kicsit', 'Tudom'],
-    check: 'Ellenőrzés', next: 'Tovább', typePh: 'Írd be a választ…', correct: 'Helyes!', wrong: 'Rossz. A helyes:', near: 'Majdnem, kis elírás. Helyesen:', countIt: 'Igazam volt', dunno: 'Nem tudom',
-    yes: 'Igaz', no: 'Hamis', tfWrong: 'A helyes válasz:',
-    keysFlip: 'Szóköz fordít · 1 nem tudom · 2 kicsit · 3 tudom', keysQuiz: 'Billentyűk 1–4', keysWrite: 'Enter ellenőriz · Enter tovább', keysTf: '← igaz · → hamis',
-    left: (n) => `még ${n}`, of: (a, b) => `${a} / ${b}`, round: (a, b) => `${a}. kör / ${b}`, quit: 'Befejezés', quitConfirm: 'Tényleg befejezed? Az eddigi válaszok mentve maradnak.',
-    res: ['Próbáld újra', 'Jó kezdés', 'Szép munka', 'Nagyszerű!', 'Tökéletes!'], resLine: (a, b) => `Elsőre helyes: ${a} / ${b}`,
-    resTime: (n) => `${TIME_LIMIT} mp alatt ${n} helyes`, best: (n) => `Rekord: ${n}`, newBest: 'Új rekord!', time: 'Idő',
-    nowCats: 'Hol tartanak most ezek a kártyák', up: (n) => `${n} kártya feljebb lépett`,
-    missed: 'Ezek nem mentek', again: 'Újra', againMissed: 'Hibák gyakorlása', backTo: 'Vissza',
-    statsTitle: 'Statisztika', statsSub: 'Hogy megy, és mit kell ismételni.', answers: 'Összes válasz', accuracy: 'Pontosság', streak: 'Napok sorban', dueNow: 'Most ismétlésre',
-    activity: 'Utolsó 14 nap', today: 'Ma', timeToday: (m) => `Ma ${m} perc tanulás`,
-    hard: 'Nem megy', good: 'Megy', rare: 'Ritkán próbált', unseen: (n) => `És ${n} kártyát még nem próbáltál.`, byFolder: 'Mappák szerint',
-    nothingYet: 'Még nincs válasz. Indíts egy mappát.', tries: (n) => `${n}×`, catHelp: 'Nem tudom = legutóbb rossz volt. Kicsit tudom = tudod, de még felejted. Tudom = biztosan tudod. Ha sokáig nem ismétled, visszaesik.',
-    adminTitle: 'Kérdések kezelése', adminSub: 'A változások maguktól mentődnek, és mindenki azonnal látja őket.',
-    saving: 'Mentés…', saved: 'Elmentve', savedOffline: 'Mentődik, amint online leszel', saveErr: 'Nem sikerült menteni',
-    newFolder: 'Új mappa', newSub: 'Új almappa', rename: 'Átnevezés', move: 'Áthelyezés', del: 'Mappa törlése', moveTo: 'Áthelyezés ide', top: '(legfelső szint)',
-    delConfirm: (name, n) => `Törlöd a(z) „${name}” mappát mindennel együtt (${n} kártya)?`, cancel: 'Mégse', save: 'Mentés', close: 'Bezárás',
-    questions: 'Kérdések ebben a mappában', q: 'Kérdés', a: 'Válasz', add: 'Hozzáadás', bulk: 'Több beillesztése', delCard: 'Kártya törlése',
-    bulkHelp: 'Soronként egy kártya: kérdés és válasz pontosvesszővel vagy tabulátorral elválasztva (pl. Excelből).', bulkPh: 'Franciaország ; Párizs\nAusztria ; Bécs',
-    bulkDone: (n) => `${n} kártya hozzáadva.`, bulkSkip: (n) => `${n} pontosvessző nélküli sor kihagyva.`,
-    backup: 'Mentés letöltése', restore: 'Mentés feltöltése', restoreConfirm: 'Lecseréled az összes mappát a mentésre?', restoreErr: 'Ez nem érvényes mentés.', restored: 'Mentés betöltve.',
-    usersTitle: 'Fiókok', usersSub: 'Regisztráció nincs, a fiókokat itt hozod létre.', addUser: 'Fiók hozzáadása', name: 'Név', created: 'A fiók létrejött.',
-    badUsername: 'Felhasználónév: 3–30 karakter, ékezet nélküli kisbetűk, számok, pont, kötőjel.', shortPass: 'A jelszó legalább 6 karakter.',
-    userTaken: 'Ez a név már foglalt volt. Válassz másikat.', noUsers: 'Még nincs fiók.', lastSeen: (d) => `utoljára ${d}`, never: 'még nem tanult',
-    delUser: 'Fiók törlése', delUserConfirm: (n) => `Törlöd a(z) „${n}” fiókot a statisztikáival együtt?`, deleted: 'A fiók törölve.',
-    passHelp: 'A jelszót mindenki megváltoztathatja a Fiókomban. Ha valaki elfelejti, töröld a fiókot és hozz létre újat más névvel.',
-    accTitle: 'Fiókom', lang: 'Nyelv', changePass: 'Jelszó módosítása', curPass: 'Jelenlegi jelszó', newPass: 'Új jelszó', passChanged: 'A jelszó megváltozott.', badCur: 'A jelenlegi jelszó rossz.',
-    app: 'Alkalmazás', version: (v) => `Verzió ${v}`, update: 'Frissítés', upToDate: 'A legújabb verzió van fent.', updating: 'Új verzió keresése…',
-    newVersion: 'Új verzió érhető el.', install: 'Telepítés a kezdőképernyőre', installIos: 'iPhone-on: Megosztás → Főképernyőhöz adás.', role: { admin: 'admin', user: 'felhasználó' },
-  },
 };
-const LANGS = ['cs', 'en', 'hu'];
-let lang = lsGet('fc-lang', 'cs'); if (!LANGS.includes(lang)) lang = 'cs';
-const t = () => T[lang];
+const lang = 'cs';
+const t = () => T.cs;
 
 // ===== pomocné =====
 const $ = (s, r = document) => r.querySelector(s);
@@ -213,7 +105,7 @@ const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math
 function lsGet(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } }
 function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
 const dayKey = (ms = Date.now()) => { const d = new Date(ms); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
-const fmtDate = (ms) => new Date(ms).toLocaleDateString(lang === 'cs' ? 'cs-CZ' : lang === 'hu' ? 'hu-HU' : 'en-GB', { day: 'numeric', month: 'numeric', year: 'numeric' });
+const fmtDate = (ms) => new Date(ms).toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric', year: 'numeric' });
 const P = {
   cards: '<rect x="3" y="7" width="14" height="13" rx="2.5"/><path d="M7 7V5.5A2.5 2.5 0 0 1 9.5 3h9A2.5 2.5 0 0 1 21 5.5v9a2.5 2.5 0 0 1-2.5 2.5H17"/>',
   chart: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>', edit: '<path d="M4 20h4L19 9l-4-4L4 16z"/>',
@@ -425,7 +317,7 @@ function renderMessage(msg, withLogout) {
 function renderLogin(err = '') {
   document.documentElement.lang = lang;
   root.innerHTML = `<div class="login"><form class="login-box" id="loginf">
-    <div class="head"><span class="stack">${I('cards')}</span>${langSwitch()}</div>
+    <div class="brand big">flashcards<i>.</i></div>
     <div><h1>${t().login}</h1><p style="margin-top:6px">${t().loginSub}</p></div>
     <div><label class="lbl" for="lu">${t().user}</label><input class="field" id="lu" name="u" autocomplete="username" autocapitalize="none" spellcheck="false" required /></div>
     <div><label class="lbl" for="lp">${t().pass}</label><input class="field" id="lp" name="p" type="password" autocomplete="current-password" required /></div>
@@ -434,16 +326,15 @@ function renderLogin(err = '') {
   </form></div>`;
   $('#lu').focus();
 }
-const langSwitch = () => `<div class="lang">${LANGS.map((l) => `<button type="button" data-lang="${l}" lang="${l}" aria-pressed="${l === lang}">${l === 'cs' ? 'CZ' : l.toUpperCase()}</button>`).join('')}</div>`;
 
 function renderShell() {
-  root.innerHTML = `<nav class="nav" id="nav"></nav><main class="main"><div class="wrap" id="view"></div></main>`;
+  root.innerHTML = `<nav class="nav" id="nav"></nav><main class="main"><div class="wrap"><div class="brand top-m">flashcards<i>.</i></div><div id="view"></div></div></main>`;
   render();
 }
 function renderNav(tab) {
   const due = catCounts(allCards()).due;
   const items = [['learn', 'cards'], ['stats', 'chart'], ...(me.isAdmin ? [['admin', 'edit'], ['users', 'users']] : []), ['account', 'user']];
-  $('#nav').innerHTML = items.map(([k, ic]) => `<a href="#/${k}" class="${tab === k ? 'on' : ''}" ${tab === k ? 'aria-current="page"' : ''}>${I(ic)}<span>${t().nav[k]}</span>${k === 'learn' && due ? `<span class="badge">${due > 99 ? '99+' : due}</span>` : ''}</a>`).join('');
+  $('#nav').innerHTML = `<a class="brand" href="#/learn">flashcards<i>.</i></a>` + items.map(([k, ic]) => `<a href="#/${k}" class="${tab === k ? 'on' : ''}" ${tab === k ? 'aria-current="page"' : ''}>${I(ic)}<span>${t().nav[k]}</span>${k === 'learn' && due ? `<span class="badge">${due > 99 ? '99+' : due}</span>` : ''}</a>`).join('');
 }
 function render() {
   if (!me) return;
@@ -482,7 +373,7 @@ function viewLearn(id) {
   if (id && !h) return `${crumbs([], 'learn')}<div class="empty">${t().notFound}</div>`;
   const f = h ? h.folder : rootFolder();
   const items = collect(f, h ? h.path.slice(0, -1).map((p) => p.name) : []), c = catCounts(items);
-  let out = h ? crumbs(h.path, 'learn') + `<h1>${esc(f.name)}</h1>` : `<p class="eyebrow">Flashcards</p><h1>${t().hello(esc(me.name))}</h1>`;
+  let out = h ? crumbs(h.path, 'learn') + `<h1>${esc(f.name)}</h1>` : `<h1>${t().hello(esc(me.name))}</h1>`;
   out += `<p class="sub">${items.length ? t().dueLine(c.due, c.k[0]) : ''}</p>`;
   if (items.length) {
     out += `<div class="hero-card"><div style="flex:1;min-width:220px"><b>${h ? t().smart : t().smartAll}</b><small>${t().cards(items.length)}${f.folders.length ? ' · ' + t().folders(f.folders.length) : ''}</small><div style="margin-top:14px">${kbar(c.k, true)}</div>${legend(c.k)}</div>
@@ -622,7 +513,6 @@ function viewAccount() {
   const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.matchMedia('(display-mode: standalone)').matches && !navigator.standalone;
   return `<p class="eyebrow">@${esc(me.username)} · ${t().role[me.isAdmin ? 'admin' : 'user']}</p><h1>${esc(me.name)}</h1>
     <h2>${t().app}</h2><div class="settings">
-      <div class="srow"><div><b>${t().lang}</b></div>${langSwitch()}</div>
       <div class="srow"><div><b>${t().update}</b><small>${t().version(APP_VERSION)}</small></div><button class="btn" data-act="update" id="updbtn">${I('refresh')}${t().update}</button></div>
       ${installEvt ? `<div class="srow"><div><b>${t().install}</b></div><button class="btn" data-act="install">${I('download')}${t().install}</button></div>` : ios ? `<div class="srow"><div><b>${t().install}</b><small>${t().installIos}</small></div></div>` : ''}
     </div>
@@ -970,8 +860,6 @@ document.addEventListener('keydown', (e) => {
 
 // ===== kliknutí a formuláře v aplikaci =====
 document.addEventListener('click', async (e) => {
-  const lb = e.target.closest('.lang button');
-  if (lb && lb.dataset.lang !== lang) { lang = lb.dataset.lang; lsSet('fc-lang', lang); if (me) render(); else renderLogin(); return; }
   const pl = e.target.closest('[data-play]');
   if (pl) { e.preventDefault(); return playDialog(pl.dataset.play, pl.dataset.mode); }
   const a = e.target.closest('[data-act]'); if (!a) return;
@@ -1115,7 +1003,8 @@ async function manualUpdate(btn) {
 }
 if ('serviceWorker' in navigator && !EMU) {
   navigator.serviceWorker.register('sw.js').then(watchReg).catch((e) => console.warn(e));
-  navigator.serviceWorker.addEventListener('controllerchange', () => { if (reloading) return; reloading = true; location.reload(); });
+  const hadController = !!navigator.serviceWorker.controller; // při úplně první návštěvě se nepřenačítá
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (reloading || !hadController) return; reloading = true; location.reload(); });
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && reg) reg.update().catch(() => {}); });
 }
 
