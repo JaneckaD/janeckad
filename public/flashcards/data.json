@@ -1,56 +1,30 @@
 {
  "version": 1,
- "updated": "2026-11-08T19:30:00.000Z",
+ "updated": "2026-11-08T19:48:22.478Z",
  "folders": [
   {
-   "id": "ukazka",
-   "name": "Ukázka (můžeš smazat)",
+   "id": "vyx10tir6k",
+   "name": "Čeština",
    "cards": [],
-   "folders": [
-    {
-     "id": "mesta",
-     "name": "Hlavní města",
-     "cards": [],
-     "folders": [
-      {
-       "id": "evropa",
-       "name": "Evropa",
-       "folders": [],
-       "cards": [
-        { "id": "c1", "q": "Francie", "a": "Paříž" },
-        { "id": "c2", "q": "Rakousko", "a": "Vídeň" },
-        { "id": "c3", "q": "Maďarsko", "a": "Budapešť" },
-        { "id": "c4", "q": "Nizozemsko", "a": "Amsterdam" },
-        { "id": "c5", "q": "Švýcarsko", "a": "Bern" },
-        { "id": "c6", "q": "Itálie", "a": "Řím" }
-       ]
-      },
-      {
-       "id": "asie",
-       "name": "Asie",
-       "folders": [],
-       "cards": [
-        { "id": "c7", "q": "Japonsko", "a": "Tokio" },
-        { "id": "c8", "q": "Jižní Korea", "a": "Soul" },
-        { "id": "c9", "q": "Thajsko", "a": "Bangkok" },
-        { "id": "c10", "q": "Indie", "a": "Nové Dillí" }
-       ]
-      }
-     ]
-    },
-    {
-     "id": "anglictina",
-     "name": "Angličtina",
-     "folders": [],
-     "cards": [
-      { "id": "c11", "q": "jablko", "a": "apple" },
-      { "id": "c12", "q": "pes", "a": "dog" },
-      { "id": "c13", "q": "kniha", "a": "book" },
-      { "id": "c14", "q": "zahrada", "a": "garden" },
-      { "id": "c15", "q": "počítač", "a": "computer" }
-     ]
-    }
-   ]
+   "folders": []
+  },
+  {
+   "id": "wduyztf01d",
+   "name": "Angličtina",
+   "cards": [],
+   "folders": []
+  },
+  {
+   "id": "hdlgmjf7yh",
+   "name": "Informatika",
+   "cards": [],
+   "folders": []
+  },
+  {
+   "id": "gkp1y2ug1t",
+   "name": "Ekonomika",
+   "cards": [],
+   "folders": []
   }
  ]
 }
