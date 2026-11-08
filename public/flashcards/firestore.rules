@@ -1,0 +1,25 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isAdmin() { return signedIn() && request.auth.token.email == 'admin@flashcards.davidjanecka.cz'; }
+    function member() { return isAdmin() || (signedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid))); }
+
+    // otázky a složky: čtou jen přihlášení členové, mění jen správce
+    match /decks/{id} {
+      allow read: if member();
+      allow write: if isAdmin();
+    }
+    // účty: zakládá a maže jen správce, každý vidí jen svůj
+    match /users/{uid} {
+      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
+      allow write: if isAdmin();
+    }
+    // statistiky: každý jen svoje, správce vidí všechny
+    match /progress/{uid} {
+      allow read: if isAdmin() || (member() && request.auth.uid == uid);
+      allow create, update: if member() && request.auth.uid == uid;
+      allow delete: if isAdmin() || (member() && request.auth.uid == uid);
+    }
+  }
+}
