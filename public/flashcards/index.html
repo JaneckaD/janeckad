@@ -1,0 +1,957 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<!-- skrytá stránka: nikam se na ni neodkazuje a vyhledávače ji nemají indexovat -->
+<meta name="robots" content="noindex, nofollow, noarchive" />
+<meta name="theme-color" content="#f6f8fb" />
+<title>Flashcards</title>
+<link rel="icon" href="/ikona.svg?v=8" type="image/svg+xml" />
+<style>
+@font-face { font-family: 'Rethink Sans'; font-weight: 400 800; font-display: swap; src: url(rethink-sans-latin-wght-normal.woff2) format('woff2'); }
+@font-face { font-family: 'Rethink Sans'; font-weight: 400 800; font-display: swap; src: url(rethink-sans-latin-ext-wght-normal.woff2) format('woff2'); unicode-range: U+0100-02BA, U+1E00-1EFF; }
+:root {
+  --bg: #f6f8fb; --card: #fff; --ink: #0f172a; --ink-2: #494f5e; --ink-3: #676c79;
+  --line: #e2e6ec; --c1: #2563eb; --c1-dark: #1d4ed8; --soft: #eaf0fd; --bad: #dc2626; --bad-soft: #fdecec; --ok: #15803d; --ok-soft: #e8f6ee; --warn: #c2410c; --warn-soft: #fff1e6;
+  --r: 20px; --ease: cubic-bezier(.2,.7,.2,1);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font: 400 16px/1.5 'Rethink Sans', system-ui, sans-serif; color: var(--ink); background: var(--bg); -webkit-font-smoothing: antialiased; min-height: 100vh; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; touch-action: manipulation; }
+input, textarea, select { font: inherit; color: inherit; }
+.wrap { width: min(980px, 100% - 32px); margin-inline: auto; }
+.i { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+[hidden] { display: none !important; }
+
+/* hlavička */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 22px 0 6px; }
+.brand { font: 700 22px/1 'Rethink Sans'; letter-spacing: -.035em; text-decoration: none; color: inherit; }
+.brand i { font-style: normal; color: var(--c1); }
+.top-r { display: flex; align-items: center; gap: 8px; }
+.lang { display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); }
+.lang button { font: 600 12px/1 'Rethink Sans'; letter-spacing: .04em; color: var(--ink-3); border-radius: 999px; padding: 8px 11px; transition: background .2s, color .2s; }
+.lang button[aria-pressed="true"] { background: var(--c1); color: #fff; }
+.icon-btn { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--line); background: var(--card); color: var(--ink-2); transition: color .2s, border-color .2s; }
+.icon-btn:hover { color: var(--c1); border-color: var(--c1); }
+
+/* tlačítka */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 11px 18px; border-radius: 999px; font-weight: 600; font-size: 15px; background: var(--card); border: 1px solid var(--line); transition: transform .2s var(--ease), background .2s, border-color .2s, color .2s; white-space: nowrap; }
+.btn:hover { border-color: var(--c1); color: var(--c1); }
+.btn:active { transform: scale(.97); }
+.btn.primary { background: var(--c1); border-color: var(--c1); color: #fff; }
+.btn.primary:hover { background: var(--c1-dark); color: #fff; }
+.btn.danger:hover { border-color: var(--bad); color: var(--bad); }
+.btn.big { padding: 15px 26px; font-size: 17px; }
+.btn.sm { padding: 8px 13px; font-size: 14px; }
+.btn:disabled { opacity: .45; pointer-events: none; }
+.btn:focus-visible, .ans:focus-visible, .icon-btn:focus-visible, .tile:focus-visible { outline: none; box-shadow: 0 0 0 4px #c7d6fb; }
+
+/* úvod */
+.intro { padding: 26px 0 8px; }
+.eyebrow { font: 700 12px/1 'Rethink Sans'; letter-spacing: .16em; text-transform: uppercase; color: var(--c1); display: flex; align-items: center; gap: 10px; }
+.eyebrow::before { content: ''; width: 22px; height: 2px; border-radius: 2px; background: currentColor; }
+h1 { margin-top: 12px; font: 400 clamp(34px, 6.4vw, 58px)/1.02 'Rethink Sans'; letter-spacing: -.045em; overflow-wrap: anywhere; }
+h1 em { font-style: normal; color: var(--c1); }
+.sub { margin-top: 10px; color: var(--ink-2); font-size: 16px; }
+
+.crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; margin-top: 18px; font-size: 14px; color: var(--ink-3); }
+.crumbs a { color: var(--ink-2); text-decoration: none; padding: 3px 9px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); }
+.crumbs a:hover { color: var(--c1); border-color: var(--c1); }
+.crumbs span.sep { opacity: .6; }
+
+.start-card { margin-top: 22px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 20px 22px; border-radius: var(--r); color: #fff; background: radial-gradient(120% 140% at 85% 20%, #2b4fd8 0, #16245e 55%, #0b1226 100%); box-shadow: 0 24px 40px -28px rgba(15,23,42,.6); }
+.start-card b { display: block; font-size: 20px; letter-spacing: -.02em; }
+.start-card small { color: #c7d2fe; font-size: 14px; }
+.start-card .btn.primary { background: #fff; color: var(--c1-dark); border-color: #fff; }
+
+h2 { margin: 30px 0 12px; font: 600 13px/1 'Rethink Sans'; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+.tile { position: relative; display: flex; flex-direction: column; gap: 14px; text-align: left; padding: 18px; border-radius: var(--r); background: var(--card); border: 1px solid var(--line); text-decoration: none; color: inherit; transition: transform .25s var(--ease), border-color .2s, box-shadow .25s; min-height: 120px; }
+.tile:hover { transform: translateY(-2px); border-color: #c9d6f5; box-shadow: 0 18px 30px -24px rgba(15,23,42,.35); }
+.tile .ico { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--soft); color: var(--c1); }
+.tile b { font-size: 17px; letter-spacing: -.015em; line-height: 1.25; overflow-wrap: anywhere; }
+.tile small { display: block; margin-top: 2px; color: var(--ink-3); font-size: 13px; }
+.tile .play { position: absolute; right: 14px; top: 14px; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--c1); color: #fff; transition: transform .2s var(--ease); }
+.tile .play:hover { transform: scale(1.08); }
+.tile .play .i { width: 16px; height: 16px; fill: currentColor; stroke: none; margin-left: 2px; }
+.tile.add { align-items: center; justify-content: center; flex-direction: row; gap: 10px; border-style: dashed; color: var(--c1); font-weight: 600; min-height: 72px; background: transparent; }
+.empty { padding: 34px 20px; text-align: center; color: var(--ink-3); border: 1px dashed var(--line); border-radius: var(--r); }
+
+/* správa */
+.adminbar { position: sticky; top: 0; z-index: 20; background: #0f172a; color: #e2e8f0; }
+.adminbar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 10px 0; }
+.adminbar .st { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.adminbar .dot { width: 9px; height: 9px; border-radius: 50%; background: #22c55e; flex-shrink: 0; }
+.adminbar .dot.dirty { background: #f59e0b; }
+.adminbar .acts { display: flex; gap: 6px; flex-wrap: wrap; }
+.adminbar .btn { background: transparent; color: #e2e8f0; border-color: rgba(255,255,255,.2); }
+.adminbar .btn:hover { border-color: #fff; color: #fff; }
+.adminbar .btn.primary { background: var(--c1); border-color: var(--c1); }
+.folder-acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.addcard { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; padding: 14px; border-radius: var(--r); background: var(--card); border: 1px solid var(--line); }
+.field { width: 100%; padding: 11px 14px; border-radius: 12px; border: 1px solid var(--line); background: #fbfcfd; resize: vertical; min-height: 46px; line-height: 1.4; }
+.field:focus { outline: none; border-color: var(--c1); box-shadow: 0 0 0 3px var(--soft); background: #fff; }
+.cards { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.crow { display: grid; grid-template-columns: 28px 1fr 1fr 38px; gap: 8px; align-items: start; padding: 10px; border-radius: 16px; background: var(--card); border: 1px solid var(--line); }
+.crow .n { padding-top: 12px; text-align: center; font-size: 13px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.crow .field { min-height: 44px; background: transparent; border-color: transparent; }
+.crow .field:hover { border-color: var(--line); }
+.crow .field:focus { border-color: var(--c1); background: #fff; }
+.crow .del { margin-top: 3px; }
+.crow .del:hover { color: var(--bad); border-color: var(--bad); }
+.hint { font-size: 13px; color: var(--ink-3); margin-top: 8px; }
+
+/* dialog */
+dialog { margin: auto; border: 0; border-radius: 24px; padding: 0; width: min(520px, 100% - 24px); max-height: calc(100% - 24px); background: var(--card); color: var(--ink); box-shadow: 0 40px 80px -30px rgba(15,23,42,.5); }
+dialog::backdrop { background: rgba(15,23,42,.55); }
+.dlg { padding: 24px; display: flex; flex-direction: column; gap: 14px; }
+.dlg h3 { font: 600 22px/1.2 'Rethink Sans'; letter-spacing: -.025em; padding-right: 30px; }
+.dlg p, .dlg li { color: var(--ink-2); font-size: 15px; }
+.dlg ol { padding-left: 20px; display: flex; flex-direction: column; gap: 4px; }
+.dlg a { color: var(--c1); }
+.dlg .row { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; margin-top: 4px; }
+.dlg .x { position: absolute; right: 14px; top: 14px; }
+.dlg .err { color: var(--bad); font-size: 14px; }
+.dlg label.lbl { font-size: 13px; font-weight: 600; color: var(--ink-3); letter-spacing: .04em; text-transform: uppercase; }
+.opts { display: grid; gap: 8px; }
+.opt { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line); cursor: pointer; transition: border-color .2s, background .2s; }
+.opt:has(input:checked) { border-color: var(--c1); background: var(--soft); }
+.opt.off { opacity: .45; pointer-events: none; }
+.opt input { margin-top: 4px; accent-color: var(--c1); }
+.opt b { display: block; font-size: 15px; }
+.opt small { display: block; color: var(--ink-3); font-size: 13px; line-height: 1.35; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { position: relative; }
+.chip input { position: absolute; opacity: 0; pointer-events: none; }
+.chip span { display: inline-block; padding: 9px 14px; border-radius: 999px; border: 1px solid var(--line); font-size: 14px; font-weight: 500; cursor: pointer; transition: all .2s; }
+.chip input:checked + span { background: var(--c1); border-color: var(--c1); color: #fff; }
+.chip input:focus-visible + span { box-shadow: 0 0 0 3px var(--soft); }
+.toggle { display: flex; align-items: center; gap: 10px; font-size: 15px; cursor: pointer; }
+.toggle input { width: 18px; height: 18px; accent-color: var(--c1); }
+
+/* hra */
+.game { position: fixed; inset: 0; z-index: 50; background: var(--bg); display: flex; flex-direction: column; overflow-y: auto; }
+.g-top { display: flex; align-items: center; gap: 12px; padding: max(14px, env(safe-area-inset-top)) 16px 10px; width: min(760px, 100%); margin-inline: auto; }
+.g-top .meta { flex: 1; min-width: 0; }
+.g-top .meta b { display: block; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.g-top .meta small { color: var(--ink-3); font-size: 13px; }
+.bar { height: 6px; border-radius: 6px; background: var(--line); overflow: hidden; margin-top: 6px; }
+.bar i { display: block; height: 100%; width: 0; background: var(--c1); border-radius: 6px; transition: width .35s var(--ease); }
+.g-score { display: flex; gap: 8px; align-items: center; font-weight: 600; font-variant-numeric: tabular-nums; }
+.g-score .pill { padding: 6px 12px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); font-size: 14px; }
+.g-score .pill.t { color: var(--c1); }
+.g-score .pill.t.low { color: var(--bad); border-color: var(--bad); }
+.hearts { letter-spacing: 2px; font-size: 16px; }
+.g-main { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 16px; padding: 10px 16px max(24px, env(safe-area-inset-bottom)); width: min(760px, 100%); margin-inline: auto; }
+.path { align-self: center; display: inline-flex; align-items: center; gap: 6px; max-width: 100%; padding: 6px 12px; border-radius: 999px; background: var(--soft); color: var(--c1-dark); font-size: 13px; font-weight: 600; }
+.path .i { width: 15px; height: 15px; }
+.path span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.flip { perspective: 1400px; height: clamp(220px, 42vh, 400px); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.flip.static { cursor: default; }
+.flip-in { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .55s var(--ease); }
+.flip.on .flip-in { transform: rotateY(180deg); }
+.face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 28px; background: var(--card); border: 1px solid var(--line); box-shadow: 0 30px 50px -36px rgba(15,23,42,.45); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 26px; text-align: center; overflow: auto; }
+.face.back { transform: rotateY(180deg); background: linear-gradient(160deg, #fff 0, #f2f6ff 100%); border-color: #c9d6f5; }
+.face small { position: absolute; top: 16px; left: 0; right: 0; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); }
+.face .txt { font-size: clamp(22px, 4.2vw, 34px); line-height: 1.25; letter-spacing: -.02em; white-space: pre-wrap; overflow-wrap: anywhere; max-width: 100%; }
+.face .tap { position: absolute; bottom: 14px; font-size: 13px; color: var(--ink-3); }
+.enter { animation: enter .4s var(--ease); }
+@keyframes enter { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
+.shake { animation: shake .4s; }
+@keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+.ctrl { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.ctrl .btn { flex: 1; max-width: 260px; }
+.btn.no { border-color: #f3c4c4; color: var(--bad); }
+.btn.no:hover { background: var(--bad-soft); border-color: var(--bad); color: var(--bad); }
+.btn.yes { border-color: #b9e3c8; color: var(--ok); }
+.btn.yes:hover { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
+.answers { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ans { position: relative; padding: 16px 16px 16px 44px; border-radius: 16px; background: var(--card); border: 1px solid var(--line); text-align: left; font-size: 16px; line-height: 1.3; overflow-wrap: anywhere; transition: border-color .2s, background .2s, transform .15s; min-height: 58px; }
+.ans:hover { border-color: var(--c1); }
+.ans:active { transform: scale(.98); }
+.ans kbd { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; border-radius: 6px; display: grid; place-items: center; font: 600 12px/1 'Rethink Sans'; background: var(--bg); color: var(--ink-3); }
+.ans.good { border-color: var(--ok); background: var(--ok-soft); color: var(--ok); }
+.ans.bad { border-color: var(--bad); background: var(--bad-soft); color: var(--bad); }
+.answers.done .ans { pointer-events: none; }
+.write { display: flex; gap: 8px; }
+.write .field { font-size: 18px; }
+.fb { text-align: center; padding: 12px 16px; border-radius: 14px; font-size: 15px; }
+.fb.good { background: var(--ok-soft); color: var(--ok); }
+.fb.bad { background: var(--bad-soft); color: var(--bad); }
+.fb.near { background: var(--warn-soft); color: var(--warn); }
+.fb b { color: var(--ink); }
+.keys { text-align: center; font-size: 12px; color: var(--ink-3); }
+@media (hover: none) { .keys, .ans kbd { display: none; } .ans { padding-left: 16px; } }
+
+/* výsledek */
+.result { text-align: center; display: flex; flex-direction: column; gap: 16px; align-items: center; }
+.ring { width: 150px; height: 150px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--c1) calc(var(--p) * 1%), var(--line) 0); }
+.ring div { width: 122px; height: 122px; border-radius: 50%; background: var(--bg); display: grid; place-items: center; font: 600 34px/1 'Rethink Sans'; letter-spacing: -.03em; }
+.result h3 { font: 500 30px/1.1 'Rethink Sans'; letter-spacing: -.035em; }
+.result p { color: var(--ink-2); }
+.miss { width: 100%; text-align: left; display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+.miss div { padding: 12px 14px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); font-size: 15px; }
+.miss small { display: block; color: var(--ink-3); font-size: 12px; }
+.miss em { font-style: normal; color: var(--ok); font-weight: 600; }
+
+.toast { position: fixed; left: 50%; bottom: 24px; z-index: 90; transform: translate(-50%, 20px); opacity: 0; pointer-events: none; padding: 12px 18px; border-radius: 14px; background: #0f172a; color: #fff; font-size: 15px; box-shadow: 0 20px 40px -20px rgba(0,0,0,.5); transition: opacity .3s, transform .3s var(--ease); width: max-content; max-width: calc(100% - 32px); text-align: center; }
+.toast.on { opacity: 1; transform: translate(-50%, 0); }
+footer { padding: 40px 0 30px; color: var(--ink-3); font-size: 13px; text-align: center; }
+
+@media (max-width: 640px) {
+  .addcard { grid-template-columns: 1fr; }
+  .crow { grid-template-columns: 1fr 38px; }
+  .crow .n { display: none; }
+  .crow .field.q { grid-column: 1; }
+  .crow .field.a { grid-column: 1; grid-row: 2; }
+  .crow .del { grid-column: 2; grid-row: 1; }
+  .answers { grid-template-columns: 1fr; }
+  .ctrl .btn { max-width: none; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="adminbar" id="adminbar" hidden>
+  <div class="wrap">
+    <div class="st"><span class="dot" id="dot"></span><span id="ast"></span></div>
+    <div class="acts">
+      <button class="btn sm primary" id="b-publish"></button>
+      <button class="btn sm" id="b-more"></button>
+      <button class="btn sm" id="b-logout"></button>
+    </div>
+  </div>
+</div>
+
+<header class="top wrap">
+  <a class="brand" href="#">flashcards<i>.</i></a>
+  <div class="top-r">
+    <div class="lang" id="lang"><button type="button" data-lang="cs" lang="cs">CZ</button><button type="button" data-lang="en" lang="en">EN</button><button type="button" data-lang="hu" lang="hu">HU</button></div>
+    <button class="icon-btn" id="b-admin" type="button"></button>
+  </div>
+</header>
+
+<main class="wrap" id="view"></main>
+<footer class="wrap" id="foot"></footer>
+
+<div class="game" id="game" hidden></div>
+<dialog id="dlg"></dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+// ===== nastavení =====
+// Heslo do správy tu není, je tu jen jeho otisk (SHA-256). Stránka otisk zadaného hesla jen porovná.
+const PASS_HASH = '9a24907ed423884b0dbb9ad92bef07ecdfcf5e13f475be1d436b540ab6f1e0d4';
+// Kam se ukládají otázky: soubor data.json vedle této stránky, zapisuje se přes GitHub (klíč zadá správce).
+const REPO = 'JaneckaD/janeckad', BRANCH = 'claude/personal-website-b5uqoc', FILE = 'public/flashcards/data.json';
+const TIME_LIMIT = 60, LIVES = 3;
+
+// ===== texty CZ / EN / HU =====
+const T = {
+  cs: {
+    eyebrow: 'Kartičky na učení', title: 'Co si dnes <em>zopakujeme?</em>', sub: 'Vyber složku a spusť ji. Hraje se i se všemi podsložkami.',
+    all: 'Všechny složky', folders: 'Složky', subfolders: 'Podsložky', cardsWord: (n) => n === 1 ? 'karta' : n >= 2 && n <= 4 ? 'karty' : 'karet',
+    foldersWord: (n) => n === 1 ? 'složka' : n >= 2 && n <= 4 ? 'složky' : 'složek',
+    start: 'Spustit', startAll: 'Spustit celou složku', inclSub: 'včetně podsložek', empty: 'Zatím tu nic není.', emptyAdmin: 'Zatím tu nic není. Přidej složku nebo první otázky.',
+    loadErr: 'Otázky se nepodařilo načíst. Zkus stránku obnovit.', notFound: 'Tahle složka už neexistuje.',
+    // správa
+    admin: 'Správa', adminTitle: 'Správa otázek', pass: 'Heslo', login: 'Přihlásit', badPass: 'Špatné heslo.', logout: 'Odhlásit', cancel: 'Zrušit', save: 'Uložit', close: 'Zavřít',
+    saved: 'Vše je uložené na webu', dirty: 'Neuložené změny (zatím jen v tomto zařízení)', publish: 'Uložit na web', publishing: 'Ukládám…', more: 'Další',
+    published: 'Uloženo. Na webu se změny objeví zhruba do 2 minut.', pubErr: 'Uložení se nepovedlo: ', badToken: 'GitHub klíč nefunguje nebo vypršel. Zadej nový.',
+    conflict: 'Na webu je novější verze otázek (asi z jiného zařízení). Opravdu ji přepsat svými změnami?',
+    newFolder: 'Nová složka', newSub: 'Nová podsložka', folderName: 'Název složky', rename: 'Přejmenovat', move: 'Přesunout', del: 'Smazat složku', moveTo: 'Přesunout do', top: '(hlavní úroveň)',
+    delConfirm: (name, n) => `Smazat složku „${name}“ i se vším uvnitř (karet: ${n})? Na webu se to projeví až po uložení.`,
+    questions: 'Otázky v této složce', q: 'Otázka', a: 'Odpověď', add: 'Přidat', bulk: 'Vložit víc najednou', delCard: 'Smazat kartu',
+    bulkHelp: 'Každý řádek je jedna karta: otázka a odpověď oddělené středníkem nebo tabulátorem (třeba zkopírované z Excelu).', bulkPh: 'Francie ; Paříž\nRakousko ; Vídeň',
+    bulkDone: (n) => `Přidané karty: ${n}.`, bulkSkip: (n) => `Přeskočené řádky bez středníku: ${n}.`,
+    tokenTitle: 'GitHub klíč pro ukládání', tokenSet: 'GitHub klíč', tokenInfo: 'Otázky se ukládají do souboru na GitHubu, ze kterého běží web. K tomu stránka potřebuje klíč. Zadáš ho jen jednou, zůstane uložený jen v tomto prohlížeči.',
+    tokenSteps: ['Otevři <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">tuhle stránku na GitHubu</a> (přihlášený jako JaneckaD).', 'Token name: třeba „flashcards“, Expiration: jak dlouho chceš (třeba 1 rok).', 'Repository access: Only select repositories → <b>janeckad</b>.', 'Permissions → Repository permissions → <b>Contents: Read and write</b>.', 'Klikni Generate token, zkopíruj ho (začíná github_pat_) a vlož sem.'],
+    tokenPh: 'github_pat_…', tokenRemove: 'Odebrat klíč', tokenOk: 'Klíč je uložený.',
+    backup: 'Stáhnout zálohu', restore: 'Nahrát zálohu', discard: 'Zahodit neuložené změny', discardConfirm: 'Zahodit všechny neuložené změny a vrátit se k verzi z webu?',
+    restoreConfirm: 'Nahradit všechny složky obsahem zálohy? Na webu se to projeví až po uložení.', restoreErr: 'Tohle není platná záloha.', restored: 'Záloha nahraná. Nezapomeň ji uložit na web.',
+    adminNote: 'Ve správě se jen upravuje. Hrát můžeš po odhlášení.',
+    // hra
+    playTitle: (n) => `Spustit: ${n}`, mode: 'Herní režim', dir: 'Směr', shuffle: 'Zamíchat pořadí',
+    modes: {
+      classic: ['Klasika', 'Otočíš kartu a sám řekneš, jestli jsi to věděl. Co nevíš, vrátí se znovu.'],
+      write: ['Psaní', 'Odpověď napíšeš. Velká písmena, diakritika a malý překlep se odpustí.'],
+      quiz: ['Kvíz', 'Vybereš správnou odpověď ze 4 možností.'],
+      time: ['Na čas', `Kolik správných odpovědí stihneš za ${TIME_LIMIT} sekund?`],
+      lives: ['3 životy', 'Kvíz, ale po třech chybách je konec.'],
+    },
+    needTwo: 'Potřeba aspoň 2 různé odpovědi.',
+    dirs: { qa: 'Otázka → odpověď', aq: 'Odpověď → otázka', mix: 'Napřeskáčku' },
+    go: 'Začít', front: 'Otázka', back: 'Odpověď', tap: 'Klepni pro otočení', know: 'Umím', dontKnow: 'Neumím', show: 'Ukázat odpověď',
+    check: 'Zkontrolovat', next: 'Další', typePh: 'Napiš odpověď…', correct: 'Správně!', wrong: 'Špatně. Správně je:', near: 'Skoro! Drobný překlep, počítám to. Správně:', countIt: 'Měl jsem pravdu', dunno: 'Nevím',
+    keysClassic: 'Mezerník otočí · ← neumím · → umím', keysQuiz: 'Klávesy 1–4', keysWrite: 'Enter zkontroluje · Enter další',
+    left: (n) => `zbývá ${n}`, of: (a, b) => `${a} z ${b}`, quit: 'Ukončit hru', quitConfirm: 'Opravdu ukončit hru?',
+    res: ['Zkus to znovu', 'Dobrý začátek', 'Pěkná práce', 'Skvělé!', 'Perfektní!'], resLine: (a, b) => `Správně napoprvé ${a} z ${b}`,
+    resTime: (n) => `Za ${TIME_LIMIT} s ${n} správně`, best: (n) => `Tvůj rekord: ${n}`, newBest: 'Nový rekord!', resLives: (a, b) => `Došel jsi na ${a} z ${b}`,
+    missed: 'Tohle ti nešlo', again: 'Hrát znovu', againMissed: 'Procvičit chybné', back2: 'Zpět na složky', time: 'Čas',
+  },
+  en: {
+    eyebrow: 'Study flashcards', title: 'What shall we <em>practise today?</em>', sub: 'Pick a folder and start it. Subfolders are included.',
+    all: 'All folders', folders: 'Folders', subfolders: 'Subfolders', cardsWord: (n) => n === 1 ? 'card' : 'cards', foldersWord: (n) => n === 1 ? 'folder' : 'folders',
+    start: 'Start', startAll: 'Start whole folder', inclSub: 'incl. subfolders', empty: 'Nothing here yet.', emptyAdmin: 'Nothing here yet. Add a folder or your first questions.',
+    loadErr: 'Could not load the questions. Try reloading the page.', notFound: 'This folder no longer exists.',
+    admin: 'Admin', adminTitle: 'Manage questions', pass: 'Password', login: 'Log in', badPass: 'Wrong password.', logout: 'Log out', cancel: 'Cancel', save: 'Save', close: 'Close',
+    saved: 'Everything is saved on the web', dirty: 'Unsaved changes (only on this device so far)', publish: 'Save to web', publishing: 'Saving…', more: 'More',
+    published: 'Saved. Changes will show on the web within about 2 minutes.', pubErr: 'Saving failed: ', badToken: 'The GitHub key does not work or has expired. Enter a new one.',
+    conflict: 'There is a newer version of the questions on the web (probably from another device). Really overwrite it with your changes?',
+    newFolder: 'New folder', newSub: 'New subfolder', folderName: 'Folder name', rename: 'Rename', move: 'Move', del: 'Delete folder', moveTo: 'Move to', top: '(top level)',
+    delConfirm: (name, n) => `Delete folder “${name}” with everything inside (${n} cards)? The web changes only after saving.`,
+    questions: 'Questions in this folder', q: 'Question', a: 'Answer', add: 'Add', bulk: 'Paste many at once', delCard: 'Delete card',
+    bulkHelp: 'One card per line: question and answer separated by a semicolon or a tab (e.g. copied from Excel).', bulkPh: 'France ; Paris\nAustria ; Vienna',
+    bulkDone: (n) => `Added ${n} cards.`, bulkSkip: (n) => `Skipped ${n} lines without a semicolon.`,
+    tokenTitle: 'GitHub key for saving', tokenSet: 'GitHub key', tokenInfo: 'Questions are saved to a file on GitHub that the website runs from. The page needs a key for that. You enter it once and it stays only in this browser.',
+    tokenSteps: ['Open <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">this GitHub page</a> (logged in as JaneckaD).', 'Token name: e.g. “flashcards”, Expiration: as long as you like (e.g. 1 year).', 'Repository access: Only select repositories → <b>janeckad</b>.', 'Permissions → Repository permissions → <b>Contents: Read and write</b>.', 'Click Generate token, copy it (starts with github_pat_) and paste it here.'],
+    tokenPh: 'github_pat_…', tokenRemove: 'Remove key', tokenOk: 'Key saved.',
+    backup: 'Download backup', restore: 'Upload backup', discard: 'Discard unsaved changes', discardConfirm: 'Discard all unsaved changes and go back to the web version?',
+    restoreConfirm: 'Replace all folders with the backup? The web changes only after saving.', restoreErr: 'This is not a valid backup.', restored: 'Backup loaded. Remember to save it to the web.',
+    adminNote: 'Admin is for editing only. Log out to play.',
+    playTitle: (n) => `Start: ${n}`, mode: 'Game mode', dir: 'Direction', shuffle: 'Shuffle order',
+    modes: {
+      classic: ['Classic', 'Flip the card and say whether you knew it. Cards you miss come back.'],
+      write: ['Typing', 'Type the answer. Case, accents and a small typo are forgiven.'],
+      quiz: ['Quiz', 'Pick the right answer out of 4.'],
+      time: ['Against the clock', `How many right answers in ${TIME_LIMIT} seconds?`],
+      lives: ['3 lives', 'A quiz, but three mistakes and you are out.'],
+    },
+    needTwo: 'Needs at least 2 different answers.',
+    dirs: { qa: 'Question → answer', aq: 'Answer → question', mix: 'Mixed' },
+    go: 'Start', front: 'Question', back: 'Answer', tap: 'Tap to flip', know: 'I knew it', dontKnow: 'Didn’t know', show: 'Show answer',
+    check: 'Check', next: 'Next', typePh: 'Type the answer…', correct: 'Correct!', wrong: 'Wrong. The answer is:', near: 'Almost! A small typo, counted. Answer:', countIt: 'I was right', dunno: 'Don’t know',
+    keysClassic: 'Space flips · ← didn’t know · → knew it', keysQuiz: 'Keys 1–4', keysWrite: 'Enter checks · Enter next',
+    left: (n) => `${n} left`, of: (a, b) => `${a} of ${b}`, quit: 'Quit game', quitConfirm: 'Really quit the game?',
+    res: ['Try again', 'Good start', 'Nice work', 'Great!', 'Perfect!'], resLine: (a, b) => `Right first time: ${a} of ${b}`,
+    resTime: (n) => `${n} correct in ${TIME_LIMIT} s`, best: (n) => `Your best: ${n}`, newBest: 'New record!', resLives: (a, b) => `You got to ${a} of ${b}`,
+    missed: 'These were tricky', again: 'Play again', againMissed: 'Practise mistakes', back2: 'Back to folders', time: 'Time',
+  },
+  hu: {
+    eyebrow: 'Tanulókártyák', title: 'Mit <em>gyakorolunk ma?</em>', sub: 'Válassz egy mappát és indítsd el. Az almappák is benne vannak.',
+    all: 'Összes mappa', folders: 'Mappák', subfolders: 'Almappák', cardsWord: () => 'kártya', foldersWord: () => 'mappa',
+    start: 'Indítás', startAll: 'Az egész mappa indítása', inclSub: 'almappákkal együtt', empty: 'Itt még nincs semmi.', emptyAdmin: 'Itt még nincs semmi. Adj hozzá egy mappát vagy az első kérdéseket.',
+    loadErr: 'Nem sikerült betölteni a kérdéseket. Próbáld újratölteni az oldalt.', notFound: 'Ez a mappa már nem létezik.',
+    admin: 'Kezelés', adminTitle: 'Kérdések kezelése', pass: 'Jelszó', login: 'Belépés', badPass: 'Rossz jelszó.', logout: 'Kilépés', cancel: 'Mégse', save: 'Mentés', close: 'Bezárás',
+    saved: 'Minden el van mentve a weben', dirty: 'Mentetlen változások (egyelőre csak ezen az eszközön)', publish: 'Mentés a webre', publishing: 'Mentés…', more: 'Továbbiak',
+    published: 'Elmentve. A változások kb. 2 percen belül megjelennek a weben.', pubErr: 'A mentés nem sikerült: ', badToken: 'A GitHub kulcs nem működik vagy lejárt. Adj meg újat.',
+    conflict: 'A weben újabb verzió van (valószínűleg másik eszközről). Tényleg felülírod a változásaiddal?',
+    newFolder: 'Új mappa', newSub: 'Új almappa', folderName: 'Mappa neve', rename: 'Átnevezés', move: 'Áthelyezés', del: 'Mappa törlése', moveTo: 'Áthelyezés ide', top: '(legfelső szint)',
+    delConfirm: (name, n) => `Törlöd a(z) „${name}” mappát mindennel együtt (${n} kártya)? A weben csak mentés után változik.`,
+    questions: 'Kérdések ebben a mappában', q: 'Kérdés', a: 'Válasz', add: 'Hozzáadás', bulk: 'Több beillesztése egyszerre', delCard: 'Kártya törlése',
+    bulkHelp: 'Soronként egy kártya: kérdés és válasz pontosvesszővel vagy tabulátorral elválasztva (pl. Excelből másolva).', bulkPh: 'Franciaország ; Párizs\nAusztria ; Bécs',
+    bulkDone: (n) => `${n} kártya hozzáadva.`, bulkSkip: (n) => `${n} pontosvessző nélküli sort kihagytam.`,
+    tokenTitle: 'GitHub kulcs a mentéshez', tokenSet: 'GitHub kulcs', tokenInfo: 'A kérdések egy GitHub-fájlba mentődnek, amelyből a weboldal fut. Ehhez az oldalnak kulcs kell. Egyszer adod meg, és csak ebben a böngészőben marad.',
+    tokenSteps: ['Nyisd meg <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">ezt a GitHub oldalt</a> (JaneckaD-ként belépve).', 'Token name: pl. „flashcards”, Expiration: ameddig szeretnéd (pl. 1 év).', 'Repository access: Only select repositories → <b>janeckad</b>.', 'Permissions → Repository permissions → <b>Contents: Read and write</b>.', 'Kattints a Generate token gombra, másold ki (github_pat_ kezdetű) és illeszd be ide.'],
+    tokenPh: 'github_pat_…', tokenRemove: 'Kulcs eltávolítása', tokenOk: 'Kulcs elmentve.',
+    backup: 'Biztonsági mentés letöltése', restore: 'Biztonsági mentés feltöltése', discard: 'Mentetlen változások elvetése', discardConfirm: 'Elveted az összes mentetlen változást és visszatérsz a webes verzióhoz?',
+    restoreConfirm: 'Lecseréled az összes mappát a mentés tartalmára? A weben csak mentés után változik.', restoreErr: 'Ez nem érvényes biztonsági mentés.', restored: 'Mentés betöltve. Ne felejtsd el a webre menteni.',
+    adminNote: 'A kezelésben csak szerkeszteni lehet. Játszani kilépés után tudsz.',
+    playTitle: (n) => `Indítás: ${n}`, mode: 'Játékmód', dir: 'Irány', shuffle: 'Keverés',
+    modes: {
+      classic: ['Klasszikus', 'Megfordítod a kártyát, és megmondod, tudtad-e. Amit nem tudtál, visszajön.'],
+      write: ['Gépelés', 'Begépeled a választ. A kis- és nagybetű, az ékezetek és egy kis elírás nem számít.'],
+      quiz: ['Kvíz', 'Kiválasztod a helyes választ a 4 közül.'],
+      time: ['Időre', `Hány helyes válasz ${TIME_LIMIT} másodperc alatt?`],
+      lives: ['3 élet', 'Kvíz, de három hiba után vége.'],
+    },
+    needTwo: 'Legalább 2 különböző válasz kell.',
+    dirs: { qa: 'Kérdés → válasz', aq: 'Válasz → kérdés', mix: 'Vegyesen' },
+    go: 'Kezdés', front: 'Kérdés', back: 'Válasz', tap: 'Koppints a megfordításhoz', know: 'Tudtam', dontKnow: 'Nem tudtam', show: 'Válasz mutatása',
+    check: 'Ellenőrzés', next: 'Tovább', typePh: 'Írd be a választ…', correct: 'Helyes!', wrong: 'Rossz. A helyes válasz:', near: 'Majdnem! Kis elírás, elfogadva. Válasz:', countIt: 'Igazam volt', dunno: 'Nem tudom',
+    keysClassic: 'Szóköz fordít · ← nem tudtam · → tudtam', keysQuiz: 'Billentyűk 1–4', keysWrite: 'Enter ellenőriz · Enter tovább',
+    left: (n) => `még ${n}`, of: (a, b) => `${a} / ${b}`, quit: 'Játék befejezése', quitConfirm: 'Tényleg befejezed a játékot?',
+    res: ['Próbáld újra', 'Jó kezdés', 'Szép munka', 'Nagyszerű!', 'Tökéletes!'], resLine: (a, b) => `Elsőre helyes: ${a} / ${b}`,
+    resTime: (n) => `${TIME_LIMIT} mp alatt ${n} helyes`, best: (n) => `Rekordod: ${n}`, newBest: 'Új rekord!', resLives: (a, b) => `Eljutottál: ${a} / ${b}`,
+    missed: 'Ezek nem mentek', again: 'Újra', againMissed: 'Hibák gyakorlása', back2: 'Vissza a mappákhoz', time: 'Idő',
+  },
+};
+const LANGS = ['cs', 'en', 'hu'];
+let lang = new URLSearchParams(location.search).get('lang');
+if (!LANGS.includes(lang)) lang = lsGet('fc-lang', null);
+if (!LANGS.includes(lang)) lang = 'cs';
+const t = () => T[lang];
+
+// ===== pomocné =====
+const $ = (s, r = document) => r.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const clone = (o) => JSON.parse(JSON.stringify(o));
+const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-3);
+const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+function lsGet(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
+const ICONS = {
+  folder: '<path d="M3 7.5A2.5 2.5 0 0 1 5.5 5h3.6l2 2.2h7.4A2.5 2.5 0 0 1 21 9.7v7.8a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z"/>',
+  lock: '<rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/>',
+  unlock: '<rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 7.6-1.7"/>',
+  play: '<path d="M7 4.5v15l12.5-7.5z"/>', plus: '<path d="M12 5v14M5 12h14"/>', x: '<path d="M6 6l12 12M18 6 6 18"/>',
+  edit: '<path d="M4 20h4L19 9l-4-4L4 16z"/>', trash: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/>',
+  move: '<path d="M3 7.5A2.5 2.5 0 0 1 5.5 5h3.6l2 2.2h7.4A2.5 2.5 0 0 1 21 9.7v7.8a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z"/><path d="M10 13.5h6m-2.5-2.5 2.5 2.5-2.5 2.5"/>',
+  list: '<path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/>',
+};
+const I = (n) => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n]}</svg>`;
+let toastTimer;
+function toast(msg, ms = 3200) { const el = $('#toast'); el.textContent = msg; el.classList.add('on'); clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('on'), ms); }
+async function sha256(s) { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, '0')).join(''); }
+function b64encode(str) { const bytes = new TextEncoder().encode(str); let bin = ''; for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(bin); }
+function b64decode(b) { const bin = atob(b.replace(/\s/g, '')); return new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0))); }
+
+// ===== data =====
+// published = verze z webu; data = to, co se právě zobrazuje (ve správě rozpracovaná kopie)
+let published = { folders: [] }, data = published, admin = false, loadFailed = false;
+let draft = lsGet('fc-draft', null); // { data, base, dirty }
+
+function normalizeData(d) {
+  const fix = (f) => ({ id: f.id || uid(), name: String(f.name || '?'), cards: (f.cards || []).filter((c) => c && (c.q || c.a)).map((c) => ({ id: c.id || uid(), q: String(c.q ?? ''), a: String(c.a ?? '') })), folders: (f.folders || []).map(fix) });
+  return { version: 1, updated: d.updated || '', folders: (d.folders || []).map(fix) };
+}
+async function loadPublished() {
+  let remote = null;
+  try { const r = await fetch('data.json?t=' + Date.now(), { cache: 'no-store' }); if (r.ok) remote = await r.json(); } catch (e) {}
+  // změny uložené z tohohle zařízení se na webu objeví až po pár minutách, do té doby ukazujeme je
+  const mine = lsGet('fc-pub', null);
+  let d = remote;
+  if (mine && (!d || (mine.updated || '') > (d.updated || ''))) d = mine;
+  loadFailed = !d;
+  published = normalizeData(d || { folders: [] });
+}
+function find(id, list = data.folders, path = [], parent = null) {
+  for (const f of list) {
+    if (f.id === id) return { folder: f, list, path: [...path, f], parent };
+    const r = find(id, f.folders, [...path, f], f);
+    if (r) return r;
+  }
+  return null;
+}
+function count(f) { return f.cards.length + f.folders.reduce((s, x) => s + count(x), 0); }
+function collect(f, path = []) {
+  const p = [...path, f.name];
+  return [...f.cards.map((c) => ({ ...c, path: p.join(' › ') })), ...f.folders.flatMap((x) => collect(x, p))];
+}
+function allCards() { return data.folders.flatMap((f) => collect(f)); }
+function isDescendant(f, id) { return f.folders.some((x) => x.id === id || isDescendant(x, id)); }
+
+// ===== navigace =====
+let cur = null;
+function readHash() { const m = location.hash.match(/^#f=(.+)$/); cur = m ? decodeURIComponent(m[1]) : null; }
+const go = (id) => { location.hash = id ? 'f=' + encodeURIComponent(id) : ''; };
+window.addEventListener('hashchange', () => { readHash(); render(); window.scrollTo(0, 0); });
+
+// ===== vykreslení =====
+function render() {
+  document.documentElement.lang = lang;
+  document.querySelectorAll('#lang button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.lang === lang));
+  const ab = $('#b-admin'); ab.innerHTML = I(admin ? 'unlock' : 'lock'); ab.title = ab.ariaLabel = t().admin; ab.hidden = admin;
+  renderAdminBar();
+  const v = $('#view');
+  const hit = cur ? find(cur) : null;
+  if (cur && !hit) { v.innerHTML = crumbs([]) + `<div class="empty" style="margin-top:22px">${t().notFound}</div>`; return; }
+  const f = hit ? hit.folder : null;
+  const subs = f ? f.folders : data.folders;
+  let h = '';
+  if (!f) {
+    h += `<section class="intro"><p class="eyebrow">${admin ? t().adminTitle : t().eyebrow}</p><h1>${admin ? esc(t().all) : t().title}</h1><p class="sub">${admin ? t().adminNote : t().sub}</p></section>`;
+  } else {
+    h += crumbs(hit.path) + `<section class="intro" style="padding-top:14px"><h1>${esc(f.name)}</h1><p class="sub">${count(f)} ${t().cardsWord(count(f))}${f.folders.length ? ` · ${f.folders.length} ${t().foldersWord(f.folders.length)}` : ''}</p>`;
+    if (admin) h += `<div class="folder-acts"><button class="btn sm" data-act="rename">${I('edit')}${t().rename}</button><button class="btn sm" data-act="move">${I('move')}${t().move}</button><button class="btn sm danger" data-act="del">${I('trash')}${t().del}</button></div>`;
+    h += `</section>`;
+    if (!admin && count(f)) h += `<div class="start-card"><div><b>${t().startAll}</b><small>${count(f)} ${t().cardsWord(count(f))}${f.folders.length ? ' ' + t().inclSub : ''}</small></div><button class="btn primary big" data-play="${esc(f.id)}">${I('play')}${t().start}</button></div>`;
+  }
+  // podsložky
+  if (subs.length || admin) {
+    h += `<h2>${f ? t().subfolders : t().folders}</h2><div class="grid">`;
+    for (const s of subs) {
+      const n = count(s);
+      h += `<a class="tile" href="#f=${encodeURIComponent(s.id)}"><span class="ico">${I('folder')}</span><span><b>${esc(s.name)}</b><small>${n} ${t().cardsWord(n)}${s.folders.length ? ` · ${s.folders.length} ${t().foldersWord(s.folders.length)}` : ''}</small></span>${!admin && n ? `<button class="play" data-play="${esc(s.id)}" aria-label="${t().start}">${I('play')}</button>` : ''}</a>`;
+    }
+    if (admin) h += `<button class="tile add" data-act="addFolder">${I('plus')}${f ? t().newSub : t().newFolder}</button>`;
+    h += `</div>`;
+  }
+  // karty (jen správa)
+  if (admin && f) {
+    h += `<h2>${t().questions} (${f.cards.length})</h2>
+      <form class="addcard" id="addcard"><textarea class="field" name="q" rows="1" placeholder="${t().q}" required></textarea><textarea class="field" name="a" rows="1" placeholder="${t().a}" required></textarea><button class="btn primary" type="submit">${I('plus')}${t().add}</button></form>
+      <p class="hint"><button class="btn sm" data-act="bulk" type="button">${I('list')}${t().bulk}</button></p>
+      <div class="cards">${f.cards.map((c, i) => `<div class="crow" data-card="${esc(c.id)}"><span class="n">${i + 1}</span><textarea class="field q" rows="1" data-k="q" aria-label="${t().q}">${esc(c.q)}</textarea><textarea class="field a" rows="1" data-k="a" aria-label="${t().a}">${esc(c.a)}</textarea><button class="icon-btn del" data-act="delCard" title="${t().delCard}" aria-label="${t().delCard}">${I('trash')}</button></div>`).join('')}</div>`;
+  }
+  if (!subs.length && !(f && f.cards.length) && !admin) h += `<div class="empty" style="margin-top:22px">${loadFailed ? t().loadErr : t().empty}</div>`;
+  if (admin && !f && !subs.length) h += `<p class="hint">${t().emptyAdmin}</p>`;
+  v.innerHTML = h;
+  v.querySelectorAll('textarea.field').forEach(autosize);
+  $('#foot').innerHTML = `<a class="brand" style="font-size:15px" href="/">david janečka<i>.</i></a>`;
+}
+function crumbs(path) {
+  return `<nav class="crumbs"><a href="#">${t().all}</a>${path.slice(0, -1).map((p) => `<span class="sep">›</span><a href="#f=${encodeURIComponent(p.id)}">${esc(p.name)}</a>`).join('')}</nav>`;
+}
+function autosize(el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 2 + 'px'; }
+
+// ===== správa =====
+function renderAdminBar() {
+  const bar = $('#adminbar'); bar.hidden = !admin;
+  if (!admin) return;
+  const dirty = !!(draft && draft.dirty);
+  $('#dot').classList.toggle('dirty', dirty);
+  $('#ast').textContent = dirty ? t().dirty : t().saved;
+  const p = $('#b-publish'); if (!p.dataset.busy) p.textContent = t().publish; p.disabled = !dirty;
+  $('#b-more').textContent = t().more; $('#b-logout').textContent = t().logout;
+}
+function changed() {
+  draft = { data, base: draft && draft.dirty ? draft.base : published.updated, dirty: true };
+  lsSet('fc-draft', draft);
+  renderAdminBar();
+}
+function enterAdmin() {
+  admin = true;
+  try { sessionStorage.setItem('fc-admin', '1'); } catch (e) {}
+  data = draft && draft.dirty ? normalizeData(draft.data) : clone(published);
+  if (draft && draft.dirty) draft.data = data;
+  render();
+}
+function leaveAdmin() {
+  admin = false;
+  try { sessionStorage.removeItem('fc-admin'); } catch (e) {}
+  data = published; render();
+}
+
+// dialog
+const dlg = $('#dlg');
+function modal(html, mount) {
+  dlg.innerHTML = `<div class="dlg">${html}<button class="icon-btn x" data-close aria-label="${t().close}">${I('x')}</button></div>`;
+  dlg.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', () => dlg.close()));
+  if (!dlg.open) dlg.showModal();
+  if (mount) mount(dlg);
+}
+dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+function ask(title, value = '') {
+  return new Promise((res) => {
+    let done = false;
+    modal(`<h3>${esc(title)}</h3><form id="askf" class="dlg" style="padding:0"><input class="field" name="v" value="${esc(value)}" required maxlength="120" autocomplete="off" /><div class="row"><button type="button" class="btn" data-close>${t().cancel}</button><button class="btn primary">${t().save}</button></div></form>`, (d) => {
+      const inp = d.querySelector('input'); inp.focus(); inp.select();
+      d.querySelector('#askf').addEventListener('submit', (e) => { e.preventDefault(); done = true; res(inp.value.trim()); dlg.close(); });
+      dlg.addEventListener('close', () => { if (!done) res(null); }, { once: true });
+    });
+  });
+}
+
+function loginDialog() {
+  modal(`<h3>${t().adminTitle}</h3><form id="lf" class="dlg" style="padding:0"><label class="lbl" for="pw">${t().pass}</label><input class="field" id="pw" type="password" autocomplete="current-password" required /><p class="err" id="lerr" hidden>${t().badPass}</p><div class="row"><button class="btn primary">${t().login}</button></div></form>`, (d) => {
+    const pw = d.querySelector('#pw'); pw.focus();
+    d.querySelector('#lf').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if ((await sha256(pw.value)) === PASS_HASH) { dlg.close(); enterAdmin(); }
+      else { d.querySelector('#lerr').hidden = false; pw.select(); pw.classList.remove('shake'); void pw.offsetWidth; pw.classList.add('shake'); }
+    });
+  });
+}
+
+function tokenDialog(then) {
+  const has = !!lsGet('fc-token', '');
+  modal(`<h3>${t().tokenTitle}</h3><p>${t().tokenInfo}</p><ol>${t().tokenSteps.map((s) => `<li>${s}</li>`).join('')}</ol>
+    <form id="tf" class="dlg" style="padding:0"><input class="field" name="tok" placeholder="${has ? '••••••••••••' : t().tokenPh}" autocomplete="off" spellcheck="false" ${has ? '' : 'required'} />
+    <div class="row">${has ? `<button type="button" class="btn danger" id="trm">${t().tokenRemove}</button>` : ''}<button class="btn primary">${t().save}</button></div></form>`, (d) => {
+    d.querySelector('#tf').addEventListener('submit', (e) => {
+      e.preventDefault(); const v = e.target.tok.value.trim();
+      if (v) { lsSet('fc-token', v); toast(t().tokenOk); }
+      dlg.close(); if (v && then) then();
+    });
+    const rm = d.querySelector('#trm'); if (rm) rm.addEventListener('click', () => { lsDel('fc-token'); dlg.close(); });
+  });
+}
+
+function moreDialog() {
+  modal(`<h3>${t().more}</h3><div class="opts">
+    <button class="btn" data-m="token">${I('lock')}${t().tokenSet}</button>
+    <button class="btn" data-m="backup">${t().backup}</button>
+    <button class="btn" data-m="restore">${t().restore}</button>
+    ${draft && draft.dirty ? `<button class="btn danger" data-m="discard">${t().discard}</button>` : ''}
+  </div><input type="file" id="rfile" accept=".json,application/json" hidden />`, (d) => {
+    d.querySelector('[data-m="token"]').onclick = () => tokenDialog();
+    d.querySelector('[data-m="backup"]').onclick = () => {
+      const blob = new Blob([JSON.stringify(data, null, 1)], { type: 'application/json' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `flashcards-${new Date().toISOString().slice(0, 10)}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    };
+    const rf = d.querySelector('#rfile');
+    d.querySelector('[data-m="restore"]').onclick = () => rf.click();
+    rf.onchange = async () => {
+      try {
+        const j = JSON.parse(await rf.files[0].text());
+        if (!Array.isArray(j.folders)) throw 0;
+        if (!confirm(t().restoreConfirm)) return;
+        data = normalizeData(j); changed(); dlg.close(); go(''); render(); toast(t().restored);
+      } catch (e) { toast(t().restoreErr); }
+    };
+    const dc = d.querySelector('[data-m="discard"]');
+    if (dc) dc.onclick = () => { if (!confirm(t().discardConfirm)) return; lsDel('fc-draft'); draft = null; data = clone(published); dlg.close(); render(); };
+  });
+}
+
+async function publish() {
+  const token = lsGet('fc-token', '');
+  if (!token) return tokenDialog(publish);
+  const btn = $('#b-publish'); btn.dataset.busy = '1'; btn.textContent = t().publishing; btn.disabled = true;
+  const api = `https://api.github.com/repos/${REPO}/contents/${FILE}`;
+  const head = { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' };
+  try {
+    let sha;
+    const g = await fetch(`${api}?ref=${encodeURIComponent(BRANCH)}&t=${Date.now()}`, { headers: head, cache: 'no-store' });
+    if (g.status === 401 || g.status === 403) throw { token: true };
+    if (g.ok) {
+      const j = await g.json(); sha = j.sha;
+      try { const remote = JSON.parse(b64decode(j.content || '')); if ((remote.updated || '') > (draft.base || '') && !confirm(t().conflict)) throw { cancel: true }; } catch (e) { if (e && e.cancel) throw e; }
+    } else if (g.status !== 404) throw new Error('GitHub ' + g.status);
+    const out = clone(data); out.updated = new Date().toISOString();
+    const p = await fetch(api, { method: 'PUT', headers: { ...head, 'Content-Type': 'application/json' }, body: JSON.stringify({ message: 'Flashcards: úprava otázek', content: b64encode(JSON.stringify(out, null, 1) + '\n'), branch: BRANCH, sha }) });
+    if (p.status === 401 || p.status === 403) throw { token: true };
+    if (!p.ok) { const j = await p.json().catch(() => ({})); throw new Error(j.message || 'GitHub ' + p.status); }
+    published = out; data.updated = out.updated; lsSet('fc-pub', out);
+    draft = null; lsDel('fc-draft');
+    toast(t().published, 5000);
+  } catch (e) {
+    if (e && e.token) { toast(t().badToken, 5000); tokenDialog(publish); }
+    else if (!(e && e.cancel)) toast(t().pubErr + ((e && e.message) || e), 6000);
+  } finally {
+    delete btn.dataset.busy; renderAdminBar();
+  }
+}
+
+function parseBulk(text) {
+  const out = []; let skipped = 0;
+  for (const line of text.split(/\r?\n/)) {
+    if (!line.trim()) continue;
+    const m = line.match(/^(.*?)(?:\t|;|\s[–—-]\s)(.*)$/);
+    if (m && m[1].trim() && m[2].trim()) out.push({ id: uid(), q: m[1].trim(), a: m[2].trim() }); else skipped++;
+  }
+  return { out, skipped };
+}
+
+// klikání ve stránce
+document.addEventListener('click', async (e) => {
+  const lb = e.target.closest('#lang button');
+  if (lb && lb.dataset.lang !== lang) { lang = lb.dataset.lang; lsSet('fc-lang', lang); render(); return; }
+  const pl = e.target.closest('[data-play]');
+  if (pl) { e.preventDefault(); e.stopPropagation(); return playDialog(pl.dataset.play); }
+  const a = e.target.closest('[data-act]');
+  if (!a || !admin) return;
+  const hit = cur ? find(cur) : null;
+  const f = hit && hit.folder;
+  switch (a.dataset.act) {
+    case 'addFolder': {
+      const name = await ask(f ? t().newSub : t().newFolder); if (!name) return;
+      (f ? f.folders : data.folders).push({ id: uid(), name, cards: [], folders: [] }); changed(); render(); break;
+    }
+    case 'rename': { const name = await ask(t().rename, f.name); if (!name) return; f.name = name; changed(); render(); break; }
+    case 'del': {
+      if (!confirm(t().delConfirm(f.name, count(f)))) return;
+      hit.list.splice(hit.list.indexOf(f), 1); changed(); go(hit.parent ? hit.parent.id : ''); break;
+    }
+    case 'move': {
+      const opts = [];
+      const walk = (list, depth) => list.forEach((x) => { if (x.id !== f.id) { opts.push(`<option value="${esc(x.id)}">${'&nbsp;&nbsp;&nbsp;'.repeat(depth)}${esc(x.name)}</option>`); walk(x.folders, depth + 1); } });
+      walk(data.folders, 1);
+      modal(`<h3>${t().moveTo}</h3><select class="field" id="mv"><option value="">${t().top}</option>${opts.join('')}</select><div class="row"><button class="btn" data-close>${t().cancel}</button><button class="btn primary" id="mvok">${t().move}</button></div>`, (d) => {
+        const sel = d.querySelector('#mv'); sel.value = hit.parent ? hit.parent.id : '';
+        d.querySelector('#mvok').onclick = () => {
+          const to = sel.value ? find(sel.value).folder : null;
+          hit.list.splice(hit.list.indexOf(f), 1); (to ? to.folders : data.folders).push(f); changed(); dlg.close(); render();
+        };
+      });
+      break;
+    }
+    case 'delCard': {
+      const id = a.closest('[data-card]').dataset.card;
+      f.cards = f.cards.filter((c) => c.id !== id); changed(); render(); break;
+    }
+    case 'bulk': {
+      modal(`<h3>${t().bulk}</h3><p>${t().bulkHelp}</p><textarea class="field" id="bt" rows="8" placeholder="${esc(t().bulkPh)}"></textarea><div class="row"><button class="btn" data-close>${t().cancel}</button><button class="btn primary" id="bok">${t().add}</button></div>`, (d) => {
+        d.querySelector('#bt').focus();
+        d.querySelector('#bok').onclick = () => {
+          const { out, skipped } = parseBulk(d.querySelector('#bt').value);
+          if (out.length) { f.cards.push(...out); changed(); }
+          dlg.close(); render(); toast(t().bulkDone(out.length) + (skipped ? ' ' + t().bulkSkip(skipped) : ''), 4500);
+        };
+      });
+      break;
+    }
+  }
+});
+document.addEventListener('submit', (e) => {
+  if (e.target.id !== 'addcard') return;
+  e.preventDefault();
+  const f = find(cur).folder, q = e.target.q.value.trim(), a = e.target.a.value.trim();
+  if (!q || !a) return;
+  f.cards.push({ id: uid(), q, a }); changed(); render();
+  $('#addcard textarea').focus();
+});
+// Enter v rychlém přidání = přeskočit na další pole / přidat (Shift+Enter = nový řádek)
+document.addEventListener('keydown', (e) => {
+  const ta = e.target.closest && e.target.closest('#addcard textarea');
+  if (!ta || e.key !== 'Enter' || e.shiftKey || e.isComposing) return;
+  e.preventDefault();
+  if (ta.name === 'q') ta.form.a.focus(); else ta.form.requestSubmit();
+});
+document.addEventListener('input', (e) => {
+  const ta = e.target;
+  if (!ta.matches('textarea.field')) return;
+  autosize(ta);
+  const row = ta.closest('[data-card]');
+  if (!row || !admin) return;
+  const card = find(cur).folder.cards.find((c) => c.id === row.dataset.card);
+  card[ta.dataset.k] = ta.value; changed();
+});
+document.addEventListener('focusout', (e) => {
+  // prázdnou kartu po úpravě rovnou smažeme
+  const row = e.target.closest && e.target.closest('[data-card]');
+  if (!row || !admin || row.contains(e.relatedTarget)) return;
+  const f = find(cur).folder, card = f.cards.find((c) => c.id === row.dataset.card);
+  if (card && !card.q.trim() && !card.a.trim()) { f.cards = f.cards.filter((c) => c !== card); changed(); render(); }
+});
+$('#b-admin').onclick = () => (admin ? null : loginDialog());
+$('#b-logout').onclick = leaveAdmin;
+$('#b-more').onclick = moreDialog;
+$('#b-publish').onclick = publish;
+
+// ===== hra =====
+const settings = Object.assign({ mode: 'classic', dir: 'qa', shuffle: true }, lsGet('fc-settings', {}));
+let G = null;
+const gameEl = $('#game');
+
+function sideOf(item, which) { return (which === 'front') !== item.rev ? item.q : item.a; }
+function playDialog(id) {
+  const f = find(id).folder, items = collect(f, find(id).path.slice(0, -1).map((p) => p.name));
+  const pool = [...items, ...allCards()];
+  const canChoice = (dir) => {
+    // na kvíz stačí, aby existovaly aspoň 2 různé odpovědi (doplní se i z jiných složek)
+    const a = new Set(pool.map((c) => c.a.trim())).size, q = new Set(pool.map((c) => c.q.trim())).size;
+    return dir === 'qa' ? a >= 2 : dir === 'aq' ? q >= 2 : a >= 2 && q >= 2;
+  };
+  modal(`<h3>${esc(t().playTitle(f.name))}</h3><p>${items.length} ${t().cardsWord(items.length)}${f.folders.length ? ' ' + t().inclSub : ''}</p>
+    <form id="pf" class="dlg" style="padding:0;gap:16px">
+      <div><label class="lbl">${t().mode}</label><div class="opts" style="margin-top:8px">${Object.entries(t().modes).map(([k, [n, d]]) => `<label class="opt" data-mode="${k}"><input type="radio" name="mode" value="${k}" ${settings.mode === k ? 'checked' : ''} /><span><b>${n}</b><small data-d="${esc(d)}">${d}</small></span></label>`).join('')}</div></div>
+      <div><label class="lbl">${t().dir}</label><div class="chips" style="margin-top:8px">${Object.entries(t().dirs).map(([k, n]) => `<label class="chip"><input type="radio" name="dir" value="${k}" ${settings.dir === k ? 'checked' : ''} /><span>${n}</span></label>`).join('')}</div></div>
+      <label class="toggle"><input type="checkbox" name="shuffle" ${settings.shuffle ? 'checked' : ''} />${t().shuffle}</label>
+      <div class="row"><button class="btn primary big" style="width:100%">${I('play')}${t().go}</button></div>
+    </form>`, (d) => {
+    const form = d.querySelector('#pf');
+    const upd = () => {
+      const ok = canChoice(form.dir.value);
+      ['quiz', 'time', 'lives'].forEach((m) => {
+        const el = form.querySelector(`[data-mode="${m}"]`); el.classList.toggle('off', !ok);
+        el.querySelector('small').textContent = ok ? el.querySelector('small').dataset.d : t().needTwo;
+      });
+      if (!ok && ['quiz', 'time', 'lives'].includes(form.mode.value)) form.querySelector('[value="classic"]').checked = true;
+    };
+    form.addEventListener('change', upd); upd();
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      settings.mode = form.mode.value; settings.dir = form.dir.value; settings.shuffle = form.shuffle.checked; lsSet('fc-settings', settings);
+      dlg.close(); startGame(f, items);
+    });
+  });
+}
+
+function startGame(folder, items, onlyThese) {
+  const dir = settings.dir;
+  let deck = (onlyThese || items).map((c) => ({ ...c, rev: dir === 'aq' || (dir === 'mix' && Math.random() < 0.5), miss: false }));
+  if (settings.shuffle) shuffle(deck);
+  G = { folder, items, mode: settings.mode, deck, queue: [...deck], done: 0, correct: 0, wrong: 0, lives: LIVES, seen: 0, start: Date.now(), cur: null, state: 'q', timer: null, timeLeft: TIME_LIMIT, missed: [] };
+  gameEl.hidden = false; document.body.style.overflow = 'hidden';
+  if (G.mode === 'time') { G.timer = setInterval(tick, 250); G.endAt = Date.now() + TIME_LIMIT * 1000; }
+  nextCard();
+}
+function tick() {
+  G.timeLeft = Math.max(0, Math.ceil((G.endAt - Date.now()) / 1000));
+  const el = $('#g-time'); if (el) { el.textContent = G.timeLeft + ' s'; el.classList.toggle('low', G.timeLeft <= 10); }
+  const bar = $('.bar i', gameEl); if (bar) bar.style.width = ((TIME_LIMIT - G.timeLeft) / TIME_LIMIT) * 100 + '%';
+  if (G.timeLeft <= 0) endGame();
+}
+function closeGame() {
+  if (G && G.timer) clearInterval(G.timer);
+  G = null; gameEl.hidden = true; gameEl.innerHTML = ''; document.body.style.overflow = '';
+}
+function nextCard() {
+  if (!G || G.state === 'end') return;
+  if (G.mode === 'time' && !G.queue.length) { G.queue = shuffle(G.deck.map((c) => ({ ...c }))); }
+  if (!G.queue.length || (G.mode === 'lives' && G.lives <= 0)) return endGame();
+  G.cur = G.queue.shift(); G.state = 'q'; G.flipDrawn = false;
+  if (['quiz', 'time', 'lives'].includes(G.mode)) G.opts = makeOptions(G.cur);
+  drawGame(true);
+}
+function makeOptions(item) {
+  const back = sideOf(item, 'back').trim(), side = item.rev ? 'q' : 'a';
+  // špatné možnosti bereme nejdřív ze stejné složky, pak ze spuštěné složky, nakonec odkudkoli
+  const opts = [];
+  for (const src of [G.items.filter((c) => c.path === item.path), G.items, allCards()]) {
+    if (opts.length >= 3) break;
+    const cand = [...new Set(src.map((c) => c[side].trim()))].filter((x) => x && x !== back && !opts.includes(x));
+    opts.push(...shuffle(cand).slice(0, 3 - opts.length));
+  }
+  return shuffle([back, ...opts]);
+}
+function norm(s) { return String(s).toLowerCase().normalize('NFD').replace(/\p{M}/gu, '').replace(/[.,!?;:"'„“”()\[\]–—-]/g, ' ').replace(/\s+/g, ' ').trim(); }
+function lev(a, b) {
+  const m = a.length, n = b.length; if (!m) return n; if (!n) return m;
+  let prev = Array.from({ length: n + 1 }, (_, j) => j);
+  for (let i = 1; i <= m; i++) { const cur = [i]; for (let j = 1; j <= n; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); prev = cur; }
+  return prev[n];
+}
+function judge(input, answer) {
+  const x = norm(input), y = norm(answer);
+  if (!x) return 'bad';
+  if (x === y) return 'good';
+  const tol = y.length >= 9 ? 2 : y.length >= 4 ? 1 : 0;
+  return lev(x, y) <= tol ? 'near' : 'bad';
+}
+
+function hud() {
+  const g = G, total = g.deck.length;
+  let pct = 0, line = '', right = '';
+  if (g.mode === 'classic') { pct = (g.done / total) * 100; line = t().left(g.queue.length + (g.state === 'done' ? 0 : 1)); right = `<span class="pill">✓ ${g.done}/${total}</span>`; }
+  else if (g.mode === 'time') { pct = ((TIME_LIMIT - g.timeLeft) / TIME_LIMIT) * 100; line = t().modes.time[0]; right = `<span class="pill">✓ ${g.correct}</span><span class="pill t ${g.timeLeft <= 10 ? 'low' : ''}" id="g-time">${g.timeLeft} s</span>`; }
+  else { pct = (g.seen / total) * 100; line = t().of(Math.min(g.seen + 1, total), total); right = g.mode === 'lives' ? `<span class="pill hearts">${'❤️'.repeat(g.lives)}${'🤍'.repeat(LIVES - g.lives)}</span>` : `<span class="pill">✓ ${g.correct}</span>`; }
+  return `<div class="g-top"><button class="icon-btn" id="g-quit" aria-label="${t().quit}" title="${t().quit}">${I('x')}</button><div class="meta"><b>${esc(g.folder.name)}</b><small>${t().modes[g.mode][0]} · ${line}</small><div class="bar"><i style="width:${pct}%"></i></div></div><div class="g-score">${right}</div></div>`;
+}
+function cardHtml(item, flipped, clickable) {
+  const front = sideOf(item, 'front'), back = sideOf(item, 'back');
+  return `<div class="flip ${flipped ? 'on' : ''} ${clickable ? '' : 'static'}" id="g-card"><div class="flip-in">
+    <div class="face"><small>${item.rev ? t().back : t().front}</small><div class="txt">${esc(front)}</div>${clickable && !flipped ? `<span class="tap">${t().tap}</span>` : ''}</div>
+    <div class="face back"><small>${item.rev ? t().front : t().back}</small><div class="txt">${esc(back)}</div></div>
+  </div></div>`;
+}
+function drawGame(fresh) {
+  const g = G, it = g.cur;
+  // kartu nejdřív vykreslíme neotočenou a otočíme ji až potom, ať je vidět animace
+  const wantFlip = g.mode === 'classic' ? g.state === 'a' : g.mode === 'write' ? g.state !== 'q' : false;
+  const flipNow = wantFlip && !g.flipDrawn;
+  const path = `<div class="path">${I('folder')}<span>${esc(it.path)}</span></div>`;
+  let body = '';
+  if (g.mode === 'classic') {
+    body = path + cardHtml(it, wantFlip && !flipNow, true) +
+      (g.state === 'q'
+        ? `<div class="ctrl"><button class="btn big primary" id="g-flip">${t().show}</button></div>`
+        : `<div class="ctrl"><button class="btn big no" id="g-no">${t().dontKnow}</button><button class="btn big yes" id="g-yes">${t().know}</button></div>`) +
+      `<p class="keys">${t().keysClassic}</p>`;
+  } else if (g.mode === 'write') {
+    body = path + cardHtml(it, wantFlip && !flipNow, false);
+    if (g.state === 'q') body += `<form class="write" id="g-wf"><input class="field" id="g-in" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${t().typePh}" /><button class="btn primary">${t().check}</button></form><div class="ctrl"><button class="btn sm" id="g-dunno">${t().dunno}</button></div>`;
+    else {
+      const back = esc(sideOf(it, 'back'));
+      body += g.res === 'good' ? `<div class="fb good">${t().correct}</div>` : g.res === 'near' ? `<div class="fb near">${t().near} <b>${back}</b></div>` : `<div class="fb bad">${t().wrong} <b>${back}</b>${g.typed ? `<br><small>(${esc(g.typed)})</small>` : ''}</div>`;
+      body += `<div class="ctrl">${g.res === 'bad' && g.typed ? `<button class="btn" id="g-override">${t().countIt}</button>` : ''}<button class="btn primary big" id="g-next">${t().next}</button></div>`;
+    }
+    body += `<p class="keys">${t().keysWrite}</p>`;
+  } else {
+    body = path + cardHtml(it, false, false) +
+      `<div class="answers ${g.state !== 'q' ? 'done' : ''}" id="g-ans">${g.opts.map((o, i) => `<button class="ans" data-i="${i}"><kbd>${i + 1}</kbd>${esc(o)}</button>`).join('')}</div><p class="keys">${t().keysQuiz}</p>`;
+  }
+  gameEl.innerHTML = hud() + `<div class="g-main ${fresh ? 'enter' : ''}">${body}</div>`;
+  if (flipNow) { g.flipDrawn = true; requestAnimationFrame(() => requestAnimationFrame(() => { const c = $('#g-card'); c && c.classList.add('on'); })); }
+  const inp = $('#g-in'); if (inp) inp.focus({ preventScroll: true });
+  if (g.state !== 'q' && g.mode === 'write') { const n = $('#g-next'); n && n.focus({ preventScroll: true }); }
+}
+function flip() { if (G.state !== 'q') return; G.state = 'a'; drawGame(false); }
+function grade(ok) {
+  const g = G; if (g.state !== 'a') return;
+  if (ok) { g.done++; if (!g.cur.miss) g.correct++; }
+  else { if (!g.cur.miss) { g.cur.miss = true; g.missed.push(g.cur); } g.queue.splice(Math.min(g.queue.length, 3 + Math.floor(Math.random() * 3)), 0, g.cur); }
+  g.state = 'done'; nextCard();
+}
+function checkWrite(val) {
+  const g = G; if (g.state !== 'q') return;
+  g.typed = val; g.res = judge(val, sideOf(g.cur, 'back')); g.state = 'a'; g.seen++;
+  if (g.res === 'bad') { g.wrong++; g.missed.push(g.cur); } else g.correct++;
+  drawGame(false);
+}
+function override() { const g = G; if (g.res !== 'bad') return; g.res = 'good'; g.wrong--; g.correct++; g.missed.pop(); drawGame(false); }
+function choose(i) {
+  const g = G; if (g.state !== 'q') return;
+  g.state = 'a';
+  const back = sideOf(g.cur, 'back').trim(), ok = g.opts[i] === back;
+  const btns = gameEl.querySelectorAll('.ans');
+  btns.forEach((b, j) => { if (g.opts[j] === back) b.classList.add('good'); });
+  $('#g-ans').classList.add('done');
+  if (!ok) { btns[i].classList.add('bad'); btns[i].classList.add('shake'); }
+  if (ok) g.correct++; else { g.wrong++; if (g.mode !== 'time' || !g.missed.some((m) => m.id === g.cur.id)) g.missed.push(g.cur); if (g.mode === 'lives') g.lives--; }
+  if (g.mode !== 'time') g.seen++;
+  if (g.mode === 'lives') { const h = gameEl.querySelector('.hearts'); if (h) h.textContent = '❤️'.repeat(g.lives) + '🤍'.repeat(LIVES - g.lives); }
+  setTimeout(() => { if (G === g) nextCard(); }, ok ? 650 : 1500);
+}
+function endGame() {
+  const g = G; if (!g || g.state === 'end') return;
+  if (g.timer) clearInterval(g.timer);
+  g.state = 'end';
+  const total = g.deck.length, secs = Math.round((Date.now() - g.start) / 1000);
+  let pct, head, line;
+  if (g.mode === 'time') {
+    const key = g.folder.id + ':' + settings.dir, bests = lsGet('fc-best', {}), prev = bests[key] || 0;
+    const isNew = g.correct > prev; if (isNew) { bests[key] = g.correct; lsSet('fc-best', bests); }
+    const answered = g.correct + g.wrong;
+    pct = answered ? Math.round((g.correct / answered) * 100) : 0;
+    head = isNew && g.correct ? t().newBest : t().res[Math.min(4, Math.floor(pct / 25))];
+    line = `${t().resTime(g.correct)} · ${t().best(Math.max(prev, g.correct))}`;
+  } else {
+    pct = total ? Math.round((g.correct / total) * 100) : 0;
+    head = t().res[pct === 100 ? 4 : Math.min(3, Math.floor(pct / 25))];
+    line = g.mode === 'lives' && g.lives <= 0 ? `${t().resLives(g.seen, total)} · ✓ ${g.correct}` : t().resLine(g.correct, total);
+    line += ` · ${t().time} ${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
+  }
+  const missed = g.missed.filter((m, i, a) => a.findIndex((x) => x.id === m.id) === i);
+  gameEl.innerHTML = `<div class="g-top"><button class="icon-btn" id="g-close" aria-label="${t().close}">${I('x')}</button><div class="meta"><b>${esc(g.folder.name)}</b><small>${t().modes[g.mode][0]}</small></div></div>
+    <div class="g-main enter"><div class="result">
+      <div class="ring" style="--p:${pct}"><div>${g.mode === 'time' ? g.correct : pct + ' %'}</div></div>
+      <h3>${head}</h3><p>${line}</p>
+      <div class="ctrl" style="width:100%">${missed.length ? `<button class="btn big" id="g-missed">${t().againMissed} (${missed.length})</button>` : ''}<button class="btn big primary" id="g-again">${t().again}</button></div>
+      <button class="btn sm" id="g-close2">${t().back2}</button>
+      ${missed.length ? `<h2 style="margin:14px 0 0;align-self:flex-start">${t().missed}</h2><div class="miss">${missed.map((m) => `<div><small>${esc(m.path)}</small>${esc(sideOf(m, 'front'))} → <em>${esc(sideOf(m, 'back'))}</em></div>`).join('')}</div>` : ''}
+    </div></div>`;
+  G.missedList = missed;
+  const again = $('#g-again'); again && again.focus({ preventScroll: true });
+}
+
+gameEl.addEventListener('click', (e) => {
+  const g = G; if (!g) return;
+  const id = e.target.closest('[id]') && e.target.closest('[id]').id;
+  if (id === 'g-quit') { if (g.seen + g.done === 0 || confirm(t().quitConfirm)) closeGame(); return; }
+  if (id === 'g-close' || id === 'g-close2') return closeGame();
+  if (id === 'g-again') { const { folder, items } = g; closeGame(); return startGame(folder, items); }
+  if (id === 'g-missed') { const { folder, items, missedList } = g; closeGame(); return startGame(folder, items, missedList.map(({ rev, miss, ...c }) => c)); }
+  if (g.mode === 'classic') {
+    if (id === 'g-flip' || (e.target.closest('#g-card') && g.state === 'q')) return flip();
+    if (id === 'g-card' || e.target.closest('#g-card')) { if (g.state === 'a') { /* otočit zpět jen pro kontrolu */ $('#g-card').classList.toggle('on'); } return; }
+    if (id === 'g-yes') return grade(true);
+    if (id === 'g-no') return grade(false);
+  }
+  if (g.mode === 'write') {
+    if (id === 'g-dunno') return checkWrite('');
+    if (id === 'g-next') return nextCard();
+    if (id === 'g-override') return override();
+  }
+  const ans = e.target.closest('.ans'); if (ans) return choose(+ans.dataset.i);
+});
+gameEl.addEventListener('submit', (e) => { e.preventDefault(); if (G && e.target.id === 'g-wf') checkWrite($('#g-in').value); });
+document.addEventListener('keydown', (e) => {
+  const g = G; if (!g || gameEl.hidden || dlg.open) return;
+  if (e.key === 'Escape') { if (g.state === 'end' || g.seen + g.done === 0 || confirm(t().quitConfirm)) closeGame(); return; }
+  if (g.state === 'end') return;
+  if (g.mode === 'classic') {
+    if ((e.key === ' ' || e.key === 'Enter') && g.state === 'q') { e.preventDefault(); flip(); }
+    else if (g.state === 'a' && (e.key === 'ArrowRight' || e.key === '2')) { e.preventDefault(); grade(true); }
+    else if (g.state === 'a' && (e.key === 'ArrowLeft' || e.key === '1')) { e.preventDefault(); grade(false); }
+  } else if (g.mode === 'write') {
+    if (e.key === 'Enter' && g.state === 'a' && e.target.id !== 'g-override') { e.preventDefault(); nextCard(); }
+  } else if (g.state === 'q' && /^[1-4]$/.test(e.key) && +e.key <= g.opts.length) { e.preventDefault(); choose(+e.key - 1); }
+});
+
+// ===== start =====
+(async () => {
+  readHash();
+  await loadPublished();
+  data = published;
+  let wasAdmin = false; try { wasAdmin = sessionStorage.getItem('fc-admin') === '1'; } catch (e) {}
+  if (wasAdmin) enterAdmin(); else render();
+})();
+</script>
+</body>
+</html>
