@@ -13,9 +13,9 @@ const FIREBASE_CONFIG = { // z konzole Firebase (projekt flashcards-663fd); nen�
   apiKey: 'AIzaSyA3zzb5ZmReIpOK5tq6jfiIC_EF-3IId6A', authDomain: 'flashcards-663fd.firebaseapp.com', projectId: 'flashcards-663fd',
   storageBucket: 'flashcards-663fd.firebasestorage.app', messagingSenderId: '804475670634', appId: '1:804475670634:web:6f851aa49f3909c613ba13',
 };
-const APP_VERSION = '2.2';
+const APP_VERSION = '2.3';
 const DOMAIN = 'flashcards.davidjanecka.cz'; // uživatelská jména se převádí na e-mail jméno@DOMAIN (e-maily se nikam neposílají)
-const ADMIN_EMAILS = ['admin@' + DOMAIN, 'djanecka6@gmail.com']; // tyhle účty jsou správci vždycky (stejný seznam je ve firestore.rules)
+const OWNER_EMAIL = 'djanecka6@gmail.com'; // hlavní správce, práva mu nejde vzít (stejný e-mail je ve firestore.rules); ostatní správce určuje role v Účtech
 const TIME_LIMIT = 60, LIVES = 3, DAY = 864e5;
 const EMU = new URLSearchParams(location.search).has('emu') && /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 const CONFIG = EMU ? { apiKey: 'demo-key', authDomain: 'demo-flashcards.firebaseapp.com', projectId: 'demo-flashcards', appId: 'demo' } : FIREBASE_CONFIG;
@@ -233,9 +233,9 @@ async function enter(user) {
   try { const s = await getDoc(doc(db, 'users', user.uid)); profile = s.exists() ? s.data() : null; lsSet('fc-me-' + user.uid, profile); }
   catch (e) { profile = lsGet('fc-me-' + user.uid, null); }
   // správce je hlavní účet admin a každý, komu správce dal roli „správce“
-  const isAdmin = ADMIN_EMAILS.includes(user.email) || (profile && profile.role === 'admin');
-  // správce ze seznamu, který ještě nemá svůj záznam v Účtech, si ho založí sám (ať je vidět v seznamu)
-  if (isAdmin && !profile && user.email !== ADMIN_EMAILS[0]) {
+  const isAdmin = user.email === OWNER_EMAIL || (profile && profile.role === 'admin');
+  // hlavní správce si při prvním přihlášení založí svůj záznam v Účtech (ať je vidět v seznamu)
+  if (user.email === OWNER_EMAIL && !profile) {
     profile = { name: user.email === 'djanecka6@gmail.com' ? 'David' : user.email.split('@')[0], username: user.email, role: 'admin', created: new Date().toISOString() };
     setDoc(doc(db, 'users', user.uid), profile).catch((e) => console.warn(e));
   }
@@ -495,7 +495,7 @@ function viewUser(id) {
   statsBody.days = u.days;
   return `<nav class="crumbs"><a href="#/users">${t().usersTitle}</a></nav><h1>${esc(u.name)}</h1><p class="sub">@${esc(u.username)} · ${t().role[u.role] || u.role}</p>
     <div style="margin-top:22px">${statsBody(u.cards, false)}</div>
-    ${u.uid === me.uid ? '' : `<h2></h2><div class="toolbar"><button class="btn" data-act="toggleRole" data-uid="${esc(u.uid)}">${u.role === 'admin' ? t().unsetAdmin : t().setAdmin}</button><button class="btn danger" data-act="delUser" data-uid="${esc(u.uid)}">${I('trash')}${t().delUser}</button></div>`}`;
+    ${u.uid === me.uid || u.username === OWNER_EMAIL ? '' : `<h2></h2><div class="toolbar"><button class="btn" data-act="toggleRole" data-uid="${esc(u.uid)}">${u.role === 'admin' ? t().unsetAdmin : t().setAdmin}</button><button class="btn danger" data-act="delUser" data-uid="${esc(u.uid)}">${I('trash')}${t().delUser}</button></div>`}`;
 }
 async function createUser(name, username, pw, role = 'user') {
   const email = toEmail(username);
