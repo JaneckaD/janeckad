@@ -13,7 +13,7 @@ const FIREBASE_CONFIG = { // z konzole Firebase (projekt flashcards-663fd); nen�
   apiKey: 'AIzaSyA3zzb5ZmReIpOK5tq6jfiIC_EF-3IId6A', authDomain: 'flashcards-663fd.firebaseapp.com', projectId: 'flashcards-663fd',
   storageBucket: 'flashcards-663fd.firebasestorage.app', messagingSenderId: '804475670634', appId: '1:804475670634:web:6f851aa49f3909c613ba13',
 };
-const APP_VERSION = '2.6';
+const APP_VERSION = '2.7';
 const DOMAIN = 'flashcards.davidjanecka.cz'; // uživatelská jména se převádí na e-mail jméno@DOMAIN (e-maily se nikam neposílají)
 const OWNER_EMAIL = 'djanecka6@gmail.com'; // hlavní správce, práva mu nejde vzít (stejný e-mail je ve firestore.rules); ostatní správce určuje role v Účtech
 const TIME_LIMIT = 60, LIVES = 3, DAY = 864e5;
@@ -51,8 +51,8 @@ const T = {
     // hra – nastavení
     playTitle: (n) => `Spustit: ${n}`, mode: 'Režim', dir: 'Směr', count: 'Počet karet', allCnt: 'Vše', smartOrder: 'Častěji to, co ti nejde',
     modes: {
-      smart: ['Chytré opakování', 'Doporučeno. Program vybere, co je potřeba zopakovat, a vyzkouší tě. Jestli kartu umíš, pozná sám podle odpovědí a rozestupů.'],
-      weak: ['Co mi nejde', 'Jen karty v kategorii Neumím a Trochu umím.'],
+      smart: ['Chytré opakování', 'Doporučeno. Klasické kartičky: otočíš a dáš Další. Program vybere, co zopakovat, a podle počtu opakování a rozestupů posouvá karty do kategorií.'],
+      weak: ['Co mi nejde', 'Karty v kategorii Neumím a Trochu umím. Vybíráš ze 4 možností, chyba vrátí kartu do Neumím.'],
       classic: ['Kartičky', 'Jen si karty projdeš a otočíš. Nic se nehodnotí.'],
       write: ['Psaní', 'Odpověď napíšeš, malý překlep se odpustí.'],
       quiz: ['Kvíz', 'Vybereš správnou ze 4 možností.'],
@@ -248,7 +248,7 @@ function itemsOfMany(ids) {
 function summary(cardsMap, days, now = Date.now()) {
   const items = allCards(), { k, due } = catCounts(items, cardsMap, now);
   let ans = 0, right = 0, last = 0;
-  for (const c of items) { const s = cardsMap[c.id]; if (s && s.n) { ans += s.n; right += s.r; last = Math.max(last, s.l || 0); } }
+  for (const c of items) { const s = cardsMap[c.id]; if (s && s.n) { ans += tn(s); right += tr(s); last = Math.max(last, s.l || 0); } }
   let streak = 0; for (let d = 0; d < 400; d++) { const key = dayKey(now - d * DAY); if (days[key] && days[key].a) streak++; else if (d > 0) break; }
   const td = days[dayKey(now)] || {};
   return { k, due, ans, right, acc: ans ? Math.round((right / ans) * 100) : 0, streak, today: td.a || 0, last };
@@ -308,9 +308,12 @@ async function enter(user) {
 function leave() { unsubs.forEach((u) => u()); unsubs = []; me = null; deck = { folders: [] }; prog = { cards: {}, days: {} }; deckLoaded = false; usersCache = null; closeGame(); }
 
 // zápis výsledků (posílá se jen to, co se změnilo; bez internetu se to pošle později samo)
-function record(item, q) {
+// view = karta jen otočená v Chytrém opakování: posune rozestupy, ale nepočítá se do úspěšnosti (v = počet takových opakování)
+const tn = (s) => s.n - (s.v || 0), tr = (s) => s.r - (s.v || 0), accOf = (s) => (tn(s) > 0 ? Math.round((tr(s) / tn(s)) * 100) + ' %' : '–');
+function record(item, q, view) {
   const now = Date.now(), prev = prog.cards[item.id];
   const next = applyGrade(prev, q, now);
+  if (view) next.v = ((prev && prev.v) || 0) + 1;
   prog.cards[item.id] = next;
   const k = dayKey(now), day = prog.days[k] ? { ...prog.days[k] } : { a: 0, r: 0, t: 0 };
   day.a++; if (q > 0) day.r++;
@@ -463,7 +466,7 @@ function questionList(f) {
     ${hide ? `<p class="small muted hint">${t().tapToShow}</p>` : ''}
     <div class="qlist ${hide ? 'hide' : ''}">${f.cards.map((c, i) => {
       const s = st(c.id), k = catOf(s, now);
-      return `<div class="qrow" tabindex="0"><span class="n">${i + 1}</span><div class="qa"><div class="q">${rich(c.q)}</div><div class="a">${rich(c.a)}</div></div><div class="meta"><span class="kpill c${k}">${t().cat[k]}</span>${s && s.n ? `<small>${t().tries(s.n)} · ${Math.round((s.r / s.n) * 100)} %</small>` : ''}</div></div>`;
+      return `<div class="qrow" tabindex="0"><span class="n">${i + 1}</span><div class="qa"><div class="q">${rich(c.q)}</div><div class="a">${rich(c.a)}</div></div><div class="meta"><span class="kpill c${k}">${t().cat[k]}</span>${s && s.n ? `<small>${t().tries(s.n)} · ${accOf(s)}</small>` : ''}</div></div>`;
     }).join('')}</div>`;
 }
 function foldersGrid(list, title) {
@@ -517,7 +520,7 @@ function statsBody(cardsMap, linkFolders) {
   const ent = items.map((c) => ({ c, s: cardsMap[c.id], k: catOf(cardsMap[c.id], now) }));
   const { k, due } = catCounts(items, cardsMap, now);
   const seen = ent.filter((e) => e.s && e.s.n);
-  const ans = seen.reduce((a, e) => a + e.s.n, 0), right = seen.reduce((a, e) => a + e.s.r, 0);
+  const ans = seen.reduce((a, e) => a + tn(e.s), 0), right = seen.reduce((a, e) => a + tr(e.s), 0);
   const days = (cardsMap === prog.cards ? prog.days : (statsBody.days || {}));
   let streak = 0; for (let d = 0; d < 400; d++) { const key = dayKey(now - d * DAY); if (days[key] && days[key].a) streak++; else if (d > 0) break; }
   let out = `<div class="kpis">${[3, 2, 1, 0].map((i) => `<div class="kpi" style="--c:var(--k${i})"><b>${k[i]}</b><span>${t().cat[i]}</span></div>`).join('')}</div>
@@ -535,9 +538,9 @@ function statsBody(cardsMap, linkFolders) {
   const li = (e, num) => `<div class="li"><span class="qa">${esc(flat(e.c.q))} → <em>${esc(flat(e.c.a))}</em></span><span class="num">${num}</span><small>${esc(e.c.path)}</small></div>`;
   const hard = seen.filter((e) => e.s.w > 0).sort((a, b) => (b.s.w + 1) / (b.s.n + 2) - (a.s.w + 1) / (a.s.n + 2) || a.k - b.k).slice(0, 8);
   const hardIds = new Set(hard.map((e) => e.c.id));
-  const good = seen.filter((e) => e.k >= 2 && !hardIds.has(e.c.id) && e.s.r / e.s.n >= 0.7).sort((a, b) => b.k - a.k || b.s.i - a.s.i || b.s.r - a.s.r).slice(0, 8);
+  const good = seen.filter((e) => e.k >= 2 && !hardIds.has(e.c.id) && (tn(e.s) ? tr(e.s) / tn(e.s) >= 0.7 : true)).sort((a, b) => b.k - a.k || b.s.i - a.s.i || b.s.r - a.s.r).slice(0, 8);
   const rare = seen.filter((e) => e.s.n <= 2).sort((a, b) => a.s.n - b.s.n || a.s.l - b.s.l).slice(0, 8);
-  const pct = (e) => `${Math.round((e.s.r / e.s.n) * 100)} %`;
+  const pct = (e) => accOf(e.s);
   out += `<div class="two"><div><h2>${t().hard}</h2><div class="list">${hard.map((e) => li(e, `${pct(e)} · ${t().tries(e.s.n)}`)).join('') || `<p class="muted small">–</p>`}</div></div>
     <div><h2>${t().good}</h2><div class="list">${good.map((e) => li(e, pct(e))).join('') || `<p class="muted small">–</p>`}</div></div></div>
     <h2>${t().rare}</h2><div class="list">${rare.map((e) => li(e, t().tries(e.s.n))).join('')}</div>${k[0] ? `<p class="small muted" style="margin-top:8px">${t().unseen(k[0])}</p>` : ''}`;
@@ -545,7 +548,7 @@ function statsBody(cardsMap, linkFolders) {
   const rows = [];
   const walk = (list, depth, path) => list.forEach((f) => {
     const it = collect(f, path), cc = catCounts(it, cardsMap, now);
-    const sn = it.map((c) => cardsMap[c.id]).filter((s) => s && s.n), a = sn.reduce((x, s) => x + s.n, 0), r = sn.reduce((x, s) => x + s.r, 0);
+    const sn = it.map((c) => cardsMap[c.id]).filter((s) => s && s.n), a = sn.reduce((x, s) => x + tn(s), 0), r = sn.reduce((x, s) => x + tr(s), 0);
     if (it.length) rows.push(`<${linkFolders ? `a href="#/learn/${encodeURIComponent(f.id)}"` : 'div'} class="frow"><span class="nm" style="padding-left:${depth * 18}px">${depth ? '› ' : ''}${esc(f.name)}</span>${kbar(cc.k)}<span class="pc">${a ? Math.round((r / a) * 100) + ' %' : '–'}</span></${linkFolders ? 'a' : 'div'}>`);
     if (depth < 1) walk(f.folders, depth + 1, [...path, f.name]);
   });
@@ -778,8 +781,9 @@ function tick() {
 }
 const sideOf = (item, which) => ((which === 'front') !== item.rev ? item.q : item.a);
 const FLIP = ['smart', 'weak', 'classic'];
-// chytré režimy se ptají výběrem z možností a kategorii určí program sám; jen když nejsou 2 různé odpovědi, kartu jen otočíš
-const AUTO = ['smart', 'weak'];
+// Co mi nejde se ptá výběrem z možností (jen když nejsou 2 různé odpovědi, kartu jen otočíš).
+// Chytré opakování jsou klasické kartičky: každé otočení se počítá jako opakování a kategorii posouvá počet opakování a rozestupy.
+const AUTO = ['weak'];
 function nextCard() {
   if (!G || G.state === 'end') return;
   if (G.mode === 'time' && !G.queue.length) G.queue = shuffle(G.deck.map((c) => ({ ...c })));
@@ -872,7 +876,7 @@ function flip() { if (G.state !== 'q') return; G.state = 'a'; drawGame(false); }
 // „Další“ v kartičkách: nic se nehodnotí, karta se jen započítá jako prošlá
 function nextFlip() {
   const g = G; if (g.state !== 'a') return;
-  if (!(AUTO.includes(g.mode) && g.kind === 'choice')) { g.done++; g.correct++; }
+  if (!(AUTO.includes(g.mode) && g.kind === 'choice')) { if (g.mode === 'smart' || (g.mode === 'weak' && g.kind === 'flip')) record(g.cur, 1, true); g.done++; g.correct++; }
   g.state = 'done'; nextCard();
 }
 // chytré opakování: odpověď vyhodnotí program, špatná karta se za chvíli vrátí
@@ -967,7 +971,7 @@ function endGame() {
     const answered = g.correct + g.wrong; pct = answered ? Math.round((g.correct / answered) * 100) : 0;
     head = isNew && g.correct ? t().newBest : t().res[Math.min(4, Math.floor(pct / 25))];
     line = `${t().resTime(g.correct)} · ${t().best(Math.max(prev, g.correct))}`;
-  } else if (g.mode === 'classic') {
+  } else if (g.mode === 'classic' || g.mode === 'smart') {
     pct = 100; head = t().allDone;
     line = `${t().browsed(g.done)} · ${t().time} ${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
   } else {
@@ -982,7 +986,7 @@ function endGame() {
   const missed = g.missed;
   gameEl.innerHTML = `<div class="g-top"><button class="icon-btn" id="g-close" aria-label="${t().close}">${I('x')}</button><div class="meta"><b>${esc(g.folder.name)}</b><small>${t().modes[g.mode][0]}</small></div></div>
     <div class="g-main enter"><div class="result">
-      <div class="ring" style="--p:${pct}"><div>${g.mode === 'time' ? g.correct : g.mode === 'classic' ? g.done : pct + ' %'}</div></div>
+      <div class="ring" style="--p:${pct}"><div>${g.mode === 'time' ? g.correct : g.mode === 'classic' || g.mode === 'smart' ? g.done : pct + ' %'}</div></div>
       <h3>${head}</h3><p>${line}</p>
       ${ids.length ? `<div><p class="small muted" style="margin-bottom:8px">${t().nowCats}${up ? ' · ' + t().up(up) : ''}</p><div class="moves">${[3, 2, 1].filter((k) => after[k]).map((k) => `<span class="kpill c${k}">${t().cat[k]} ${after[k]}</span>`).join('')}</div></div>` : ''}
       <div class="ctrl" style="width:100%">${missed.length ? `<button class="btn big" id="g-missed">${t().againMissed} (${missed.length})</button>` : ''}<button class="btn big primary" id="g-again">${t().again}</button></div>
