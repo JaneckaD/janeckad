@@ -13,7 +13,7 @@ const FIREBASE_CONFIG = { // z konzole Firebase (projekt flashcards-663fd); nen�
   apiKey: 'AIzaSyA3zzb5ZmReIpOK5tq6jfiIC_EF-3IId6A', authDomain: 'flashcards-663fd.firebaseapp.com', projectId: 'flashcards-663fd',
   storageBucket: 'flashcards-663fd.firebasestorage.app', messagingSenderId: '804475670634', appId: '1:804475670634:web:6f851aa49f3909c613ba13',
 };
-const APP_VERSION = '2.7';
+const APP_VERSION = '2.8';
 const DOMAIN = 'flashcards.davidjanecka.cz'; // uživatelská jména se převádí na e-mail jméno@DOMAIN (e-maily se nikam neposílají)
 const OWNER_EMAIL = 'djanecka6@gmail.com'; // hlavní správce, práva mu nejde vzít (stejný e-mail je ve firestore.rules); ostatní správce určuje role v Účtech
 const TIME_LIMIT = 60, LIVES = 3, DAY = 864e5;
@@ -51,9 +51,9 @@ const T = {
     // hra – nastavení
     playTitle: (n) => `Spustit: ${n}`, mode: 'Režim', dir: 'Směr', count: 'Počet karet', allCnt: 'Vše', smartOrder: 'Častěji to, co ti nejde',
     modes: {
-      smart: ['Chytré opakování', 'Doporučeno. Klasické kartičky: otočíš a dáš Další. Program vybere, co zopakovat, a podle počtu opakování a rozestupů posouvá karty do kategorií.'],
-      weak: ['Co mi nejde', 'Karty v kategorii Neumím a Trochu umím. Vybíráš ze 4 možností, chyba vrátí kartu do Neumím.'],
-      classic: ['Kartičky', 'Jen si karty projdeš a otočíš. Nic se nehodnotí.'],
+      smart: ['Chytré opakování', 'Doporučeno. Otoč kartu a táhni ji doprava, když jsi věděl, nebo doleva, když ne. Podle toho program vybírá, co a kdy zopakovat.'],
+      weak: ['Co mi nejde', 'Jen karty v kategorii Neumím a Trochu umím.'],
+      classic: ['Kartičky', 'Projdeš všechny karty po pořádku. Co nevíš, vrátí se.'],
       write: ['Psaní', 'Odpověď napíšeš, malý překlep se odpustí.'],
       quiz: ['Kvíz', 'Vybereš správnou ze 4 možností.'],
       tf: ['Pravda, nebo ne?', 'Sedí odpověď k otázce? Rychlé rozhodování.'],
@@ -67,7 +67,7 @@ const T = {
     front: 'Otázka', back: 'Odpověď', tap: 'Klepni pro otočení', show: 'Ukázat odpověď', g: ['Neumím', 'Trochu', 'Umím'],
     check: 'Zkontrolovat', next: 'Další', typePh: 'Napiš odpověď…', correct: 'Správně!', wrong: 'Špatně. Správně je:', near: 'Skoro, drobný překlep. Správně:', countIt: 'Měl jsem pravdu', dunno: 'Nevím',
     yes: 'Pravda', no: 'Nepravda', tfWrong: 'Správná odpověď je:',
-    keysFlip: 'Mezerník otočí · Enter další', keysAuto: 'Klávesy 1–4 · Enter další', browsed: (n) => `Prošel jsi ${n} ${cz(n, 'kartu', 'karty', 'karet')}`, allDone: 'Hotovo', keysQuiz: 'Klávesy 1–4', keysWrite: 'Enter zkontroluje · Enter další', keysTf: '← pravda · → nepravda',
+    keysFlip: 'Mezerník otočí · ← nevěděl · → věděl', knew: 'Věděl', didnt: 'Nevěděl', dragHint: 'Táhni kartu', keysAuto: 'Klávesy 1–4 · Enter další', browsed: (n) => `Prošel jsi ${n} ${cz(n, 'kartu', 'karty', 'karet')}`, allDone: 'Hotovo', keysQuiz: 'Klávesy 1–4', keysWrite: 'Enter zkontroluje · Enter další', keysTf: '← pravda · → nepravda',
     left: (n) => `zbývá ${n}`, of: (a, b) => `${a} z ${b}`, round: (a, b) => `kolo ${a} z ${b}`, quit: 'Ukončit', quitConfirm: 'Opravdu ukončit? Odpovědi, které už máš, zůstanou uložené.',
     res: ['Zkus to znovu', 'Dobrý začátek', 'Pěkná práce', 'Skvělé!', 'Perfektní!'], resLine: (a, b) => `Správně napoprvé ${a} z ${b}`,
     resTime: (n) => `Za ${TIME_LIMIT} s ${n} správně`, best: (n) => `Rekord: ${n}`, newBest: 'Nový rekord!', time: 'Čas',
@@ -429,13 +429,14 @@ function crumbs(path, base) {
 }
 function folderTile(f, base) {
   const items = collect(f), c = catCounts(items);
-  if (base === 'learn' && items.length) {
-    const badge = c.due ? `<span class="due">${t().due(c.due)}</span>` : c.k[0] === 0 ? `<span class="due ok">${t().done}</span>` : '';
+  if (items.length) {
+    const learn = base === 'learn';
+    const badge = !learn ? '' : c.due ? `<span class="due">${t().due(c.due)}</span>` : c.k[0] === 0 ? `<span class="due ok">${t().done}</span>` : '';
     const on = picked.has(f.id);
-    return `<div class="tile play ${on ? 'picked' : ''}" data-tile="${esc(f.id)}"><a class="tile-link" href="#/learn/${encodeURIComponent(f.id)}" aria-label="${esc(f.name)}"></a>
-      <div class="top"><span class="ico"${fcStyle(colorOf(f.id))}>${I('folder')}</span>${badge}<label class="pick" title="${t().pick}"><input type="checkbox" data-pick="${esc(f.id)}" ${on ? 'checked' : ''} aria-label="${t().pick}: ${esc(f.name)}" /><span>${I('check')}</span></label></div>
+    return `<div class="tile play ${on && learn ? 'picked' : ''}" data-tile="${esc(f.id)}"><a class="tile-link" href="#/${base}/${encodeURIComponent(f.id)}" aria-label="${esc(f.name)}"></a>
+      <div class="top"><span class="ico"${fcStyle(colorOf(f.id))}>${I('folder')}</span>${badge}${learn ? `<label class="pick" title="${t().pick}"><input type="checkbox" data-pick="${esc(f.id)}" ${on ? 'checked' : ''} aria-label="${t().pick}: ${esc(f.name)}" /><span>${I('check')}</span></label>` : ''}</div>
       <div><b>${esc(f.name)}</b><small>${t().cards(items.length)}${f.folders.length ? ' · ' + t().folders(f.folders.length) : ''}</small></div>
-      <div class="bot">${kbar(c.k)}<button class="playbtn" data-play="${esc(f.id)}" title="${t().playFolder}" aria-label="${t().playFolder}: ${esc(f.name)}">${I('play')}</button></div></div>`;
+      <div class="bot">${learn ? kbar(c.k) : '<span style="flex:1"></span>'}<button class="playbtn" data-play="${esc(f.id)}" title="${t().playFolder}" aria-label="${t().playFolder}: ${esc(f.name)}">${I('play')}</button></div></div>`;
   }
   const badge = base === 'learn' && items.length ? (c.due ? `<span class="due">${t().due(c.due)}</span>` : c.k[0] === 0 ? `<span class="due ok">${t().done}</span>` : '') : '';
   return `<a class="tile" href="#/${base}/${encodeURIComponent(f.id)}"><div class="top"><span class="ico"${fcStyle(colorOf(f.id))}>${I('folder')}</span>${badge}</div>
@@ -568,7 +569,7 @@ function viewAdmin(id) {
   const f = h ? h.folder : null, subs = f ? f.folders : deck.folders;
   let out = h ? crumbs(h.path, 'admin') + `<h1>${esc(f.name)}</h1><p class="sub">${t().cards(count(f))}${f.folders.length ? ' · ' + t().folders(f.folders.length) : ''}</p>`
     : `<p class="eyebrow">${t().nav.admin}</p><h1>${t().adminTitle}</h1><p class="sub">${t().adminSub}</p>`;
-  out += `<div class="toolbar"><span class="savechip" id="savechip"></span>${f ? `<button class="btn sm" data-act="color"><span class="dot"${fcStyle(colorOf(f.id))}></span>${t().color}</button><button class="btn sm" data-act="rename">${I('edit')}${t().rename}</button><button class="btn sm" data-act="move">${I('move')}${t().move}</button><button class="btn sm danger" data-act="del">${I('trash')}${t().del}</button>` : `<button class="btn sm" data-act="backup">${I('download')}${t().backup}</button><button class="btn sm" data-act="restore">${t().restore}</button><input type="file" id="rfile" accept=".json,application/json" hidden />`}</div>`;
+  out += `<div class="toolbar"><span class="savechip" id="savechip"></span>${f ? `${count(f) ? `<button class="btn sm primary" data-play="${esc(f.id)}">${I('play')}${t().start}</button>` : ''}<button class="btn sm" data-act="color"><span class="dot"${fcStyle(colorOf(f.id))}></span>${t().color}</button><button class="btn sm" data-act="rename">${I('edit')}${t().rename}</button><button class="btn sm" data-act="move">${I('move')}${t().move}</button><button class="btn sm danger" data-act="del">${I('trash')}${t().del}</button>` : `<button class="btn sm" data-act="backup">${I('download')}${t().backup}</button><button class="btn sm" data-act="restore">${t().restore}</button><input type="file" id="rfile" accept=".json,application/json" hidden />`}</div>`;
   out += `<h2>${f ? t().subfolders : t().fold}</h2><div class="grid">${subs.map((x) => folderTile(x, 'admin')).join('')}<button class="tile add" data-act="addFolder">${I('plus')}${f ? t().newSub : t().newFolder}</button></div>`;
   if (f) {
     out += `<h2>${t().questions} (${f.cards.length})<button class="btn sm" data-act="bulk" style="text-transform:none;letter-spacing:0">${I('list')}${t().bulk}</button></h2>
@@ -783,12 +784,12 @@ const sideOf = (item, which) => ((which === 'front') !== item.rev ? item.q : ite
 const FLIP = ['smart', 'weak', 'classic'];
 // Co mi nejde se ptá výběrem z možností (jen když nejsou 2 různé odpovědi, kartu jen otočíš).
 // Chytré opakování jsou klasické kartičky: každé otočení se počítá jako opakování a kategorii posouvá počet opakování a rozestupy.
-const AUTO = ['weak'];
+const AUTO = [];
 function nextCard() {
   if (!G || G.state === 'end') return;
   if (G.mode === 'time' && !G.queue.length) G.queue = shuffle(G.deck.map((c) => ({ ...c })));
   if (!G.queue.length || (G.mode === 'lives' && G.lives <= 0)) return endGame();
-  G.cur = G.queue.shift(); G.state = 'q'; G.flipDrawn = false; G.pick = -1;
+  G.cur = G.queue.shift(); G.state = 'q'; G.flipDrawn = false; G.pick = -1; G.noClick = false;
   if (['quiz', 'time', 'lives'].includes(G.mode)) G.opts = makeOptions(G.cur, 3);
   if (AUTO.includes(G.mode)) { G.opts = makeOptions(G.cur, 3); G.kind = G.opts.length >= 2 ? 'choice' : 'flip'; }
   if (G.mode === 'tf') { const right = Math.random() < 0.5; const wrong = makeOptions(G.cur, 1).find((o) => o !== sideOf(G.cur, 'back').trim()); G.cand = right || !wrong ? sideOf(G.cur, 'back').trim() : wrong; }
@@ -848,9 +849,9 @@ function drawGame(fresh) {
     if (g.state !== 'q') body += `<div class="ctrl"><button class="btn primary big" id="g-next">${t().next}</button></div>`;
     body += `<p class="keys">${t().keysAuto}</p>`;
   } else if (FLIP.includes(g.mode)) {
-    body += cardHtml(it, wantFlip && !flipNow, g.state === 'q');
+    body += `<div class="swipe ${g.state === 'q' ? '' : 'armed'}" id="g-sw"><div class="peek no" aria-hidden="true">${I('x')}${t().didnt}</div><div class="peek yes" aria-hidden="true">${t().knew}${I('check')}</div>${cardHtml(it, wantFlip && !flipNow, g.state === 'q')}</div>`;
     body += g.state === 'q' ? `<div class="ctrl"><button class="btn big primary" id="g-flip">${t().show}</button></div>`
-      : `<div class="ctrl"><button class="btn primary big" id="g-next">${t().next}</button></div>`;
+      : `<div class="judge"><button class="jb no" id="g-no">${I('x')}${t().didnt}</button><span class="jh">← ${t().dragHint} →</span><button class="jb yes" id="g-yes">${t().knew}${I('check')}</button></div>`;
     body += `<p class="keys">${t().keysFlip}</p>`;
   } else if (g.mode === 'write') {
     body += cardHtml(it, wantFlip && !flipNow, false);
@@ -873,12 +874,68 @@ function drawGame(fresh) {
   if (g.state !== 'q' && (g.mode === 'write' || FLIP.includes(g.mode))) { const n = $('#g-next'); if (n) n.focus({ preventScroll: true }); }
 }
 function flip() { if (G.state !== 'q') return; G.state = 'a'; drawGame(false); }
-// „Další“ v kartičkách: nic se nehodnotí, karta se jen započítá jako prošlá
-function nextFlip() {
-  const g = G; if (g.state !== 'a') return;
-  if (!(AUTO.includes(g.mode) && g.kind === 'choice')) { if (g.mode === 'smart' || (g.mode === 'weak' && g.kind === 'flip')) record(g.cur, 1, true); g.done++; g.correct++; }
+// otočená karta: doleva = nevěděl (vrátí se za chvíli), doprava = věděl; podle toho chytrý algoritmus plánuje opakování
+function gradeSwipe(knew) {
+  const g = G; if (!g || g.state !== 'a') return;
+  record(g.cur, knew ? 2 : 0);
+  if (knew) { g.done++; if (!g.cur.miss) g.correct++; }
+  else { if (!g.cur.miss) { g.cur.miss = true; miss(g.cur); } g.queue.splice(Math.min(g.queue.length, 3 + Math.floor(Math.random() * 3)), 0, g.cur); }
   g.state = 'done'; nextCard();
 }
+// tažení karty: karta jede za prstem, ze strany vykoukne červené „Nevěděl“ nebo zelené „Věděl“
+let drag = null;
+function setSwipe(dx, animate) {
+  const card = $('#g-card'), wrap = $('#g-sw'); if (!card || !wrap) return;
+  const W = card.offsetWidth, e = Math.min(1, Math.abs(dx) / 110), rect = wrap.getBoundingClientRect();
+  card.style.transition = animate ? 'transform .35s var(--ease)' : 'none';
+  card.style.transform = dx ? `translateX(${dx}px) rotate(${dx / 24}deg)` : '';
+  card.style.setProperty('--swo', (e * 0.16).toFixed(3));
+  card.style.setProperty('--swc', dx < 0 ? 'var(--bad)' : 'var(--ok)');
+  wrap.querySelectorAll('.peek').forEach((pk) => {
+    const no = pk.classList.contains('no'), on = no ? dx < 0 : dx > 0, w = pk.offsetWidth;
+    let x = no ? dx + 10 + (-w - 22) * e : W + dx - w - 10 + (w + 22) * e; // vyjede zpod okraje karty
+    x = Math.max(-rect.left + 8, Math.min(x, window.innerWidth - rect.left - w - 8));
+    pk.style.transition = animate ? 'transform .35s var(--ease), opacity .25s' : 'none';
+    pk.style.transform = `translate(${x}px, -50%) scale(${0.85 + 0.15 * e})`;
+    pk.style.opacity = on ? Math.min(1, e * 1.4) : 0;
+  });
+}
+function swipeOut(knew) {
+  const g = G, card = $('#g-card'); if (!g || g.state !== 'a' || g.leaving) return;
+  g.leaving = true;
+  setSwipe(knew ? 130 : -130, true);
+  requestAnimationFrame(() => {
+    card.style.transition = 'transform .3s cubic-bezier(.5,0,.9,.5), opacity .3s';
+    card.style.transform = `translateX(${knew ? '' : '-'}${window.innerWidth}px) rotate(${knew ? 22 : -22}deg)`;
+    card.style.opacity = '0';
+  });
+  setTimeout(() => { if (G === g) { g.leaving = false; gradeSwipe(knew); } }, 260);
+}
+gameEl.addEventListener('pointerdown', (e) => {
+  const g = G; if (!g || !FLIP.includes(g.mode) || g.state !== 'a' || g.leaving) return;
+  const card = e.target.closest('#g-card'); if (!card || (e.pointerType === 'mouse' && e.button !== 0)) return;
+  drag = { x0: e.clientX, dx: 0, t: performance.now(), x: e.clientX, v: 0, id: e.pointerId, moved: false };
+  try { card.setPointerCapture(e.pointerId); } catch (er) {}
+  card.classList.add('dragging');
+});
+gameEl.addEventListener('pointermove', (e) => {
+  if (!drag || e.pointerId !== drag.id) return;
+  const now = performance.now();
+  drag.v = (e.clientX - drag.x) / Math.max(1, now - drag.t); drag.t = now; drag.x = e.clientX;
+  drag.dx = e.clientX - drag.x0; if (Math.abs(drag.dx) > 6) drag.moved = true;
+  if (drag.moved) setSwipe(drag.dx);
+});
+function endDrag(e) {
+  if (!drag || e.pointerId !== drag.id) return;
+  const d = drag; drag = null;
+  const card = $('#g-card'); if (card) card.classList.remove('dragging');
+  if (!d.moved) return;
+  if (G) G.noClick = true;
+  const far = Math.abs(d.dx) > Math.min(110, (card ? card.offsetWidth : 300) * 0.28), flick = Math.abs(d.dx) > 35 && Math.abs(d.v) > 0.5 && Math.sign(d.v) === Math.sign(d.dx);
+  if (far || flick) swipeOut(d.dx > 0); else setSwipe(0, true);
+}
+gameEl.addEventListener('pointerup', endDrag);
+gameEl.addEventListener('pointercancel', endDrag);
 // chytré opakování: odpověď vyhodnotí program, špatná karta se za chvíli vrátí
 function chooseAuto(i) {
   const g = G; if (g.state !== 'q') return;
@@ -971,22 +1028,19 @@ function endGame() {
     const answered = g.correct + g.wrong; pct = answered ? Math.round((g.correct / answered) * 100) : 0;
     head = isNew && g.correct ? t().newBest : t().res[Math.min(4, Math.floor(pct / 25))];
     line = `${t().resTime(g.correct)} · ${t().best(Math.max(prev, g.correct))}`;
-  } else if (g.mode === 'classic' || g.mode === 'smart') {
-    pct = 100; head = t().allDone;
-    line = `${t().browsed(g.done)} · ${t().time} ${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
   } else {
     pct = total ? Math.round((g.correct / total) * 100) : 0;
     head = t().res[pct === 100 ? 4 : Math.min(3, Math.floor(pct / 25))];
     line = `${t().resLine(g.correct, total)} · ${t().time} ${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
   }
   // kam se karty posunuly
-  const ids = g.mode === 'classic' ? [] : [...new Set(g.deck.map((c) => c.id))].filter((id) => st(id) && st(id).n);
+  const ids = [...new Set(g.deck.map((c) => c.id))].filter((id) => st(id) && st(id).n);
   const now = Date.now(), after = [0, 0, 0, 0]; let up = 0;
   ids.forEach((id) => { const k = catOf(st(id), now); after[k]++; if (k > (g.before[id] || 0) && !(g.before[id] === 0 && k === 1)) up++; });
   const missed = g.missed;
   gameEl.innerHTML = `<div class="g-top"><button class="icon-btn" id="g-close" aria-label="${t().close}">${I('x')}</button><div class="meta"><b>${esc(g.folder.name)}</b><small>${t().modes[g.mode][0]}</small></div></div>
     <div class="g-main enter"><div class="result">
-      <div class="ring" style="--p:${pct}"><div>${g.mode === 'time' ? g.correct : g.mode === 'classic' || g.mode === 'smart' ? g.done : pct + ' %'}</div></div>
+      <div class="ring" style="--p:${pct}"><div>${g.mode === 'time' ? g.correct : pct + ' %'}</div></div>
       <h3>${head}</h3><p>${line}</p>
       ${ids.length ? `<div><p class="small muted" style="margin-bottom:8px">${t().nowCats}${up ? ' · ' + t().up(up) : ''}</p><div class="moves">${[3, 2, 1].filter((k) => after[k]).map((k) => `<span class="kpill c${k}">${t().cat[k]} ${after[k]}</span>`).join('')}</div></div>` : ''}
       <div class="ctrl" style="width:100%">${missed.length ? `<button class="btn big" id="g-missed">${t().againMissed} (${missed.length})</button>` : ''}<button class="btn big primary" id="g-again">${t().again}</button></div>
@@ -1007,11 +1061,10 @@ gameEl.addEventListener('click', (e) => {
   if (id === 'g-missed') { const { folder, items, missed } = g; closeGame(); return startGame(folder, items, missed.map(({ rev, miss: _m, ...c }) => c)); }
   if (g.state === 'end') return;
   if (FLIP.includes(g.mode)) {
-    if (id === 'g-next') return nextFlip();
-    if (!(AUTO.includes(g.mode) && g.kind === 'choice')) {
-      if (id === 'g-flip' || (id === 'g-card' && g.state === 'q')) return flip();
-      if (id === 'g-card') { el.classList.toggle('on'); return; }
-    }
+    if (id === 'g-card' && g.noClick) { g.noClick = false; return; }
+    if (id === 'g-no' || id === 'g-yes') return swipeOut(id === 'g-yes');
+    if (id === 'g-flip' || (id === 'g-card' && g.state === 'q')) return flip();
+    if (id === 'g-card') { el.classList.toggle('on'); return; }
   }
   if (g.mode === 'write') { if (id === 'g-dunno') return checkWrite(''); if (id === 'g-next') return nextCard(); if (id === 'g-override') return override(); }
   if (g.mode === 'tf' && el.dataset.tf) return answerTf(el.dataset.tf === '1');
@@ -1024,10 +1077,9 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') return quitGame();
   if (g.state === 'end') return;
   if (FLIP.includes(g.mode)) {
-    const choice = AUTO.includes(g.mode) && g.kind === 'choice';
-    if (g.state === 'a' && (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowRight')) { e.preventDefault(); nextFlip(); }
-    else if (g.state === 'q' && choice && /^[1-4]$/.test(e.key) && +e.key <= g.opts.length) { e.preventDefault(); choose(+e.key - 1); }
-    else if (g.state === 'q' && !choice && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); flip(); }
+    if (g.state === 'a' && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) { e.preventDefault(); swipeOut(e.key === 'ArrowRight'); }
+    else if (g.state === 'a' && e.key === ' ') { e.preventDefault(); const c = $('#g-card'); if (c) c.classList.toggle('on'); }
+    else if (g.state === 'q' && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); flip(); }
   } else if (g.mode === 'write') {
     if (e.key === 'Enter' && g.state === 'a' && e.target.id !== 'g-override') { e.preventDefault(); nextCard(); }
   } else if (g.mode === 'tf') {
