@@ -13,7 +13,7 @@ const FIREBASE_CONFIG = { // z konzole Firebase (projekt flashcards-663fd); nen�
   apiKey: 'AIzaSyA3zzb5ZmReIpOK5tq6jfiIC_EF-3IId6A', authDomain: 'flashcards-663fd.firebaseapp.com', projectId: 'flashcards-663fd',
   storageBucket: 'flashcards-663fd.firebasestorage.app', messagingSenderId: '804475670634', appId: '1:804475670634:web:6f851aa49f3909c613ba13',
 };
-const APP_VERSION = '2.4';
+const APP_VERSION = '2.5';
 const DOMAIN = 'flashcards.davidjanecka.cz'; // uživatelská jména se převádí na e-mail jméno@DOMAIN (e-maily se nikam neposílají)
 const OWNER_EMAIL = 'djanecka6@gmail.com'; // hlavní správce, práva mu nejde vzít (stejný e-mail je ve firestore.rules); ostatní správce určuje role v Účtech
 const TIME_LIMIT = 60, LIVES = 3, DAY = 864e5;
@@ -51,9 +51,9 @@ const T = {
     // hra – nastavení
     playTitle: (n) => `Spustit: ${n}`, mode: 'Režim', dir: 'Směr', count: 'Počet karet', allCnt: 'Vše', smartOrder: 'Častěji to, co ti nejde',
     modes: {
-      smart: ['Chytré opakování', 'Doporučeno. Algoritmus vybere, co je potřeba zopakovat, a přidá pár nových.'],
+      smart: ['Chytré opakování', 'Doporučeno. Program vybere, co je potřeba zopakovat, a vyzkouší tě. Jestli kartu umíš, pozná sám podle odpovědí a rozestupů.'],
       weak: ['Co mi nejde', 'Jen karty v kategorii Neumím a Trochu umím.'],
-      classic: ['Kartičky', 'Projdeš všechny karty. Co nevíš, vrátí se.'],
+      classic: ['Kartičky', 'Jen si karty projdeš a otočíš. Nic se nehodnotí.'],
       write: ['Psaní', 'Odpověď napíšeš, malý překlep se odpustí.'],
       quiz: ['Kvíz', 'Vybereš správnou ze 4 možností.'],
       tf: ['Pravda, nebo ne?', 'Sedí odpověď k otázce? Rychlé rozhodování.'],
@@ -67,7 +67,7 @@ const T = {
     front: 'Otázka', back: 'Odpověď', tap: 'Klepni pro otočení', show: 'Ukázat odpověď', g: ['Neumím', 'Trochu', 'Umím'],
     check: 'Zkontrolovat', next: 'Další', typePh: 'Napiš odpověď…', correct: 'Správně!', wrong: 'Špatně. Správně je:', near: 'Skoro, drobný překlep. Správně:', countIt: 'Měl jsem pravdu', dunno: 'Nevím',
     yes: 'Pravda', no: 'Nepravda', tfWrong: 'Správná odpověď je:',
-    keysFlip: 'Mezerník otočí · 1 neumím · 2 trochu · 3 umím', keysQuiz: 'Klávesy 1–4', keysWrite: 'Enter zkontroluje · Enter další', keysTf: '← pravda · → nepravda',
+    keysFlip: 'Mezerník otočí · Enter další', keysAuto: 'Klávesy 1–4 · Enter další', browsed: (n) => `Prošel jsi ${n} ${cz(n, 'kartu', 'karty', 'karet')}`, allDone: 'Hotovo', keysQuiz: 'Klávesy 1–4', keysWrite: 'Enter zkontroluje · Enter další', keysTf: '← pravda · → nepravda',
     left: (n) => `zbývá ${n}`, of: (a, b) => `${a} z ${b}`, round: (a, b) => `kolo ${a} z ${b}`, quit: 'Ukončit', quitConfirm: 'Opravdu ukončit? Odpovědi, které už máš, zůstanou uložené.',
     res: ['Zkus to znovu', 'Dobrý začátek', 'Pěkná práce', 'Skvělé!', 'Perfektní!'], resLine: (a, b) => `Správně napoprvé ${a} z ${b}`,
     resTime: (n) => `Za ${TIME_LIMIT} s ${n} správně`, best: (n) => `Rekord: ${n}`, newBest: 'Nový rekord!', time: 'Čas',
@@ -86,6 +86,8 @@ const T = {
     questions: 'Otázky v této složce', q: 'Otázka', a: 'Odpověď', add: 'Přidat', bulk: 'Vložit víc najednou', delCard: 'Smazat kartu',
     bulkHelp: 'Každý řádek je jedna karta: otázka a odpověď oddělené středníkem nebo tabulátorem (třeba zkopírované z Excelu).', bulkPh: 'Francie ; Paříž\nRakousko ; Vídeň',
     bulkDone: (n) => `Přidané karty: ${n}.`, bulkSkip: (n) => `Přeskočené řádky bez středníku: ${n}.`,
+    bullet: 'Odrážka', bulletHelp: 'Odrážky: tlačítkem • nebo napiš na začátek řádku pomlčku. Enter na řádku s odrážkou přidá další, Shift+Enter nový řádek.',
+    color: 'Barva složky', colorDef: 'Výchozí',
     backup: 'Stáhnout zálohu', restore: 'Nahrát zálohu', restoreConfirm: 'Nahradit všechny složky obsahem zálohy?', restoreErr: 'Tohle není platná záloha.', restored: 'Záloha nahraná.',
     // účty
     usersTitle: 'Účty', usersSub: 'Registrace není, účty zakládáš tady.', addUser: 'Přidat účet', name: 'Jméno', created: 'Účet je založený.',
@@ -96,6 +98,8 @@ const T = {
     passHelp: 'Heslo si každý může změnit v Můj účet. Když ho někdo zapomene, smaž mu účet a založ nový s jiným jménem.',
     // můj účet
     accTitle: 'Můj účet', lang: 'Jazyk', changePass: 'Změnit heslo', curPass: 'Současné heslo', newPass: 'Nové heslo', passChanged: 'Heslo je změněné.', badCur: 'Současné heslo nesedí.',
+    photo: 'Profilová fotka', photoHelp: 'Uvidí ji správce u tvých statistik.', photoUp: 'Nahrát fotku', photoDel: 'Odebrat', photoSaved: 'Fotka je uložená.', photoErr: 'Tenhle obrázek se nepodařilo načíst. Zkus JPG nebo PNG.',
+    updateHelp: 'Smaže uloženou verzi a stáhne nejnovější.',
     app: 'Aplikace', version: (v) => `Verze ${v}`, update: 'Aktualizovat', upToDate: 'Máš nejnovější verzi.', updating: 'Hledám novou verzi…',
     newVersion: 'Je tu nová verze aplikace.', install: 'Nainstalovat na plochu', installIos: 'Na iPhonu: Sdílet → Přidat na plochu.', role: { admin: 'správce', user: 'uživatel' },
   },
@@ -130,9 +134,25 @@ const P = {
   clock: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9.5 2.5h5"/>', heart: '<path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/>',
   refresh: '<path d="M20 11a8 8 0 0 0-14.3-4.9L4 8M4 4v4h4M4 13a8 8 0 0 0 14.3 4.9L20 16M20 20v-4h-4"/>', download: '<path d="M12 4v11m-4.5-4.5L12 15l4.5-4.5M5 20h14"/>',
   home: '<rect x="3.5" y="3.5" width="7" height="8" rx="2"/><rect x="13.5" y="3.5" width="7" height="5" rx="2"/><rect x="3.5" y="14.5" width="7" height="6" rx="2"/><rect x="13.5" y="11.5" width="7" height="9" rx="2"/>',
-  check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>', upload: '<path d="M12 16V5m-4.5 4.5L12 5l4.5 4.5M5 20h14"/>',
   logout: '<path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 16l4-4-4-4M14 12H4"/>',
 };
+// text karty: řádky začínající pomlčkou / hvězdičkou / tečkou jsou odrážky
+const BUL = /^\s*[-*•–]\s+/;
+function rich(text) {
+  const lines = String(text ?? '').split(/\r?\n/); let out = '', list = [], plain = [];
+  const endPlain = () => { if (plain.length) { out += `<span class="rt-p">${plain.map(esc).join('<br>')}</span>`; plain = []; } };
+  const endList = () => { if (list.length) { out += `<ul class="rt-ul">${list.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>`; list = []; } };
+  for (const l of lines) { if (BUL.test(l)) { endPlain(); list.push(l.replace(BUL, '')); } else { endList(); plain.push(l); } }
+  endPlain(); endList(); return out;
+}
+const flat = (text) => String(text ?? '').split(/\r?\n/).map((l) => l.replace(BUL, '').trim()).filter(Boolean).join(' · ');
+const isLong = (text) => String(text ?? '').length > 90 || /\n/.test(String(text ?? ''));
+const COLORS = { blue: '#2563eb', sky: '#0284c7', teal: '#0d9488', green: '#16a34a', yellow: '#ca8a04', orange: '#ea580c', red: '#dc2626', pink: '#db2777', purple: '#7c3aed', gray: '#64748b' };
+function colorOf(id) { const h = id && find(id); if (!h) return ''; for (let i = h.path.length - 1; i >= 0; i--) if (h.path[i].color) return COLORS[h.path[i].color] || ''; return ''; }
+const fcStyle = (hex) => (hex ? ` style="--fc:${hex}"` : '');
+const okPhoto = (p) => (typeof p === 'string' && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(p) ? p : '');
+const avatar = (name, photo, cls = '') => (okPhoto(photo) ? `<span class="av ${cls}"><img src="${okPhoto(photo)}" alt="" /></span>` : `<span class="av ${cls}">${esc((name || '?')[0])}</span>`);
 const I = (n) => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
 const MODE_ICON = { smart: 'spark', weak: 'target', classic: 'cards', write: 'pen', quiz: 'list', tf: 'tf', match: 'link', time: 'clock', lives: 'heart' };
 let toastTimer;
@@ -191,7 +211,7 @@ let saveState = 'ok', deckTimer = null;
 const root = $('#root'), gameEl = $('#game'), dlg = $('#dlg');
 
 function normalizeDeck(d) {
-  const fix = (f) => ({ id: f.id || uid(), name: String(f.name || '?'), cards: (f.cards || []).filter((c) => c && (c.q || c.a)).map((c) => ({ id: c.id || uid(), q: String(c.q ?? ''), a: String(c.a ?? '') })), folders: (f.folders || []).map(fix) });
+  const fix = (f) => ({ id: f.id || uid(), name: String(f.name || '?'), ...(COLORS[f.color] ? { color: f.color } : {}), cards: (f.cards || []).filter((c) => c && (c.q || c.a)).map((c) => ({ id: c.id || uid(), q: String(c.q ?? ''), a: String(c.a ?? '') })), folders: (f.folders || []).map(fix) });
   return { folders: ((d && d.folders) || []).map(fix) };
 }
 function find(id, list = deck.folders, path = [], parent = null) {
@@ -206,7 +226,7 @@ const rootFolder = () => ({ id: '*', name: t().all, cards: [], folders: deck.fol
 function count(f) { return f.cards.length + f.folders.reduce((s, x) => s + count(x), 0); }
 function collect(f, path = []) {
   const p = f.id === '*' ? path : [...path, f.name];
-  return [...f.cards.map((c) => ({ ...c, path: p.join(' › ') })), ...f.folders.flatMap((x) => collect(x, p))];
+  return [...f.cards.map((c) => ({ ...c, path: p.join(' › '), fid: f.id })), ...f.folders.flatMap((x) => collect(x, p))];
 }
 const allCards = () => collect(rootFolder());
 function itemsOf(id) {
@@ -281,11 +301,11 @@ async function enter(user) {
     const cards = d.cards || {}, days = d.days || {};
     pending.cards.forEach((id) => { cards[id] = prog.cards[id]; });
     pending.days.forEach((k) => { days[k] = prog.days[k]; });
-    prog = { cards, days };
+    prog = { cards, days, photo: okPhoto(d.photo) };
     softRender();
   }, (e) => console.warn(e)));
 }
-function leave() { unsubs.forEach((u) => u()); unsubs = []; me = null; deck = { folders: [] }; prog = { cards: {}, days: {} }; deckLoaded = false; closeGame(); }
+function leave() { unsubs.forEach((u) => u()); unsubs = []; me = null; deck = { folders: [] }; prog = { cards: {}, days: {} }; deckLoaded = false; usersCache = null; closeGame(); }
 
 // zápis výsledků (posílá se jen to, co se změnilo; bez internetu se to pošle později samo)
 function record(item, q) {
@@ -370,7 +390,7 @@ function renderNav(tab) {
   const due = catCounts(allCards()).due;
   if (tab === 'learn') tab = 'dash';
   const items = [['dash', 'home'], ['stats', 'chart'], ...(me.isAdmin ? [['admin', 'edit'], ['users', 'users']] : []), ['account', 'user']];
-  $('#nav').innerHTML = `<a class="brand" href="#/dash">flashcards<i>.</i></a>` + items.map(([k, ic]) => `<a href="#/${k}" class="${tab === k ? 'on' : ''}" ${tab === k ? 'aria-current="page"' : ''}>${I(ic)}<span>${t().nav[k]}</span>${k === 'dash' && due ? `<span class="badge">${due > 99 ? '99+' : due}</span>` : ''}</a>`).join('');
+  $('#nav').innerHTML = `<a class="brand" href="#/dash">flashcards<i>.</i></a>` + items.map(([k, ic]) => `<a href="#/${k}" class="${tab === k ? 'on' : ''}" ${tab === k ? 'aria-current="page"' : ''}>${k === 'account' && prog.photo ? avatar(me.name, prog.photo, 'nav-av') : I(ic)}<span>${t().nav[k]}</span>${k === 'dash' && due ? `<span class="badge">${due > 99 ? '99+' : due}</span>` : ''}</a>`).join('');
 }
 function render() {
   if (!me) return;
@@ -404,12 +424,12 @@ function folderTile(f, base) {
     const badge = c.due ? `<span class="due">${t().due(c.due)}</span>` : c.k[0] === 0 ? `<span class="due ok">${t().done}</span>` : '';
     const on = picked.has(f.id);
     return `<div class="tile play ${on ? 'picked' : ''}" data-tile="${esc(f.id)}"><a class="tile-link" href="#/learn/${encodeURIComponent(f.id)}" aria-label="${esc(f.name)}"></a>
-      <div class="top"><span class="ico">${I('folder')}</span>${badge}<label class="pick" title="${t().pick}"><input type="checkbox" data-pick="${esc(f.id)}" ${on ? 'checked' : ''} aria-label="${t().pick}: ${esc(f.name)}" /><span>${I('check')}</span></label></div>
+      <div class="top"><span class="ico"${fcStyle(colorOf(f.id))}>${I('folder')}</span>${badge}<label class="pick" title="${t().pick}"><input type="checkbox" data-pick="${esc(f.id)}" ${on ? 'checked' : ''} aria-label="${t().pick}: ${esc(f.name)}" /><span>${I('check')}</span></label></div>
       <div><b>${esc(f.name)}</b><small>${t().cards(items.length)}${f.folders.length ? ' · ' + t().folders(f.folders.length) : ''}</small></div>
       <div class="bot">${kbar(c.k)}<button class="playbtn" data-play="${esc(f.id)}" title="${t().playFolder}" aria-label="${t().playFolder}: ${esc(f.name)}">${I('play')}</button></div></div>`;
   }
   const badge = base === 'learn' && items.length ? (c.due ? `<span class="due">${t().due(c.due)}</span>` : c.k[0] === 0 ? `<span class="due ok">${t().done}</span>` : '') : '';
-  return `<a class="tile" href="#/${base}/${encodeURIComponent(f.id)}"><div class="top"><span class="ico">${I('folder')}</span>${badge}</div>
+  return `<a class="tile" href="#/${base}/${encodeURIComponent(f.id)}"><div class="top"><span class="ico"${fcStyle(colorOf(f.id))}>${I('folder')}</span>${badge}</div>
     <div><b>${esc(f.name)}</b><small>${t().cards(items.length)}${f.folders.length ? ' · ' + t().folders(f.folders.length) : ''}</small></div>${base === 'learn' && items.length ? kbar(c.k) : ''}</a>`;
 }
 
@@ -470,7 +490,7 @@ function viewDash() {
 function othersList() {
   const list = usersCache.filter((u) => u.uid !== me.uid).map((u) => ({ u, s: summary(u.cards || {}, u.days || {}) })).sort((a, b) => b.s.last - a.s.last);
   if (!list.length) return `<p class="muted small" style="padding:6px 0">${t().noOthers}</p>`;
-  return `<div class="olist">${list.slice(0, 6).map(({ u, s }) => `<a class="orow" href="#/users/${encodeURIComponent(u.uid)}"><span class="av">${esc((u.name || '?')[0])}</span><span class="nm"><b>${esc(u.name)}</b><small>${s.today ? t().todayN(s.today) : s.last ? t().lastSeen(fmtDate(s.last)) : t().never}</small></span><span class="kb">${kbar(s.k)}</span><span class="pc">${s.ans ? s.acc + ' %' : '–'}</span></a>`).join('')}</div>
+  return `<div class="olist">${list.slice(0, 6).map(({ u, s }) => `<a class="orow" href="#/users/${encodeURIComponent(u.uid)}">${avatar(u.name, u.photo)}<span class="nm"><b>${esc(u.name)}</b><small>${s.today ? t().todayN(s.today) : s.last ? t().lastSeen(fmtDate(s.last)) : t().never}</small></span><span class="kb">${kbar(s.k)}</span><span class="pc">${s.ans ? s.acc + ' %' : '–'}</span></a>`).join('')}</div>
     ${list.length > 6 ? `<a class="more" href="#/users">${t().allUsers(list.length)}</a>` : ''}`;
 }
 
@@ -495,7 +515,7 @@ function statsBody(cardsMap, linkFolders) {
     return `<div class="col" title="${fmtDate(now - c.d * DAY)}: ${c.a}"><span class="v">${c.a || ''}</span><div class="bar ${c.a ? '' : 'zero'} ${c.d === 0 ? 'today' : ''}" style="height:${c.a ? Math.max(4, (c.a / max) * 100) : 3}%"></div><small>${c.d === 0 ? t().today : dt.getDate() + '.'}</small></div>`;
   }).join('')}</div></div>`;
   if (!seen.length) return out + `<div class="empty" style="margin-top:22px">${t().nothingYet}</div>`;
-  const li = (e, num) => `<div class="li"><span class="qa">${esc(e.c.q)} → <em>${esc(e.c.a)}</em></span><span class="num">${num}</span><small>${esc(e.c.path)}</small></div>`;
+  const li = (e, num) => `<div class="li"><span class="qa">${esc(flat(e.c.q))} → <em>${esc(flat(e.c.a))}</em></span><span class="num">${num}</span><small>${esc(e.c.path)}</small></div>`;
   const hard = seen.filter((e) => e.s.w > 0).sort((a, b) => (b.s.w + 1) / (b.s.n + 2) - (a.s.w + 1) / (a.s.n + 2) || a.k - b.k).slice(0, 8);
   const hardIds = new Set(hard.map((e) => e.c.id));
   const good = seen.filter((e) => e.k >= 2 && !hardIds.has(e.c.id) && e.s.r / e.s.n >= 0.7).sort((a, b) => b.k - a.k || b.s.i - a.s.i || b.s.r - a.s.r).slice(0, 8);
@@ -528,12 +548,13 @@ function viewAdmin(id) {
   const f = h ? h.folder : null, subs = f ? f.folders : deck.folders;
   let out = h ? crumbs(h.path, 'admin') + `<h1>${esc(f.name)}</h1><p class="sub">${t().cards(count(f))}${f.folders.length ? ' · ' + t().folders(f.folders.length) : ''}</p>`
     : `<p class="eyebrow">${t().nav.admin}</p><h1>${t().adminTitle}</h1><p class="sub">${t().adminSub}</p>`;
-  out += `<div class="toolbar"><span class="savechip" id="savechip"></span>${f ? `<button class="btn sm" data-act="rename">${I('edit')}${t().rename}</button><button class="btn sm" data-act="move">${I('move')}${t().move}</button><button class="btn sm danger" data-act="del">${I('trash')}${t().del}</button>` : `<button class="btn sm" data-act="backup">${I('download')}${t().backup}</button><button class="btn sm" data-act="restore">${t().restore}</button><input type="file" id="rfile" accept=".json,application/json" hidden />`}</div>`;
+  out += `<div class="toolbar"><span class="savechip" id="savechip"></span>${f ? `<button class="btn sm" data-act="color"><span class="dot"${fcStyle(colorOf(f.id))}></span>${t().color}</button><button class="btn sm" data-act="rename">${I('edit')}${t().rename}</button><button class="btn sm" data-act="move">${I('move')}${t().move}</button><button class="btn sm danger" data-act="del">${I('trash')}${t().del}</button>` : `<button class="btn sm" data-act="backup">${I('download')}${t().backup}</button><button class="btn sm" data-act="restore">${t().restore}</button><input type="file" id="rfile" accept=".json,application/json" hidden />`}</div>`;
   out += `<h2>${f ? t().subfolders : t().fold}</h2><div class="grid">${subs.map((x) => folderTile(x, 'admin')).join('')}<button class="tile add" data-act="addFolder">${I('plus')}${f ? t().newSub : t().newFolder}</button></div>`;
   if (f) {
     out += `<h2>${t().questions} (${f.cards.length})<button class="btn sm" data-act="bulk" style="text-transform:none;letter-spacing:0">${I('list')}${t().bulk}</button></h2>
-      <form class="addcard" id="addcard"><textarea class="field" name="q" rows="1" placeholder="${t().q}" required></textarea><textarea class="field" name="a" rows="1" placeholder="${t().a}" required></textarea><button class="btn primary" type="submit">${I('plus')}${t().add}</button></form>
-      <div class="cards">${f.cards.map((c, i) => `<div class="crow" data-card="${esc(c.id)}"><span class="n">${i + 1}</span><textarea class="field q" rows="1" data-k="q" aria-label="${t().q}">${esc(c.q)}</textarea><textarea class="field a" rows="1" data-k="a" aria-label="${t().a}">${esc(c.a)}</textarea><button class="icon-btn del" data-act="delCard" title="${t().delCard}" aria-label="${t().delCard}">${I('trash')}</button></div>`).join('')}</div>`;
+      <form class="addcard" id="addcard"><textarea class="field" name="q" rows="1" placeholder="${t().q}" required></textarea><textarea class="field" name="a" rows="1" placeholder="${t().a}" required></textarea><button class="icon-btn bul" type="button" data-act="bullet" title="${t().bullet}" aria-label="${t().bullet}">${I('list')}</button><button class="btn primary" type="submit">${I('plus')}${t().add}</button></form>
+      <p class="small muted" style="margin:-4px 0 12px">${t().bulletHelp}</p>
+      <div class="cards">${f.cards.map((c, i) => `<div class="crow" data-card="${esc(c.id)}"><span class="n">${i + 1}</span><textarea class="field q" rows="1" data-k="q" aria-label="${t().q}">${esc(c.q)}</textarea><textarea class="field a" rows="1" data-k="a" aria-label="${t().a}">${esc(c.a)}</textarea><button class="icon-btn bul" data-act="bullet" title="${t().bullet}" aria-label="${t().bullet}">${I('list')}</button><button class="icon-btn del" data-act="delCard" title="${t().delCard}" aria-label="${t().delCard}">${I('trash')}</button></div>`).join('')}</div>`;
   }
   return out;
 }
@@ -556,13 +577,13 @@ function usersList() {
   const items = allCards();
   return usersCache.map((u) => {
     const c = catCounts(items, u.cards || {}); const last = Math.max(0, ...Object.values(u.cards || {}).map((s) => s.l || 0));
-    return `<a class="urow" href="#/users/${encodeURIComponent(u.uid)}"><span class="av">${esc((u.name || '?')[0])}</span><span style="min-width:0"><b>${esc(u.name)}</b><small>@${esc(u.username)}${u.role === 'admin' ? ' · ' + t().role.admin : ''} · ${last ? t().lastSeen(fmtDate(last)) : t().never}</small></span><span class="kb">${kbar(c.k)}</span>${I('chev')}</a>`;
+    return `<a class="urow" href="#/users/${encodeURIComponent(u.uid)}">${avatar(u.name, u.photo)}<span style="min-width:0"><b>${esc(u.name)}</b><small>@${esc(u.username)}${u.role === 'admin' ? ' · ' + t().role.admin : ''} · ${last ? t().lastSeen(fmtDate(last)) : t().never}</small></span><span class="kb">${kbar(c.k)}</span>${I('chev')}</a>`;
   }).join('');
 }
 async function loadUsers(sel) {
   try {
     const qs = await getDocs(collection(db, 'users'));
-    const list = await Promise.all(qs.docs.map(async (d) => { let p = {}; try { const s = await getDoc(progRef(d.id)); p = s.data() || {}; } catch (e) {} return { uid: d.id, ...d.data(), cards: p.cards || {}, days: p.days || {} }; }));
+    const list = await Promise.all(qs.docs.map(async (d) => { let p = {}; try { const s = await getDoc(progRef(d.id)); p = s.data() || {}; } catch (e) {} return { uid: d.id, ...d.data(), cards: p.cards || {}, days: p.days || {}, photo: okPhoto(p.photo) }; }));
     list.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
     const changedList = JSON.stringify(list) !== JSON.stringify(usersCache);
     usersCache = list;
@@ -577,7 +598,7 @@ function viewUser(id) {
   const u = usersCache && usersCache.find((x) => x.uid === id);
   if (!u) return `<nav class="crumbs"><a href="#/users">${t().usersTitle}</a></nav><div class="spin"></div>`;
   statsBody.days = u.days;
-  return `<nav class="crumbs"><a href="#/users">${t().usersTitle}</a></nav><h1>${esc(u.name)}</h1><p class="sub">@${esc(u.username)} · ${t().role[u.role] || u.role}</p>
+  return `<nav class="crumbs"><a href="#/users">${t().usersTitle}</a></nav><div class="uhead">${avatar(u.name, u.photo, 'big')}<div><h1>${esc(u.name)}</h1><p class="sub">@${esc(u.username)} · ${t().role[u.role] || u.role}</p></div></div>
     <div style="margin-top:22px">${statsBody(u.cards, false)}</div>
     ${u.uid === me.uid || u.username === OWNER_EMAIL ? '' : `<h2></h2><div class="toolbar"><button class="btn" data-act="toggleRole" data-uid="${esc(u.uid)}">${u.role === 'admin' ? t().unsetAdmin : t().setAdmin}</button><button class="btn danger" data-act="delUser" data-uid="${esc(u.uid)}">${I('trash')}${t().delUser}</button></div>`}`;
 }
@@ -603,9 +624,12 @@ let installEvt = null;
 window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); installEvt = e; if (route().tab === 'account' && me) softRender(); });
 function viewAccount() {
   const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.matchMedia('(display-mode: standalone)').matches && !navigator.standalone;
-  return `<p class="eyebrow">@${esc(me.username)} · ${t().role[me.isAdmin ? 'admin' : 'user']}</p><h1>${esc(me.name)}</h1>
+  return `<div class="uhead">${avatar(me.name, prog.photo, 'big')}<div><p class="eyebrow">@${esc(me.username)} · ${t().role[me.isAdmin ? 'admin' : 'user']}</p><h1>${esc(me.name)}</h1></div></div>
+    <h2>${t().photo}</h2><div class="settings">
+      <div class="srow"><div><b>${t().photo}</b><small>${t().photoHelp}</small></div><div class="acts"><label class="btn">${I('upload')}${t().photoUp}<input type="file" id="photoin" accept="image/*" hidden /></label>${prog.photo ? `<button class="btn" data-act="photoDel">${t().photoDel}</button>` : ''}</div></div>
+    </div>
     <h2>${t().app}</h2><div class="settings">
-      <div class="srow"><div><b>${t().update}</b><small>${t().version(APP_VERSION)}</small></div><button class="btn" data-act="update" id="updbtn">${I('refresh')}${t().update}</button></div>
+      <div class="srow"><div><b>${t().update}</b><small>${t().version(APP_VERSION)} · ${t().updateHelp}</small></div><button class="btn" data-act="update" id="updbtn">${I('refresh')}${t().update}</button></div>
       ${installEvt ? `<div class="srow"><div><b>${t().install}</b></div><button class="btn" data-act="install">${I('download')}${t().install}</button></div>` : ios ? `<div class="srow"><div><b>${t().install}</b><small>${t().installIos}</small></div></div>` : ''}
     </div>
     <h2>${t().changePass}</h2><form class="box form" id="passf" style="max-width:460px">
@@ -613,6 +637,25 @@ function viewAccount() {
       <div><label class="lbl" for="cp2">${t().newPass}</label><input class="field" id="cp2" name="n" type="password" minlength="6" autocomplete="new-password" required /></div>
       <p class="err" id="cperr" hidden></p><div><button class="btn primary">${t().save}</button></div></form>
     <h2></h2><button class="btn danger" data-act="logout">${I('logout')}${t().logout}</button>`;
+}
+
+// profilová fotka: zmenšená na 192 px, uložená u vlastních statistik (progress/{uid}), takže nejsou potřeba nová pravidla
+async function makePhoto(file) {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+    const S = 192, c = document.createElement('canvas'); c.width = c.height = S;
+    const w = img.naturalWidth, h = img.naturalHeight, side = Math.min(w, h); if (!side) throw new Error('img');
+    const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, S, S);
+    x.drawImage(img, (w - side) / 2, (h - side) / 2, side, side, 0, 0, S, S);
+    return c.toDataURL('image/jpeg', 0.85);
+  } finally { URL.revokeObjectURL(url); }
+}
+function savePhoto(data) {
+  prog.photo = okPhoto(data);
+  if (usersCache) { const u = usersCache.find((x) => x.uid === me.uid); if (u) u.photo = prog.photo; }
+  setDoc(progRef(), { photo: prog.photo }, { merge: true }).catch((e) => { console.warn(e); toast(t().saveErr); });
+  render(); toast(t().photoSaved);
 }
 
 // ===== dialogy =====
@@ -718,12 +761,15 @@ function tick() {
 }
 const sideOf = (item, which) => ((which === 'front') !== item.rev ? item.q : item.a);
 const FLIP = ['smart', 'weak', 'classic'];
+// chytré režimy se ptají výběrem z možností a kategorii určí program sám; jen když nejsou 2 různé odpovědi, kartu jen otočíš
+const AUTO = ['smart', 'weak'];
 function nextCard() {
   if (!G || G.state === 'end') return;
   if (G.mode === 'time' && !G.queue.length) G.queue = shuffle(G.deck.map((c) => ({ ...c })));
   if (!G.queue.length || (G.mode === 'lives' && G.lives <= 0)) return endGame();
-  G.cur = G.queue.shift(); G.state = 'q'; G.flipDrawn = false;
+  G.cur = G.queue.shift(); G.state = 'q'; G.flipDrawn = false; G.pick = -1;
   if (['quiz', 'time', 'lives'].includes(G.mode)) G.opts = makeOptions(G.cur, 3);
+  if (AUTO.includes(G.mode)) { G.opts = makeOptions(G.cur, 3); G.kind = G.opts.length >= 2 ? 'choice' : 'flip'; }
   if (G.mode === 'tf') { const right = Math.random() < 0.5; const wrong = makeOptions(G.cur, 1).find((o) => o !== sideOf(G.cur, 'back').trim()); G.cand = right || !wrong ? sideOf(G.cur, 'back').trim() : wrong; }
   drawGame(true);
 }
@@ -737,7 +783,7 @@ function makeOptions(item, n) {
   }
   return shuffle([back, ...opts]);
 }
-function norm(s) { return String(s).toLowerCase().normalize('NFD').replace(/\p{M}/gu, '').replace(/[.,!?;:"'„“”()\[\]–—-]/g, ' ').replace(/\s+/g, ' ').trim(); }
+function norm(s) { return String(s).toLowerCase().normalize('NFD').replace(/\p{M}/gu, '').replace(/[.,!?;:"'„“”()\[\]–—•*-]/g, ' ').replace(/\s+/g, ' ').trim(); }
 function lev(a, b) {
   const m = a.length, n = b.length; if (!m) return n; if (!n) return m;
   let prev = Array.from({ length: n + 1 }, (_, j) => j);
@@ -763,11 +809,11 @@ function hud() {
   else { pct = (g.seen / total) * 100; line = t().of(Math.min(g.seen + 1, total), total); right = g.mode === 'lives' ? `<span class="pill" id="g-hearts">${'❤️'.repeat(g.lives)}${'🤍'.repeat(LIVES - g.lives)}</span>` : `<span class="pill">✓ ${g.correct}</span>`; }
   return `<div class="g-top"><button class="icon-btn" id="g-quit" aria-label="${t().quit}" title="${t().quit}">${I('x')}</button><div class="meta"><b>${esc(g.folder.name)}</b><small>${t().modes[g.mode][0]} · ${line}</small><div class="pbar"><i style="width:${pct}%"></i></div></div><div class="g-score">${right}</div></div>`;
 }
-function tags(it) { const k = catOf(st(it.id)); return `<div class="tags"><span class="path">${I('folder')}<span>${esc(it.path)}</span></span><span class="kpill c${k}">${t().cat[k]}</span></div>`; }
+function tags(it) { const k = catOf(st(it.id)); return `<div class="tags"><span class="path"${fcStyle(colorOf(it.fid))}>${I('folder')}<span>${esc(it.path)}</span></span><span class="kpill c${k}">${t().cat[k]}</span></div>`; }
 function cardHtml(item, flipped, clickable, extra = '') {
   return `<div class="flip ${flipped ? 'on' : ''} ${clickable ? '' : 'static'}" id="g-card"><div class="flip-in">
-    <div class="face"><small>${item.rev ? t().back : t().front}</small><div class="txt">${esc(sideOf(item, 'front'))}</div>${extra}${clickable ? `<span class="tap">${t().tap}</span>` : ''}</div>
-    <div class="face back"><small>${item.rev ? t().front : t().back}</small><div class="txt">${esc(sideOf(item, 'back'))}</div></div></div></div>`;
+    <div class="face"><small>${item.rev ? t().back : t().front}</small><div class="txt ${isLong(sideOf(item, 'front')) ? 'long' : ''}">${rich(sideOf(item, 'front'))}</div>${extra}${clickable ? `<span class="tap">${t().tap}</span>` : ''}</div>
+    <div class="face back"><small>${item.rev ? t().front : t().back}</small><div class="txt ${isLong(sideOf(item, 'back')) ? 'long' : ''}">${rich(sideOf(item, 'back'))}</div></div></div></div>`;
 }
 function drawGame(fresh) {
   const g = G, it = g.cur;
@@ -775,38 +821,52 @@ function drawGame(fresh) {
   const wantFlip = FLIP.includes(g.mode) ? g.state === 'a' : g.mode === 'write' ? g.state !== 'q' : false;
   const flipNow = wantFlip && !g.flipDrawn;
   let body = tags(it);
-  if (FLIP.includes(g.mode)) {
+  if (AUTO.includes(g.mode) && g.kind === 'choice') {
+    const back = sideOf(it, 'back').trim();
+    body += cardHtml(it, false, false) + `<div class="answers ${g.state === 'q' ? '' : 'done'}" id="g-ans">${g.opts.map((o, i) => `<button class="ans ${g.state !== 'q' && o === back ? 'good' : ''} ${g.state !== 'q' && i === g.pick && o !== back ? 'bad shake' : ''}" data-i="${i}"><kbd>${i + 1}</kbd>${rich(o)}</button>`).join('')}</div>`;
+    if (g.state !== 'q') body += `<div class="ctrl"><button class="btn primary big" id="g-next">${t().next}</button></div>`;
+    body += `<p class="keys">${t().keysAuto}</p>`;
+  } else if (FLIP.includes(g.mode)) {
     body += cardHtml(it, wantFlip && !flipNow, g.state === 'q');
     body += g.state === 'q' ? `<div class="ctrl"><button class="btn big primary" id="g-flip">${t().show}</button></div>`
-      : `<div class="grade">${t().g.map((n, i) => `<button class="g${i}" data-q="${i}">${n}<small class="k">${i + 1}</small></button>`).join('')}</div>`;
+      : `<div class="ctrl"><button class="btn primary big" id="g-next">${t().next}</button></div>`;
     body += `<p class="keys">${t().keysFlip}</p>`;
   } else if (g.mode === 'write') {
     body += cardHtml(it, wantFlip && !flipNow, false);
     if (g.state === 'q') body += `<form class="write" id="g-wf"><input class="field" id="g-in" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${t().typePh}" /><button class="btn primary">${t().check}</button></form><div class="ctrl"><button class="btn sm" id="g-dunno">${t().dunno}</button></div>`;
     else {
       const back = esc(sideOf(it, 'back'));
-      body += g.res === 'good' ? `<div class="fb good">${t().correct}</div>` : g.res === 'near' ? `<div class="fb near">${t().near} <b>${back}</b></div>` : `<div class="fb bad">${t().wrong} <b>${back}</b>${g.typed ? `<br><small>(${esc(g.typed)})</small>` : ''}</div>`;
+      body += g.res === 'good' ? `<div class="fb good">${t().correct}</div>` : g.res === 'near' ? `<div class="fb near">${t().near} <b>${rich(sideOf(it, 'back'))}</b></div>` : `<div class="fb bad">${t().wrong} <b>${rich(sideOf(it, 'back'))}</b>${g.typed ? `<br><small>(${esc(g.typed)})</small>` : ''}</div>`;
       body += `<div class="ctrl">${g.res === 'bad' && g.typed ? `<button class="btn" id="g-override">${t().countIt}</button>` : ''}<button class="btn primary big" id="g-next">${t().next}</button></div>`;
     }
     body += `<p class="keys">${t().keysWrite}</p>`;
   } else if (g.mode === 'tf') {
-    body += cardHtml(it, false, false, `<div class="cand">${esc(g.cand)}</div>`);
+    body += cardHtml(it, false, false, `<div class="cand">${rich(g.cand)}</div>`);
     body += `<div class="tf" id="g-tf"><button class="btn yes" data-tf="1">✓ ${t().yes}</button><button class="btn no" data-tf="0">✗ ${t().no}</button></div><div id="g-tffb"></div><p class="keys">${t().keysTf}</p>`;
   } else {
-    body += cardHtml(it, false, false) + `<div class="answers" id="g-ans">${g.opts.map((o, i) => `<button class="ans" data-i="${i}"><kbd>${i + 1}</kbd>${esc(o)}</button>`).join('')}</div><p class="keys">${t().keysQuiz}</p>`;
+    body += cardHtml(it, false, false) + `<div class="answers" id="g-ans">${g.opts.map((o, i) => `<button class="ans" data-i="${i}"><kbd>${i + 1}</kbd>${rich(o)}</button>`).join('')}</div><p class="keys">${t().keysQuiz}</p>`;
   }
   gameEl.innerHTML = hud() + `<div class="g-main ${fresh ? 'enter' : ''}">${body}</div>`;
   if (flipNow) { g.flipDrawn = true; requestAnimationFrame(() => requestAnimationFrame(() => { const c = $('#g-card'); if (c) c.classList.add('on'); })); }
   const inp = $('#g-in'); if (inp) inp.focus({ preventScroll: true });
-  if (g.state !== 'q' && g.mode === 'write') { const n = $('#g-next'); if (n) n.focus({ preventScroll: true }); }
+  if (g.state !== 'q' && (g.mode === 'write' || FLIP.includes(g.mode))) { const n = $('#g-next'); if (n) n.focus({ preventScroll: true }); }
 }
 function flip() { if (G.state !== 'q') return; G.state = 'a'; drawGame(false); }
-function gradeFlip(q) {
+// „Další“ v kartičkách: nic se nehodnotí, karta se jen započítá jako prošlá
+function nextFlip() {
   const g = G; if (g.state !== 'a') return;
-  record(g.cur, q);
-  if (q > 0) { g.done++; if (!g.cur.miss) g.correct++; }
-  else { if (!g.cur.miss) { g.cur.miss = true; miss(g.cur); } g.queue.splice(Math.min(g.queue.length, 3 + Math.floor(Math.random() * 3)), 0, g.cur); }
+  if (!(AUTO.includes(g.mode) && g.kind === 'choice')) { g.done++; g.correct++; }
   g.state = 'done'; nextCard();
+}
+// chytré opakování: odpověď vyhodnotí program, špatná karta se za chvíli vrátí
+function chooseAuto(i) {
+  const g = G; if (g.state !== 'q') return;
+  const ok = g.opts[i] === sideOf(g.cur, 'back').trim();
+  g.state = 'a'; g.pick = i;
+  record(g.cur, ok ? recogQ(g.cur) : 0);
+  if (ok) { g.done++; if (!g.cur.miss) g.correct++; }
+  else { if (!g.cur.miss) { g.cur.miss = true; miss(g.cur); } g.queue.splice(Math.min(g.queue.length, 3 + Math.floor(Math.random() * 3)), 0, g.cur); }
+  drawGame(false);
 }
 function checkWrite(val) {
   const g = G; if (g.state !== 'q') return;
@@ -830,6 +890,7 @@ function afterChoice(ok, delay) {
 }
 function choose(i) {
   const g = G; if (g.state !== 'q') return;
+  if (AUTO.includes(g.mode)) return chooseAuto(i);
   g.state = 'a';
   const back = sideOf(g.cur, 'back').trim(), ok = g.opts[i] === back, btns = gameEl.querySelectorAll('.ans');
   btns.forEach((b, j) => { if (g.opts[j] === back) b.classList.add('good'); });
@@ -843,7 +904,7 @@ function answerTf(yes) {
   const isRight = g.cand === sideOf(g.cur, 'back').trim(), ok = yes === isRight;
   $('#g-tf').classList.add('done');
   const b = gameEl.querySelector(`[data-tf="${yes ? 1 : 0}"]`); b.classList.add(ok ? 'good' : 'bad'); if (!ok) b.classList.add('shake');
-  if (!ok || !isRight) $('#g-tffb').innerHTML = `<div class="fb ${ok ? 'good' : 'bad'}">${t().tfWrong} <b>${esc(sideOf(g.cur, 'back'))}</b></div>`;
+  if (!ok || !isRight) $('#g-tffb').innerHTML = `<div class="fb ${ok ? 'good' : 'bad'}">${t().tfWrong} <b>${rich(sideOf(g.cur, 'back'))}</b></div>`;
   afterChoice(ok, 1900);
 }
 // spojovačka
@@ -852,8 +913,8 @@ function nextRound() {
   if (!g.queue.length) return endGame();
   g.round++; g.pairs = g.queue.splice(0, 5); g.sel = null; g.mistakes = {};
   const right = shuffle(g.pairs.map((c) => c.id));
-  gameEl.innerHTML = hud() + `<div class="g-main enter"><div class="match"><div class="colm">${g.pairs.map((c) => `<button class="pair" data-side="L" data-id="${esc(c.id)}">${esc(sideOf(c, 'front'))}</button>`).join('')}</div>
-    <div class="colm">${right.map((id) => { const c = g.pairs.find((x) => x.id === id); return `<button class="pair" data-side="R" data-id="${esc(c.id)}">${esc(sideOf(c, 'back'))}</button>`; }).join('')}</div></div></div>`;
+  gameEl.innerHTML = hud() + `<div class="g-main enter"><div class="match"><div class="colm">${g.pairs.map((c) => `<button class="pair" data-side="L" data-id="${esc(c.id)}">${rich(sideOf(c, 'front'))}</button>`).join('')}</div>
+    <div class="colm">${right.map((id) => { const c = g.pairs.find((x) => x.id === id); return `<button class="pair" data-side="R" data-id="${esc(c.id)}">${rich(sideOf(c, 'back'))}</button>`; }).join('')}</div></div></div>`;
 }
 function tapPair(btn) {
   const g = G;
@@ -889,24 +950,27 @@ function endGame() {
     const answered = g.correct + g.wrong; pct = answered ? Math.round((g.correct / answered) * 100) : 0;
     head = isNew && g.correct ? t().newBest : t().res[Math.min(4, Math.floor(pct / 25))];
     line = `${t().resTime(g.correct)} · ${t().best(Math.max(prev, g.correct))}`;
+  } else if (g.mode === 'classic') {
+    pct = 100; head = t().allDone;
+    line = `${t().browsed(g.done)} · ${t().time} ${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
   } else {
     pct = total ? Math.round((g.correct / total) * 100) : 0;
     head = t().res[pct === 100 ? 4 : Math.min(3, Math.floor(pct / 25))];
     line = `${t().resLine(g.correct, total)} · ${t().time} ${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
   }
   // kam se karty posunuly
-  const ids = [...new Set(g.deck.map((c) => c.id))].filter((id) => st(id) && st(id).n);
+  const ids = g.mode === 'classic' ? [] : [...new Set(g.deck.map((c) => c.id))].filter((id) => st(id) && st(id).n);
   const now = Date.now(), after = [0, 0, 0, 0]; let up = 0;
   ids.forEach((id) => { const k = catOf(st(id), now); after[k]++; if (k > (g.before[id] || 0) && !(g.before[id] === 0 && k === 1)) up++; });
   const missed = g.missed;
   gameEl.innerHTML = `<div class="g-top"><button class="icon-btn" id="g-close" aria-label="${t().close}">${I('x')}</button><div class="meta"><b>${esc(g.folder.name)}</b><small>${t().modes[g.mode][0]}</small></div></div>
     <div class="g-main enter"><div class="result">
-      <div class="ring" style="--p:${pct}"><div>${g.mode === 'time' ? g.correct : pct + ' %'}</div></div>
+      <div class="ring" style="--p:${pct}"><div>${g.mode === 'time' ? g.correct : g.mode === 'classic' ? g.done : pct + ' %'}</div></div>
       <h3>${head}</h3><p>${line}</p>
       ${ids.length ? `<div><p class="small muted" style="margin-bottom:8px">${t().nowCats}${up ? ' · ' + t().up(up) : ''}</p><div class="moves">${[3, 2, 1].filter((k) => after[k]).map((k) => `<span class="kpill c${k}">${t().cat[k]} ${after[k]}</span>`).join('')}</div></div>` : ''}
       <div class="ctrl" style="width:100%">${missed.length ? `<button class="btn big" id="g-missed">${t().againMissed} (${missed.length})</button>` : ''}<button class="btn big primary" id="g-again">${t().again}</button></div>
       <button class="btn sm" id="g-close2">${t().backTo}</button>
-      ${missed.length ? `<h2 style="align-self:stretch;margin:12px 0 0">${t().missed}</h2><div class="list">${missed.map((m) => `<div class="li"><span class="qa">${esc(sideOf(m, 'front'))} → <em>${esc(sideOf(m, 'back'))}</em></span><span class="num"></span><small>${esc(m.path)}</small></div>`).join('')}</div>` : ''}
+      ${missed.length ? `<h2 style="align-self:stretch;margin:12px 0 0">${t().missed}</h2><div class="list">${missed.map((m) => `<div class="li"><span class="qa">${esc(flat(sideOf(m, 'front')))} → <em>${esc(flat(sideOf(m, 'back')))}</em></span><span class="num"></span><small>${esc(m.path)}</small></div>`).join('')}</div>` : ''}
     </div></div>`;
   const again = $('#g-again'); if (again) again.focus({ preventScroll: true });
 }
@@ -922,9 +986,11 @@ gameEl.addEventListener('click', (e) => {
   if (id === 'g-missed') { const { folder, items, missed } = g; closeGame(); return startGame(folder, items, missed.map(({ rev, miss: _m, ...c }) => c)); }
   if (g.state === 'end') return;
   if (FLIP.includes(g.mode)) {
-    if (id === 'g-flip' || (id === 'g-card' && g.state === 'q')) return flip();
-    if (id === 'g-card') { el.classList.toggle('on'); return; }
-    if (el.dataset.q) return gradeFlip(+el.dataset.q);
+    if (id === 'g-next') return nextFlip();
+    if (!(AUTO.includes(g.mode) && g.kind === 'choice')) {
+      if (id === 'g-flip' || (id === 'g-card' && g.state === 'q')) return flip();
+      if (id === 'g-card') { el.classList.toggle('on'); return; }
+    }
   }
   if (g.mode === 'write') { if (id === 'g-dunno') return checkWrite(''); if (id === 'g-next') return nextCard(); if (id === 'g-override') return override(); }
   if (g.mode === 'tf' && el.dataset.tf) return answerTf(el.dataset.tf === '1');
@@ -937,11 +1003,10 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') return quitGame();
   if (g.state === 'end') return;
   if (FLIP.includes(g.mode)) {
-    if ((e.key === ' ' || e.key === 'Enter') && g.state === 'q') { e.preventDefault(); flip(); }
-    else if (g.state === 'a') {
-      const q = { 1: 0, 2: 1, 3: 2, ArrowLeft: 0, ArrowDown: 1, ArrowRight: 2 }[e.key];
-      if (q !== undefined) { e.preventDefault(); gradeFlip(q); }
-    }
+    const choice = AUTO.includes(g.mode) && g.kind === 'choice';
+    if (g.state === 'a' && (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowRight')) { e.preventDefault(); nextFlip(); }
+    else if (g.state === 'q' && choice && /^[1-4]$/.test(e.key) && +e.key <= g.opts.length) { e.preventDefault(); choose(+e.key - 1); }
+    else if (g.state === 'q' && !choice && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); flip(); }
   } else if (g.mode === 'write') {
     if (e.key === 'Enter' && g.state === 'a' && e.target.id !== 'g-override') { e.preventDefault(); nextCard(); }
   } else if (g.mode === 'tf') {
@@ -951,7 +1016,9 @@ document.addEventListener('keydown', (e) => {
 });
 
 // ===== kliknutí a formuláře v aplikaci =====
-document.addEventListener('change', (e) => {
+document.addEventListener('pointerdown', (e) => { if (e.target.closest && e.target.closest('.bul')) e.preventDefault(); });
+document.addEventListener('change', async (e) => {
+  if (e.target.id === 'photoin') { const file = e.target.files && e.target.files[0]; if (!file) return; try { await savePhoto(await makePhoto(file)); } catch (er) { console.warn(er); toast(t().photoErr); } return; }
   const pk = e.target.closest('[data-pick]'); if (!pk) return;
   if (pk.checked) picked.add(pk.dataset.pick); else picked.delete(pk.dataset.pick);
   pk.closest('.tile').classList.toggle('picked', pk.checked); updatePickBar();
@@ -964,6 +1031,14 @@ document.addEventListener('click', async (e) => {
   if (act === 'logout') { flush(); picked.clear(); await signOut(auth); return; }
   if (act === 'clearPick') { picked.clear(); document.querySelectorAll('[data-pick]').forEach((x) => { x.checked = false; x.closest('.tile').classList.remove('picked'); }); updatePickBar(); return; }
   if (act === 'update') return manualUpdate(a);
+  if (act === 'photoDel') return savePhoto('');
+  if (act === 'bullet') {
+    const box = a.closest('[data-card], #addcard'); if (!box) return;
+    const ta = box.contains(document.activeElement) && document.activeElement.matches('textarea') ? document.activeElement : box.querySelector('textarea[name="a"], textarea[data-k="a"]');
+    const v = ta.value, p0 = ta.selectionStart ?? v.length, p1 = ta.selectionEnd ?? p0;
+    ta.focus(); ta.setRangeText((p0 === 0 || v[p0 - 1] === '\n' ? '' : '\n') + '• ', p0, p1, 'end'); ta.dispatchEvent(new Event('input', { bubbles: true }));
+    return;
+  }
   if (act === 'install' && installEvt) { installEvt.prompt(); installEvt = null; return; }
   if (act === 'toggleRole') {
     const u = usersCache.find((x) => x.uid === a.dataset.uid); if (!u) return;
@@ -979,6 +1054,13 @@ document.addEventListener('click', async (e) => {
   if (!me || !me.isAdmin || route().tab !== 'admin') return;
   const r = route(), hit = r.arg ? find(r.arg) : null, f = hit && hit.folder;
   switch (act) {
+    case 'color': {
+      if (!f) return;
+      modal(`<h3>${t().color}</h3><div class="swatches">${['', ...Object.keys(COLORS)].map((k) => `<button class="sw ${(f.color || '') === k ? 'on' : ''}" data-c="${k}" style="--fc:${COLORS[k] || 'transparent'}" title="${k || t().colorDef}" aria-label="${k || t().colorDef}">${k ? I('folder') : t().colorDef}</button>`).join('')}</div><div class="row"><button class="btn" data-close>${t().close}</button></div>`, (d) => {
+        d.querySelectorAll('.sw').forEach((b) => { b.onclick = () => { if (b.dataset.c) f.color = b.dataset.c; else delete f.color; changed(); dlg.close(); render(); }; });
+      });
+      break;
+    }
     case 'addFolder': { const name = await ask(f ? t().newSub : t().newFolder); if (!name) return; (f ? f.folders : deck.folders).push({ id: uid(), name, cards: [], folders: [] }); changed(); render(); break; }
     case 'rename': { const name = await ask(t().rename, f.name); if (!name) return; f.name = name; changed(); render(); break; }
     case 'del': { if (!confirm(t().delConfirm(f.name, count(f)))) return; hit.list.splice(hit.list.indexOf(f), 1); changed(); go(hit.parent ? '#/admin/' + encodeURIComponent(hit.parent.id) : '#/admin'); break; }
@@ -1056,8 +1138,15 @@ document.addEventListener('submit', async (e) => {
   }
 });
 document.addEventListener('keydown', (e) => {
-  const ta = e.target.closest && e.target.closest('#addcard textarea');
+  const ta = e.target.closest && e.target.closest('#addcard textarea, .crow textarea');
   if (!ta || e.key !== 'Enter' || e.shiftKey || e.isComposing) return;
+  const p = ta.selectionStart, line = ta.value.slice(ta.value.lastIndexOf('\n', p - 1) + 1, p), m = line.match(BUL);
+  if (m) {
+    e.preventDefault();
+    if (line.slice(m[0].length).trim()) ta.setRangeText('\n• ', p, ta.selectionEnd, 'end'); else ta.setRangeText('', p - line.length, p, 'end');
+    ta.dispatchEvent(new Event('input', { bubbles: true })); return;
+  }
+  if (!ta.closest('#addcard')) return;
   e.preventDefault();
   if (ta.name === 'q') ta.form.a.focus(); else ta.form.requestSubmit();
 });
@@ -1091,20 +1180,20 @@ function watchReg(r) {
     w.addEventListener('statechange', () => { if (w.state === 'installed' && navigator.serviceWorker.controller) showUpdateBar(); });
   });
 }
+// tlačítko Aktualizovat: vždy smaže uloženou verzi aplikace, stáhne soubory znovu ze serveru a načte stránku
 async function manualUpdate(btn) {
-  btn.disabled = true; const old = btn.innerHTML; btn.textContent = t().updating;
+  btn.disabled = true; btn.textContent = t().updating;
   flush();
   try {
-    if (reg) {
-      await reg.update();
-      for (let i = 0; i < 40 && reg.installing; i++) await new Promise((r) => setTimeout(r, 150));
-      if (reg.waiting) return applyUpdate();
-    }
-    try { const s = await getDocFromServer(deckRef()); deck = normalizeDeck(s.data()); } catch (e) {}
-    try { const s = await getDocFromServer(progRef()); const d = s.data() || {}; prog = { cards: { ...(d.cards || {}) }, days: { ...(d.days || {}) } }; } catch (e) {}
-    toast(t().upToDate);
-  } finally { btn.disabled = false; btn.innerHTML = old; }
+    await new Promise((r) => setTimeout(r, 400)); // ať se stihnou uložit rozehrané odpovědi
+    if ('serviceWorker' in navigator) { const regs = await navigator.serviceWorker.getRegistrations(); await Promise.all(regs.filter((r) => new URL(r.scope).pathname.startsWith(new URL('./', location.href).pathname)).map((r) => r.unregister())); }
+    if (window.caches) { const keys = await caches.keys(); await Promise.all(keys.filter((k) => k.startsWith('fc-')).map((k) => caches.delete(k))); }
+    await Promise.all(['./', './index.html', './app.js', './app.css', './firebase.js', './sw.js', './manifest.webmanifest'].map((f) => fetch(f, { cache: 'reload' }).catch(() => {})));
+  } catch (e) { console.warn(e); }
+  const u = new URL(location.href); u.searchParams.set('v', Date.now()); location.replace(u.toString());
 }
+// po vynucené aktualizaci schovej ?v= z adresy
+if (new URLSearchParams(location.search).has('v')) { const u = new URL(location.href); u.searchParams.delete('v'); history.replaceState(null, '', u.toString()); }
 if ('serviceWorker' in navigator && !EMU) {
   navigator.serviceWorker.register('sw.js').then(watchReg).catch((e) => console.warn(e));
   const hadController = !!navigator.serviceWorker.controller; // při úplně první návštěvě se nepřenačítá
