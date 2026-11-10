@@ -1,6 +1,6 @@
 // Offline režim pro /flashcards. Při každé změně aplikace zvyš číslo verze,
 // telefon si pak sám nabídne „Je tu nová verze → Aktualizovat“.
-const CACHE = 'fc-v9';
+const CACHE = 'fc-v10';
 const FILES = ['./', './index.html', './app.js', './app.css', './firebase.js', './manifest.webmanifest', './ikona-180.png', './ikona-192.png', './ikona-512.png', './rethink-sans-latin-wght-normal.woff2', './rethink-sans-latin-ext-wght-normal.woff2'];
 
 self.addEventListener('install', (e) => {

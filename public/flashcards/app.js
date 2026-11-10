@@ -13,7 +13,7 @@ const FIREBASE_CONFIG = { // z konzole Firebase (projekt flashcards-663fd); nen�
   apiKey: 'AIzaSyA3zzb5ZmReIpOK5tq6jfiIC_EF-3IId6A', authDomain: 'flashcards-663fd.firebaseapp.com', projectId: 'flashcards-663fd',
   storageBucket: 'flashcards-663fd.firebasestorage.app', messagingSenderId: '804475670634', appId: '1:804475670634:web:6f851aa49f3909c613ba13',
 };
-const APP_VERSION = '2.8';
+const APP_VERSION = '2.9';
 const DOMAIN = 'flashcards.davidjanecka.cz'; // uživatelská jména se převádí na e-mail jméno@DOMAIN (e-maily se nikam neposílají)
 const OWNER_EMAIL = 'djanecka6@gmail.com'; // hlavní správce, práva mu nejde vzít (stejný e-mail je ve firestore.rules); ostatní správce určuje role v Účtech
 const TIME_LIMIT = 60, LIVES = 3, DAY = 864e5;
@@ -835,7 +835,7 @@ function tags(it) { const k = catOf(st(it.id)); return `<div class="tags"><span 
 function cardHtml(item, flipped, clickable, extra = '') {
   return `<div class="flip ${flipped ? 'on' : ''} ${clickable ? '' : 'static'}" id="g-card"><div class="flip-in">
     <div class="face"><small>${item.rev ? t().back : t().front}</small><div class="txt ${isLong(sideOf(item, 'front')) ? 'long' : ''}">${rich(sideOf(item, 'front'))}</div>${extra}${clickable ? `<span class="tap">${t().tap}</span>` : ''}</div>
-    <div class="face back"><small>${item.rev ? t().front : t().back}</small><div class="txt ${isLong(sideOf(item, 'back')) ? 'long' : ''}">${rich(sideOf(item, 'back'))}</div></div></div></div>`;
+    <div class="face back"><small>${item.rev ? t().front : t().back}</small><p class="ask" title="${esc(flat(sideOf(item, 'front')))}">${esc(flat(sideOf(item, 'front')))}</p><div class="txt ${isLong(sideOf(item, 'back')) ? 'long' : ''}">${rich(sideOf(item, 'back'))}</div></div></div></div>`;
 }
 function drawGame(fresh) {
   const g = G, it = g.cur;

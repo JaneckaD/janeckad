@@ -354,6 +354,8 @@ dialog::backdrop { background: rgba(15,23,42,.55); }
 .jb:focus-visible { outline: none; box-shadow: 0 0 0 4px #c7d6fb; }
 .jh { font-size: 13px; color: var(--ink-3); white-space: nowrap; }
 .face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 28px; background: var(--card); border: 1px solid var(--line); box-shadow: 0 30px 50px -36px rgba(15,23,42,.45); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; text-align: center; overflow: auto; }
+.face .ask { position: absolute; top: 36px; left: 24px; right: 24px; font-size: 14px; line-height: 1.35; color: var(--ink-3); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+.face.back { padding-top: 84px; }
 .face.back { transform: rotateY(180deg); background: linear-gradient(160deg, #fff 0, #f2f6ff 100%); border-color: #c9d6f5; }
 .face small { position: absolute; top: 16px; left: 0; right: 0; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); }
 .face .txt { font-size: clamp(22px, 4.2vw, 34px); line-height: 1.25; letter-spacing: -.02em; overflow-wrap: anywhere; max-width: 100%; }
