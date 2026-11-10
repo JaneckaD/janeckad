@@ -13,7 +13,7 @@ const FIREBASE_CONFIG = { // z konzole Firebase (projekt flashcards-663fd); nen�
   apiKey: 'AIzaSyA3zzb5ZmReIpOK5tq6jfiIC_EF-3IId6A', authDomain: 'flashcards-663fd.firebaseapp.com', projectId: 'flashcards-663fd',
   storageBucket: 'flashcards-663fd.firebasestorage.app', messagingSenderId: '804475670634', appId: '1:804475670634:web:6f851aa49f3909c613ba13',
 };
-const APP_VERSION = '2.5';
+const APP_VERSION = '2.6';
 const DOMAIN = 'flashcards.davidjanecka.cz'; // uživatelská jména se převádí na e-mail jméno@DOMAIN (e-maily se nikam neposílají)
 const OWNER_EMAIL = 'djanecka6@gmail.com'; // hlavní správce, práva mu nejde vzít (stejný e-mail je ve firestore.rules); ostatní správce určuje role v Účtech
 const TIME_LIMIT = 60, LIVES = 3, DAY = 864e5;
@@ -83,7 +83,7 @@ const T = {
     saving: 'Ukládám…', saved: 'Uloženo', savedOffline: 'Uloží se, až budeš online', saveErr: 'Nepovedlo se uložit',
     newFolder: 'Nová složka', newSub: 'Nová podsložka', rename: 'Přejmenovat', move: 'Přesunout', del: 'Smazat složku', moveTo: 'Přesunout do', top: '(hlavní úroveň)',
     delConfirm: (name, n) => `Smazat složku „${name}“ i se vším uvnitř (karet: ${n})?`, cancel: 'Zrušit', save: 'Uložit', close: 'Zavřít',
-    questions: 'Otázky v této složce', q: 'Otázka', a: 'Odpověď', add: 'Přidat', bulk: 'Vložit víc najednou', delCard: 'Smazat kartu',
+    questions: 'Otázky v této složce', hideAns: 'Skrýt odpovědi', showAns: 'Ukázat odpovědi', tapToShow: 'Klepni na otázku a odpověď se ukáže.', q: 'Otázka', a: 'Odpověď', add: 'Přidat', bulk: 'Vložit víc najednou', delCard: 'Smazat kartu',
     bulkHelp: 'Každý řádek je jedna karta: otázka a odpověď oddělené středníkem nebo tabulátorem (třeba zkopírované z Excelu).', bulkPh: 'Francie ; Paříž\nRakousko ; Vídeň',
     bulkDone: (n) => `Přidané karty: ${n}.`, bulkSkip: (n) => `Přeskočené řádky bez středníku: ${n}.`,
     bullet: 'Odrážka', bulletHelp: 'Odrážky: tlačítkem • nebo napiš na začátek řádku pomlčku. Enter na řádku s odrážkou přidá další, Shift+Enter nový řádek.',
@@ -415,8 +415,14 @@ function softRender() {
   render();
 }
 function autosize(el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 2 + 'px'; }
+// cesta nahoře: Přehled (nebo Správa) › složka › … › aktuální složka
 function crumbs(path, base) {
-  return `<nav class="crumbs"><a href="#/${base === 'learn' ? 'dash' : base}">${t().all}</a>${path.slice(0, -1).map((p) => `<span>›</span><a href="#/${base}/${encodeURIComponent(p.id)}">${esc(p.name)}</a>`).join('')}</nav>`;
+  const home = base === 'learn' ? `<a href="#/dash">${I('home')}<span>${t().nav.dash}</span></a>` : `<a href="#/${base}">${I('edit')}<span>${t().nav[base]}</span></a>`;
+  const sep = `<span class="sep">${I('chev')}</span>`;
+  return `<nav class="crumbs" aria-label="Cesta">${home}${path.map((p, i) => {
+    const ic = `<span class="fi"${fcStyle(colorOf(p.id))}>${I('folder')}</span>`;
+    return sep + (i === path.length - 1 ? `<span class="cur" aria-current="page">${ic}<span>${esc(p.name)}</span></span>` : `<a href="#/${base}/${encodeURIComponent(p.id)}">${ic}<span>${esc(p.name)}</span></a>`);
+  }).join('')}</nav>`;
 }
 function folderTile(f, base) {
   const items = collect(f), c = catCounts(items);
@@ -446,8 +452,19 @@ function viewLearn(id) {
       <div class="acts"><button class="btn primary big" data-play="${esc(f.id)}" data-mode="smart">${I('spark')}${t().start}</button><button class="btn" data-play="${esc(f.id)}">${t().other}</button></div></div>`;
   }
   if (f.folders.length) out += foldersGrid(f.folders, h ? t().subfolders : t().fold);
+  if (h && f.cards.length) out += questionList(f);
   if (!items.length) out += `<div class="empty" style="margin-top:22px">${h ? t().empty : t().emptyAll}</div>`;
   return out;
+}
+// seznam otázek ve složce (odpovědi jde schovat a zkoušet se klepnutím)
+function questionList(f) {
+  const hide = lsGet('fc-hideans', false), now = Date.now();
+  return `<h2>${t().questions} (${f.cards.length})<button class="btn sm" data-act="toggleAns" style="text-transform:none;letter-spacing:0">${hide ? t().showAns : t().hideAns}</button></h2>
+    ${hide ? `<p class="small muted hint">${t().tapToShow}</p>` : ''}
+    <div class="qlist ${hide ? 'hide' : ''}">${f.cards.map((c, i) => {
+      const s = st(c.id), k = catOf(s, now);
+      return `<div class="qrow" tabindex="0"><span class="n">${i + 1}</span><div class="qa"><div class="q">${rich(c.q)}</div><div class="a">${rich(c.a)}</div></div><div class="meta"><span class="kpill c${k}">${t().cat[k]}</span>${s && s.n ? `<small>${t().tries(s.n)} · ${Math.round((s.r / s.n) * 100)} %</small>` : ''}</div></div>`;
+    }).join('')}</div>`;
 }
 function foldersGrid(list, title) {
   const many = list.filter((x) => count(x)).length > 1;
@@ -1016,6 +1033,8 @@ document.addEventListener('keydown', (e) => {
 });
 
 // ===== kliknutí a formuláře v aplikaci =====
+document.addEventListener('click', (e) => { const r = e.target.closest && e.target.closest('.qlist.hide .qrow'); if (r) r.classList.toggle('open'); });
+document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('.qlist.hide .qrow')) { e.preventDefault(); e.target.classList.toggle('open'); } });
 document.addEventListener('pointerdown', (e) => { if (e.target.closest && e.target.closest('.bul')) e.preventDefault(); });
 document.addEventListener('change', async (e) => {
   if (e.target.id === 'photoin') { const file = e.target.files && e.target.files[0]; if (!file) return; try { await savePhoto(await makePhoto(file)); } catch (er) { console.warn(er); toast(t().photoErr); } return; }
@@ -1032,6 +1051,7 @@ document.addEventListener('click', async (e) => {
   if (act === 'clearPick') { picked.clear(); document.querySelectorAll('[data-pick]').forEach((x) => { x.checked = false; x.closest('.tile').classList.remove('picked'); }); updatePickBar(); return; }
   if (act === 'update') return manualUpdate(a);
   if (act === 'photoDel') return savePhoto('');
+  if (act === 'toggleAns') { lsSet('fc-hideans', !lsGet('fc-hideans', false)); return render(); }
   if (act === 'bullet') {
     const box = a.closest('[data-card], #addcard'); if (!box) return;
     const ta = box.contains(document.activeElement) && document.activeElement.matches('textarea') ? document.activeElement : box.querySelector('textarea[name="a"], textarea[data-k="a"]');
