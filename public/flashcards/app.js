@@ -13,7 +13,7 @@ const FIREBASE_CONFIG = { // z konzole Firebase (projekt flashcards-663fd); nen�
   apiKey: 'AIzaSyA3zzb5ZmReIpOK5tq6jfiIC_EF-3IId6A', authDomain: 'flashcards-663fd.firebaseapp.com', projectId: 'flashcards-663fd',
   storageBucket: 'flashcards-663fd.firebasestorage.app', messagingSenderId: '804475670634', appId: '1:804475670634:web:6f851aa49f3909c613ba13',
 };
-const APP_VERSION = '2.3';
+const APP_VERSION = '2.4';
 const DOMAIN = 'flashcards.davidjanecka.cz'; // uživatelská jména se převádí na e-mail jméno@DOMAIN (e-maily se nikam neposílají)
 const OWNER_EMAIL = 'djanecka6@gmail.com'; // hlavní správce, práva mu nejde vzít (stejný e-mail je ve firestore.rules); ostatní správce určuje role v Účtech
 const TIME_LIMIT = 60, LIVES = 3, DAY = 864e5;
@@ -33,7 +33,7 @@ const cz = (n, one, few, many) => (n === 1 ? one : n >= 2 && n <= 4 ? few : many
 const T = {
   cs: {
     cards: (n) => `${n} ${cz(n, 'karta', 'karty', 'karet')}`, folders: (n) => `${n} ${cz(n, 'složka', 'složky', 'složek')}`,
-    nav: { learn: 'Učení', stats: 'Statistiky', admin: 'Správa', users: 'Účty', account: 'Můj účet' },
+    nav: { dash: 'Přehled', learn: 'Učení', stats: 'Statistiky', admin: 'Správa', users: 'Účty', account: 'Můj účet' },
     cat: ['Nezkoušené', 'Neumím', 'Trochu umím', 'Umím'],
     login: 'Přihlášení', loginSub: 'Účet ti založí správce. Registrace není.', user: 'Uživatelské jméno', pass: 'Heslo', signIn: 'Přihlásit',
     badLogin: 'Špatné jméno nebo heslo.', tooMany: 'Moc pokusů. Zkus to za chvíli.', offline: 'Nejsi připojený k internetu.',
@@ -41,6 +41,12 @@ const T = {
     hello: (n) => `Ahoj, <em>${n}</em>`, all: 'Všechny složky', subfolders: 'Podsložky', fold: 'Složky',
     dueLine: (d, n) => d || n ? `K opakování ${d} · nových ${n}` : 'Na dnešek máš hotovo. Můžeš si procvičit cokoli.',
     smart: 'Chytré opakování', smartAll: 'Chytré opakování všeho', other: 'Jiný režim', start: 'Spustit', due: (n) => `${n} k opakování`, done: 'hotovo',
+    smartSubs: (n) => `Všechny podsložky naráz (${n})`,
+    // přehled
+    myStats: 'Moje statistiky', fullStats: 'Celé statistiky', others: 'Ostatní', allUsers: (n) => `Všechny účty (${n})`, noOthers: 'Zatím tu nikdo další není.',
+    todayAns: 'Dnes odpovědí', week: 'Posledních 7 dní', todayN: (n) => `dnes ${n} ${cz(n, 'odpověď', 'odpovědi', 'odpovědí')}`,
+    pickHint: 'Zaškrtni víc složek a spusť je naráz.', pick: 'Vybrat složku', playFolder: 'Spustit hru',
+    picked: (f, c) => `Vybráno ${f} ${cz(f, 'složka', 'složky', 'složek')} · ${c} ${cz(c, 'karta', 'karty', 'karet')}`, clearPick: 'Zrušit výběr', pickName: (n) => `Vybrané složky (${n})`,
     empty: 'Zatím tu nic není.', emptyAll: 'Zatím tu nejsou žádné otázky. Přidá je správce.', notFound: 'Tahle složka už neexistuje.',
     // hra – nastavení
     playTitle: (n) => `Spustit: ${n}`, mode: 'Režim', dir: 'Směr', count: 'Počet karet', allCnt: 'Vše', smartOrder: 'Častěji to, co ti nejde',
@@ -123,6 +129,8 @@ const P = {
   link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
   clock: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9.5 2.5h5"/>', heart: '<path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/>',
   refresh: '<path d="M20 11a8 8 0 0 0-14.3-4.9L4 8M4 4v4h4M4 13a8 8 0 0 0 14.3 4.9L20 16M20 20v-4h-4"/>', download: '<path d="M12 4v11m-4.5-4.5L12 15l4.5-4.5M5 20h14"/>',
+  home: '<rect x="3.5" y="3.5" width="7" height="8" rx="2"/><rect x="13.5" y="3.5" width="7" height="5" rx="2"/><rect x="3.5" y="14.5" width="7" height="6" rx="2"/><rect x="13.5" y="11.5" width="7" height="9" rx="2"/>',
+  check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
   logout: '<path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 16l4-4-4-4M14 12H4"/>',
 };
 const I = (n) => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
@@ -205,6 +213,25 @@ function itemsOf(id) {
   if (id === '*') return { folder: rootFolder(), items: allCards() };
   const h = find(id); if (!h) return null;
   return { folder: h.folder, items: collect(h.folder, h.path.slice(0, -1).map((p) => p.name)) };
+}
+// víc složek naráz: karty se sloučí, každá jen jednou (i když je vybraná složka i její podsložka)
+function itemsOfMany(ids) {
+  ids = [...new Set(ids)].filter((id) => id === '*' || find(id));
+  if (!ids.length) return null;
+  if (ids.length === 1) return itemsOf(ids[0]);
+  const seen = new Set(), items = [];
+  ids.forEach((id) => itemsOf(id).items.forEach((c) => { if (!seen.has(c.id)) { seen.add(c.id); items.push(c); } }));
+  const names = ids.map((id) => (id === '*' ? t().all : find(id).folder.name)), joined = names.join(', ');
+  return { folder: { id: [...ids].sort().join('+'), name: joined.length <= 42 ? joined : t().pickName(ids.length), folders: [], cards: [] }, items };
+}
+// souhrn statistik (pro přehled, statistiky i ostatní účty)
+function summary(cardsMap, days, now = Date.now()) {
+  const items = allCards(), { k, due } = catCounts(items, cardsMap, now);
+  let ans = 0, right = 0, last = 0;
+  for (const c of items) { const s = cardsMap[c.id]; if (s && s.n) { ans += s.n; right += s.r; last = Math.max(last, s.l || 0); } }
+  let streak = 0; for (let d = 0; d < 400; d++) { const key = dayKey(now - d * DAY); if (days[key] && days[key].a) streak++; else if (d > 0) break; }
+  const td = days[dayKey(now)] || {};
+  return { k, due, ans, right, acc: ans ? Math.round((right / ans) * 100) : 0, streak, today: td.a || 0, last };
 }
 function catCounts(items, cards = prog.cards, now = Date.now()) {
   const k = [0, 0, 0, 0]; let due = 0;
@@ -307,11 +334,12 @@ function updateSaveChip() {
 window.addEventListener('online', () => { if (saveState === 'off') { saveState = 'busy'; updateSaveChip(); } });
 
 // ===== navigace =====
-const TABS = ['learn', 'stats', 'admin', 'users', 'account'];
+const TABS = ['dash', 'learn', 'stats', 'admin', 'users', 'account'];
 function route() {
   const [tab, ...rest] = location.hash.replace(/^#\/?/, '').split('/');
-  const r = { tab: TABS.includes(tab) ? tab : 'learn', arg: rest.length ? decodeURIComponent(rest.join('/')) : null };
-  if (!me || (!me.isAdmin && (r.tab === 'admin' || r.tab === 'users'))) r.tab = 'learn';
+  const r = { tab: TABS.includes(tab) ? tab : 'dash', arg: rest.length ? decodeURIComponent(rest.join('/')) : null };
+  if (!me || (!me.isAdmin && (r.tab === 'admin' || r.tab === 'users'))) r.tab = 'dash';
+  if (r.tab === 'learn' && !r.arg) r.tab = 'dash';
   return r;
 }
 const go = (h) => { location.hash = h; };
@@ -335,13 +363,14 @@ function renderLogin(err = '') {
 }
 
 function renderShell() {
-  root.innerHTML = `<nav class="nav" id="nav"></nav><main class="main"><div class="wrap"><div class="brand top-m">flashcards<i>.</i></div><div id="view"></div></div></main>`;
+  root.innerHTML = `<nav class="nav" id="nav"></nav><main class="main"><div class="wrap"><div class="brand top-m">flashcards<i>.</i></div><div id="view"></div></div></main><div class="pickbar" id="pickbar" hidden></div>`;
   render();
 }
 function renderNav(tab) {
   const due = catCounts(allCards()).due;
-  const items = [['learn', 'cards'], ['stats', 'chart'], ...(me.isAdmin ? [['admin', 'edit'], ['users', 'users']] : []), ['account', 'user']];
-  $('#nav').innerHTML = `<a class="brand" href="#/learn">flashcards<i>.</i></a>` + items.map(([k, ic]) => `<a href="#/${k}" class="${tab === k ? 'on' : ''}" ${tab === k ? 'aria-current="page"' : ''}>${I(ic)}<span>${t().nav[k]}</span>${k === 'learn' && due ? `<span class="badge">${due > 99 ? '99+' : due}</span>` : ''}</a>`).join('');
+  if (tab === 'learn') tab = 'dash';
+  const items = [['dash', 'home'], ['stats', 'chart'], ...(me.isAdmin ? [['admin', 'edit'], ['users', 'users']] : []), ['account', 'user']];
+  $('#nav').innerHTML = `<a class="brand" href="#/dash">flashcards<i>.</i></a>` + items.map(([k, ic]) => `<a href="#/${k}" class="${tab === k ? 'on' : ''}" ${tab === k ? 'aria-current="page"' : ''}>${I(ic)}<span>${t().nav[k]}</span>${k === 'dash' && due ? `<span class="badge">${due > 99 ? '99+' : due}</span>` : ''}</a>`).join('');
 }
 function render() {
   if (!me) return;
@@ -350,9 +379,11 @@ function render() {
   renderNav(r.tab);
   const v = $('#view');
   if (!deckLoaded && r.tab !== 'account') { v.innerHTML = `<div class="boot" style="min-height:50vh"><div class="spin"></div></div>`; return; }
-  v.innerHTML = r.tab === 'learn' ? viewLearn(r.arg) : r.tab === 'stats' ? viewStats() : r.tab === 'admin' ? viewAdmin(r.arg) : r.tab === 'users' ? (r.arg ? viewUser(r.arg) : viewUsers()) : viewAccount();
+  v.innerHTML = r.tab === 'dash' ? viewDash() : r.tab === 'learn' ? viewLearn(r.arg) : r.tab === 'stats' ? viewStats() : r.tab === 'admin' ? viewAdmin(r.arg) : r.tab === 'users' ? (r.arg ? viewUser(r.arg) : viewUsers()) : viewAccount();
   v.querySelectorAll('textarea.field').forEach(autosize);
   if (r.tab === 'users') loadUsers(r.arg);
+  if (r.tab === 'dash' && me.isAdmin) loadUsers();
+  updatePickBar();
   updateSaveChip();
 }
 // překreslí jen když to nevadí (nehraje se a nikdo nepíše do pole)
@@ -365,10 +396,18 @@ function softRender() {
 }
 function autosize(el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 2 + 'px'; }
 function crumbs(path, base) {
-  return `<nav class="crumbs"><a href="#/${base}">${t().all}</a>${path.slice(0, -1).map((p) => `<span>›</span><a href="#/${base}/${encodeURIComponent(p.id)}">${esc(p.name)}</a>`).join('')}</nav>`;
+  return `<nav class="crumbs"><a href="#/${base === 'learn' ? 'dash' : base}">${t().all}</a>${path.slice(0, -1).map((p) => `<span>›</span><a href="#/${base}/${encodeURIComponent(p.id)}">${esc(p.name)}</a>`).join('')}</nav>`;
 }
 function folderTile(f, base) {
   const items = collect(f), c = catCounts(items);
+  if (base === 'learn' && items.length) {
+    const badge = c.due ? `<span class="due">${t().due(c.due)}</span>` : c.k[0] === 0 ? `<span class="due ok">${t().done}</span>` : '';
+    const on = picked.has(f.id);
+    return `<div class="tile play ${on ? 'picked' : ''}" data-tile="${esc(f.id)}"><a class="tile-link" href="#/learn/${encodeURIComponent(f.id)}" aria-label="${esc(f.name)}"></a>
+      <div class="top"><span class="ico">${I('folder')}</span>${badge}<label class="pick" title="${t().pick}"><input type="checkbox" data-pick="${esc(f.id)}" ${on ? 'checked' : ''} aria-label="${t().pick}: ${esc(f.name)}" /><span>${I('check')}</span></label></div>
+      <div><b>${esc(f.name)}</b><small>${t().cards(items.length)}${f.folders.length ? ' · ' + t().folders(f.folders.length) : ''}</small></div>
+      <div class="bot">${kbar(c.k)}<button class="playbtn" data-play="${esc(f.id)}" title="${t().playFolder}" aria-label="${t().playFolder}: ${esc(f.name)}">${I('play')}</button></div></div>`;
+  }
   const badge = base === 'learn' && items.length ? (c.due ? `<span class="due">${t().due(c.due)}</span>` : c.k[0] === 0 ? `<span class="due ok">${t().done}</span>` : '') : '';
   return `<a class="tile" href="#/${base}/${encodeURIComponent(f.id)}"><div class="top"><span class="ico">${I('folder')}</span>${badge}</div>
     <div><b>${esc(f.name)}</b><small>${t().cards(items.length)}${f.folders.length ? ' · ' + t().folders(f.folders.length) : ''}</small></div>${base === 'learn' && items.length ? kbar(c.k) : ''}</a>`;
@@ -383,12 +422,56 @@ function viewLearn(id) {
   let out = h ? crumbs(h.path, 'learn') + `<h1>${esc(f.name)}</h1>` : `<h1>${t().hello(esc(me.name))}</h1>`;
   out += `<p class="sub">${items.length ? t().dueLine(c.due, c.k[0]) : ''}</p>`;
   if (items.length) {
-    out += `<div class="hero-card"><div style="flex:1;min-width:220px"><b>${h ? t().smart : t().smartAll}</b><small>${t().cards(items.length)}${f.folders.length ? ' · ' + t().folders(f.folders.length) : ''}</small><div style="margin-top:14px">${kbar(c.k, true)}</div>${legend(c.k)}</div>
+    out += `<div class="hero-card"><div style="flex:1;min-width:220px"><b>${h ? (f.cards.length || !f.folders.length ? t().smart : t().smartSubs(f.folders.length)) : t().smartAll}</b><small>${t().cards(items.length)}${f.folders.length ? ' · ' + t().folders(f.folders.length) : ''}</small><div style="margin-top:14px">${kbar(c.k, true)}</div>${legend(c.k)}</div>
       <div class="acts"><button class="btn primary big" data-play="${esc(f.id)}" data-mode="smart">${I('spark')}${t().start}</button><button class="btn" data-play="${esc(f.id)}">${t().other}</button></div></div>`;
   }
-  if (f.folders.length) out += `<h2>${h ? t().subfolders : t().fold}</h2><div class="grid">${f.folders.map((x) => folderTile(x, 'learn')).join('')}</div>`;
+  if (f.folders.length) out += foldersGrid(f.folders, h ? t().subfolders : t().fold);
   if (!items.length) out += `<div class="empty" style="margin-top:22px">${h ? t().empty : t().emptyAll}</div>`;
   return out;
+}
+function foldersGrid(list, title) {
+  const many = list.filter((x) => count(x)).length > 1;
+  return `<h2>${title}</h2>${many ? `<p class="small muted hint">${t().pickHint}</p>` : ''}<div class="grid">${list.map((x) => folderTile(x, 'learn')).join('')}</div>`;
+}
+
+// --- výběr víc složek ---
+const picked = new Set();
+function updatePickBar() {
+  const bar = $('#pickbar'); if (!bar) return;
+  [...picked].forEach((id) => { if (!find(id)) picked.delete(id); });
+  if (!picked.size || route().tab === 'stats' || route().tab === 'admin' || route().tab === 'users' || route().tab === 'account') { bar.hidden = true; document.body.classList.remove('picking'); return; }
+  const got = itemsOfMany([...picked]), n = got ? got.items.length : 0;
+  bar.hidden = false; document.body.classList.add('picking');
+  bar.innerHTML = `<span>${t().picked(picked.size, n)}</span><button class="btn sm ghost" data-act="clearPick">${t().clearPick}</button><button class="btn sm primary" data-play="${esc([...picked].join(','))}" ${n ? '' : 'disabled'}>${I('play')}${t().start}</button>`;
+}
+
+// --- přehled (hlavní stránka) ---
+function viewDash() {
+  const items = allCards(), c = catCounts(items), sm = summary(prog.cards, prog.days), now = Date.now();
+  let out = `<h1>${t().hello(esc(me.name))}</h1><p class="sub">${items.length ? t().dueLine(c.due, c.k[0]) : ''}</p>`;
+  if (items.length) {
+    out += `<div class="hero-card"><div style="flex:1;min-width:220px"><b>${t().smartAll}</b><small>${t().cards(items.length)} · ${t().folders(deck.folders.length)}</small><div style="margin-top:14px">${kbar(c.k, true)}</div>${legend(c.k)}</div>
+      <div class="acts"><button class="btn primary big" data-play="*" data-mode="smart">${I('spark')}${t().start}</button><button class="btn" data-play="*">${t().other}</button></div></div>`;
+  }
+  // moje statistiky ve zkratce
+  const cols = []; let max = 1;
+  for (let d = 6; d >= 0; d--) { const key = dayKey(now - d * DAY), a = (prog.days[key] && prog.days[key].a) || 0; max = Math.max(max, a); cols.push({ d, a }); }
+  const mine = `<section class="box mini"><div class="mhead"><b>${t().myStats}</b><a href="#/stats">${t().fullStats}${I('chev')}</a></div>
+    <div class="minik">${[3, 2, 1, 0].map((i) => `<div style="--c:var(--k${i})"><b>${sm.k[i]}</b><span>${t().cat[i]}</span></div>`).join('')}</div>
+    ${kbar(sm.k)}
+    <div class="minif"><div><b>${sm.acc} %</b><span>${t().accuracy}</span></div><div><b>${sm.streak}</b><span>${t().streak}</span></div><div><b>${sm.today}</b><span>${t().todayAns}</span></div></div>
+    <div class="chart mini" title="${t().week}">${cols.map((x) => `<div class="col"><span class="v">${x.a || ''}</span><div class="bar ${x.a ? '' : 'zero'} ${x.d === 0 ? 'today' : ''}" style="height:${x.a ? Math.max(6, (x.a / max) * 100) : 4}%"></div><small>${x.d === 0 ? t().today : new Date(now - x.d * DAY).getDate() + '.'}</small></div>`).join('')}</div></section>`;
+  const others = me.isAdmin ? `<section class="box mini"><div class="mhead"><b>${t().others}</b><a href="#/users">${t().nav.users}${I('chev')}</a></div><div id="dashusers">${usersCache ? othersList() : '<div class="spin"></div>'}</div></section>` : '';
+  out += `<div class="dash ${others ? '' : 'solo'}">${mine}${others}</div>`;
+  if (deck.folders.length) out += foldersGrid(deck.folders, t().fold);
+  if (!items.length) out += `<div class="empty" style="margin-top:22px">${t().emptyAll}</div>`;
+  return out;
+}
+function othersList() {
+  const list = usersCache.filter((u) => u.uid !== me.uid).map((u) => ({ u, s: summary(u.cards || {}, u.days || {}) })).sort((a, b) => b.s.last - a.s.last);
+  if (!list.length) return `<p class="muted small" style="padding:6px 0">${t().noOthers}</p>`;
+  return `<div class="olist">${list.slice(0, 6).map(({ u, s }) => `<a class="orow" href="#/users/${encodeURIComponent(u.uid)}"><span class="av">${esc((u.name || '?')[0])}</span><span class="nm"><b>${esc(u.name)}</b><small>${s.today ? t().todayN(s.today) : s.last ? t().lastSeen(fmtDate(s.last)) : t().never}</small></span><span class="kb">${kbar(s.k)}</span><span class="pc">${s.ans ? s.acc + ' %' : '–'}</span></a>`).join('')}</div>
+    ${list.length > 6 ? `<a class="more" href="#/users">${t().allUsers(list.length)}</a>` : ''}`;
 }
 
 // --- statistiky ---
@@ -483,6 +566,7 @@ async function loadUsers(sel) {
     list.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
     const changedList = JSON.stringify(list) !== JSON.stringify(usersCache);
     usersCache = list;
+    if (changedList && route().tab === 'dash') { const du = $('#dashusers'); if (du) du.innerHTML = othersList(); }
     if (changedList && route().tab === 'users') {
       if (sel) { const v = $('#view'); if (v && !v.querySelector('input:focus')) v.innerHTML = viewUser(sel); }
       else { const ul = $('#ulist'); if (ul) ul.innerHTML = usersList(); }
@@ -563,7 +647,7 @@ function parseBulk(text) {
 const settings = Object.assign({ mode: 'smart', dir: 'qa', count: 20, smartOrder: true }, lsGet('fc-settings', {}));
 const CHOICE = ['quiz', 'tf', 'time', 'lives'];
 function playDialog(id, mode) {
-  const got = itemsOf(id); if (!got) return;
+  const got = itemsOfMany(String(id).split(',')); if (!got) return;
   const { folder, items } = got;
   if (!items.length) return;
   if (mode) { settings.mode = mode; return startGame(folder, items); }
@@ -867,12 +951,18 @@ document.addEventListener('keydown', (e) => {
 });
 
 // ===== kliknutí a formuláře v aplikaci =====
+document.addEventListener('change', (e) => {
+  const pk = e.target.closest('[data-pick]'); if (!pk) return;
+  if (pk.checked) picked.add(pk.dataset.pick); else picked.delete(pk.dataset.pick);
+  pk.closest('.tile').classList.toggle('picked', pk.checked); updatePickBar();
+});
 document.addEventListener('click', async (e) => {
   const pl = e.target.closest('[data-play]');
   if (pl) { e.preventDefault(); return playDialog(pl.dataset.play, pl.dataset.mode); }
   const a = e.target.closest('[data-act]'); if (!a) return;
   const act = a.dataset.act;
-  if (act === 'logout') { flush(); await signOut(auth); return; }
+  if (act === 'logout') { flush(); picked.clear(); await signOut(auth); return; }
+  if (act === 'clearPick') { picked.clear(); document.querySelectorAll('[data-pick]').forEach((x) => { x.checked = false; x.closest('.tile').classList.remove('picked'); }); updatePickBar(); return; }
   if (act === 'update') return manualUpdate(a);
   if (act === 'install' && installEvt) { installEvt.prompt(); installEvt = null; return; }
   if (act === 'toggleRole') {
@@ -930,7 +1020,7 @@ document.addEventListener('submit', async (e) => {
   if (fm.id === 'loginf') {
     e.preventDefault();
     const btn = $('#lbtn'); btn.disabled = true;
-    try { history.replaceState(null, '', '#/learn'); await signInWithEmailAndPassword(auth, toEmail(fm.u.value), fm.p.value); }
+    try { history.replaceState(null, '', '#/dash'); await signInWithEmailAndPassword(auth, toEmail(fm.u.value), fm.p.value); }
     catch (er) {
       const c = er.code || '';
       const msg = c.includes('too-many') ? t().tooMany : c.includes('network') ? t().offline : t().badLogin;
