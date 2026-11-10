@@ -13,7 +13,7 @@ const FIREBASE_CONFIG = { // z konzole Firebase (projekt flashcards-663fd); nen�
   apiKey: 'AIzaSyA3zzb5ZmReIpOK5tq6jfiIC_EF-3IId6A', authDomain: 'flashcards-663fd.firebaseapp.com', projectId: 'flashcards-663fd',
   storageBucket: 'flashcards-663fd.firebasestorage.app', messagingSenderId: '804475670634', appId: '1:804475670634:web:6f851aa49f3909c613ba13',
 };
-const APP_VERSION = '2.9';
+const APP_VERSION = '2.10';
 const DOMAIN = 'flashcards.davidjanecka.cz'; // uživatelská jména se převádí na e-mail jméno@DOMAIN (e-maily se nikam neposílají)
 const OWNER_EMAIL = 'djanecka6@gmail.com'; // hlavní správce, práva mu nejde vzít (stejný e-mail je ve firestore.rules); ostatní správce určuje role v Účtech
 const TIME_LIMIT = 60, LIVES = 3, DAY = 864e5;
@@ -1242,11 +1242,24 @@ document.addEventListener('focusout', (e) => {
 
 // ===== PWA: offline a aktualizace =====
 let reg = null, reloading = false;
-function showUpdateBar() {
+function showUpdateBar(force) {
   const b = $('#updbar'); b.hidden = false;
   b.innerHTML = `<span>${t().newVersion}</span><button class="btn sm" id="updnow">${t().update}</button>`;
-  $('#updnow').onclick = applyUpdate;
+  $('#updnow').onclick = force ? () => manualUpdate($('#updnow')) : applyUpdate;
 }
+// pojistka: zeptá se serveru přímo (mimo mezipaměť), jestli tam není novější verze, a nabídne vynucenou aktualizaci
+let lastCheck = 0;
+async function checkVersion() {
+  if (EMU || Date.now() - lastCheck < 5 * 60e3) return;
+  lastCheck = Date.now();
+  try {
+    const txt = await (await fetch('app.js?check=' + Date.now(), { cache: 'no-store' })).text();
+    const m = txt.match(/APP_VERSION = '([^']+)'/);
+    if (m && m[1] !== APP_VERSION) showUpdateBar(true);
+  } catch (e) {}
+}
+setTimeout(checkVersion, 4000);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkVersion(); });
 function applyUpdate() { flush(); if (reg && reg.waiting) reg.waiting.postMessage('skip'); else location.reload(); }
 function watchReg(r) {
   reg = r;

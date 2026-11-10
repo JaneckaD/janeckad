@@ -1,6 +1,6 @@
 // Offline režim pro /flashcards. Při každé změně aplikace zvyš číslo verze,
 // telefon si pak sám nabídne „Je tu nová verze → Aktualizovat“.
-const CACHE = 'fc-v10';
+const CACHE = 'fc-v11';
 const FILES = ['./', './index.html', './app.js', './app.css', './firebase.js', './manifest.webmanifest', './ikona-180.png', './ikona-192.png', './ikona-512.png', './rethink-sans-latin-wght-normal.woff2', './rethink-sans-latin-ext-wght-normal.woff2'];
 
 self.addEventListener('install', (e) => {
@@ -13,7 +13,8 @@ self.addEventListener('message', (e) => { if (e.data === 'skip') self.skipWaitin
 // soubory aplikace jdou z mezipaměti (rychlé a funguje to i bez internetu); data řeší Firebase samo
 self.addEventListener('fetch', (e) => {
   const req = e.request;
-  if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
+  const url = new URL(req.url);
+  if (req.method !== 'GET' || url.origin !== location.origin || url.searchParams.has('check')) return; // kontrola verze jde vždy na server
   if (req.mode === 'navigate') { e.respondWith(caches.match('./index.html').then((hit) => hit || fetch(req))); return; }
   e.respondWith(caches.match(req, { ignoreSearch: true }).then((hit) => hit || fetch(req)));
 });
