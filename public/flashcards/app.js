@@ -13,7 +13,7 @@ const FIREBASE_CONFIG = { // z konzole Firebase (projekt flashcards-663fd); nen�
   apiKey: 'AIzaSyA3zzb5ZmReIpOK5tq6jfiIC_EF-3IId6A', authDomain: 'flashcards-663fd.firebaseapp.com', projectId: 'flashcards-663fd',
   storageBucket: 'flashcards-663fd.firebasestorage.app', messagingSenderId: '804475670634', appId: '1:804475670634:web:6f851aa49f3909c613ba13',
 };
-const APP_VERSION = '2.11';
+const APP_VERSION = '2.12';
 const DOMAIN = 'flashcards.davidjanecka.cz'; // uživatelská jména se převádí na e-mail jméno@DOMAIN (e-maily se nikam neposílají)
 const OWNER_EMAIL = 'djanecka6@gmail.com'; // hlavní správce, práva mu nejde vzít (stejný e-mail je ve firestore.rules); ostatní správce určuje role v Účtech
 const TIME_LIMIT = 60, LIVES = 3, DAY = 864e5;
@@ -1284,41 +1284,53 @@ document.addEventListener('focusout', (e) => {
 });
 
 // ===== PWA: offline a aktualizace =====
-let reg = null, reloading = false;
-function showUpdateBar(force) {
-  const b = $('#updbar'); b.hidden = false;
+let reg = null;
+function showUpdateBar(target) {
+  const b = $('#updbar'); if (!b.hidden) return;
+  b.hidden = false;
   b.innerHTML = `<span>${t().newVersion}</span><button class="btn sm" id="updnow">${t().update}</button>`;
-  $('#updnow').onclick = force ? () => manualUpdate($('#updnow')) : applyUpdate;
+  $('#updnow').onclick = () => manualUpdate($('#updnow'), target);
 }
-// pojistka: zeptá se serveru přímo (mimo mezipaměť), jestli tam není novější verze, a nabídne vynucenou aktualizaci
+// je verze a novější než b? (2.12 > 2.9)
+function newer(a, b) {
+  const x = String(a).split('.').map(Number), y = String(b).split('.').map(Number);
+  for (let i = 0; i < Math.max(x.length, y.length); i++) { const p = x[i] || 0, q = y[i] || 0; if (p !== q) return p > q; }
+  return false;
+}
+// zeptá se serveru přímo, jestli tam je opravdu NOVĚJŠÍ verze; jen tehdy ukáže lištu
 let lastCheck = 0;
 async function checkVersion() {
-  if (EMU || Date.now() - lastCheck < 5 * 60e3) return;
+  if (EMU || !navigator.onLine || Date.now() - lastCheck < 5 * 60e3) return;
   lastCheck = Date.now();
   try {
     const txt = await (await fetch('app.js?check=' + Date.now(), { cache: 'no-store' })).text();
-    const m = txt.match(/APP_VERSION = '([^']+)'/);
-    if (m && m[1] !== APP_VERSION) showUpdateBar(true);
+    const m = txt.match(/const APP_VERSION = '([^']+)'/);
+    if (!m || !newer(m[1], APP_VERSION)) return;
+    // právě jsme se na tuhle verzi zkoušeli aktualizovat a server ji ještě neposlal celou: nic neotravuj, zkusí se to samo později
+    let tried = null; try { tried = JSON.parse(sessionStorage.getItem('fc-upd') || 'null'); } catch (e) {}
+    if (tried && tried.v === m[1] && Date.now() - tried.at < 15 * 60e3) return;
+    showUpdateBar(m[1]);
   } catch (e) {}
 }
 setTimeout(checkVersion, 4000);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkVersion(); });
-function applyUpdate() { flush(); if (reg && reg.waiting) reg.waiting.postMessage('skip'); else location.reload(); }
+// nová verze se instaluje sama na pozadí; lištu ukáže jen kontrola verze, když je na serveru opravdu novější
 function watchReg(r) {
   reg = r;
-  if (r.waiting && navigator.serviceWorker.controller) showUpdateBar();
+  if (r.waiting) r.waiting.postMessage('skip');
   r.addEventListener('updatefound', () => {
     const w = r.installing; if (!w) return;
-    w.addEventListener('statechange', () => { if (w.state === 'installed' && navigator.serviceWorker.controller) showUpdateBar(); });
+    w.addEventListener('statechange', () => { if (w.state === 'installed') { w.postMessage('skip'); lastCheck = 0; checkVersion(); } });
   });
 }
 // tlačítko Aktualizovat: vždy smaže uloženou verzi aplikace, stáhne soubory znovu ze serveru a načte stránku
-async function manualUpdate(btn) {
+async function manualUpdate(btn, target) {
   btn.disabled = true; btn.textContent = t().updating;
   flush();
+  if (target) { try { sessionStorage.setItem('fc-upd', JSON.stringify({ v: target, at: Date.now() })); } catch (e) {} }
   try {
     await new Promise((r) => setTimeout(r, 400)); // ať se stihnou uložit rozehrané odpovědi
-    if ('serviceWorker' in navigator) { const regs = await navigator.serviceWorker.getRegistrations(); await Promise.all(regs.filter((r) => new URL(r.scope).pathname.startsWith(new URL('./', location.href).pathname)).map((r) => r.unregister())); }
+    if (reg) await Promise.race([reg.update().catch(() => {}), new Promise((r) => setTimeout(r, 3000))]);
     if (window.caches) { const keys = await caches.keys(); await Promise.all(keys.filter((k) => k.startsWith('fc-')).map((k) => caches.delete(k))); }
     await Promise.all(['./', './index.html', './app.js', './app.css', './firebase.js', './sw.js', './manifest.webmanifest'].map((f) => fetch(f, { cache: 'reload' }).catch(() => {})));
   } catch (e) { console.warn(e); }
@@ -1329,7 +1341,8 @@ if (new URLSearchParams(location.search).has('v')) { const u = new URL(location.
 if ('serviceWorker' in navigator && !EMU) {
   navigator.serviceWorker.register('sw.js').then(watchReg).catch((e) => console.warn(e));
   const hadController = !!navigator.serviceWorker.controller; // při úplně první návštěvě se nepřenačítá
-  navigator.serviceWorker.addEventListener('controllerchange', () => { if (reloading || !hadController) return; reloading = true; location.reload(); });
+  // když převezme řízení nová verze, stránka se nepřenačítá sama (mohl by ses zrovna učit); nový kód se načte při dalším otevření
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (!hadController) return; lastCheck = 0; checkVersion(); });
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && reg) reg.update().catch(() => {}); });
 }
 
