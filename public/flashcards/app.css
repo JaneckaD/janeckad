@@ -482,3 +482,5 @@ body.playing .toast { bottom: 24px; margin-left: 0; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 .toolbar .btn.primary .i { fill: currentColor; width: 15px; height: 15px; }
+.apikey { flex-basis: 100%; display: block; padding: 12px 14px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); font: 500 12px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow-wrap: anywhere; user-select: all; color: var(--ink-2); }
+.apikey.masked { user-select: none; letter-spacing: .04em; }

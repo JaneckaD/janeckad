@@ -13,7 +13,7 @@ const FIREBASE_CONFIG = { // z konzole Firebase (projekt flashcards-663fd); nen�
   apiKey: 'AIzaSyA3zzb5ZmReIpOK5tq6jfiIC_EF-3IId6A', authDomain: 'flashcards-663fd.firebaseapp.com', projectId: 'flashcards-663fd',
   storageBucket: 'flashcards-663fd.firebasestorage.app', messagingSenderId: '804475670634', appId: '1:804475670634:web:6f851aa49f3909c613ba13',
 };
-const APP_VERSION = '2.10';
+const APP_VERSION = '2.11';
 const DOMAIN = 'flashcards.davidjanecka.cz'; // uživatelská jména se převádí na e-mail jméno@DOMAIN (e-maily se nikam neposílají)
 const OWNER_EMAIL = 'djanecka6@gmail.com'; // hlavní správce, práva mu nejde vzít (stejný e-mail je ve firestore.rules); ostatní správce určuje role v Účtech
 const TIME_LIMIT = 60, LIVES = 3, DAY = 864e5;
@@ -100,6 +100,9 @@ const T = {
     accTitle: 'Můj účet', lang: 'Jazyk', changePass: 'Změnit heslo', curPass: 'Současné heslo', newPass: 'Nové heslo', passChanged: 'Heslo je změněné.', badCur: 'Současné heslo nesedí.',
     photo: 'Profilová fotka', photoHelp: 'Uvidí ji správce u tvých statistik.', photoUp: 'Nahrát fotku', photoDel: 'Odebrat', photoSaved: 'Fotka je uložená.', photoErr: 'Tenhle obrázek se nepodařilo načíst. Zkus JPG nebo PNG.',
     updateHelp: 'Smaže uloženou verzi a stáhne nejnovější.',
+    apiTitle: 'Import z programu', apiKey: 'Klíč pro import kartiček', apiHelp: 'S tímhle klíčem může tvůj program na PC stáhnout seznam složek a přidat do nich kartičky. Nikomu ho neposílej, kdo ho má, může měnit otázky.',
+    apiNone: 'Zatím žádný klíč.', apiCreate: 'Vytvořit klíč', apiNew: 'Vytvořit nový', apiShow: 'Zobrazit', apiHide: 'Skrýt', apiCopy: 'Zkopírovat', apiDel: 'Zrušit klíč',
+    apiCopied: 'Klíč je zkopírovaný.', apiMade: 'Klíč je vytvořený. Zkopíruj ho do programu.', apiNewConfirm: 'Vytvořit nový klíč? Ten starý hned přestane fungovat.', apiDelConfirm: 'Zrušit klíč? Program pak už nebude moct posílat kartičky.', apiDeleted: 'Klíč je zrušený.',
     app: 'Aplikace', version: (v) => `Verze ${v}`, update: 'Aktualizovat', upToDate: 'Máš nejnovější verzi.', updating: 'Hledám novou verzi…',
     newVersion: 'Je tu nová verze aplikace.', install: 'Nainstalovat na plochu', installIos: 'Na iPhonu: Sdílet → Přidat na plochu.', role: { admin: 'správce', user: 'uživatel' },
   },
@@ -287,7 +290,7 @@ async function enter(user) {
     setDoc(doc(db, 'users', user.uid), profile).catch((e) => console.warn(e));
   }
   if (!profile && !isAdmin) { renderMessage(t().noAccess, true); return; }
-  me = { uid: user.uid, email: user.email, isAdmin, name: (profile && profile.name) || (isAdmin ? 'Admin' : user.email.split('@')[0]), username: (profile && profile.username) || user.email.split('@')[0] };
+  me = { uid: user.uid, email: user.email, isAdmin, name: (profile && profile.name) || (isAdmin ? 'Admin' : user.email.split('@')[0]), username: (profile && profile.username) || user.email.split('@')[0], apiKey: (profile && profile.apiKey) || '', apiUid: (profile && profile.apiUid) || '' };
   renderShell();
   unsubs.push(onSnapshot(deckRef(), (snap) => {
     if (deckTimer) return; // správce právě píše, jeho verze je novější
@@ -606,6 +609,7 @@ async function loadUsers(sel) {
     const qs = await getDocs(collection(db, 'users'));
     const list = await Promise.all(qs.docs.map(async (d) => { let p = {}; try { const s = await getDoc(progRef(d.id)); p = s.data() || {}; } catch (e) {} return { uid: d.id, ...d.data(), cards: p.cards || {}, days: p.days || {}, photo: okPhoto(p.photo) }; }));
     list.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    for (let i = list.length - 1; i >= 0; i--) if (list[i].api) list.splice(i, 1); // účty pro import z programu se nezobrazují
     const changedList = JSON.stringify(list) !== JSON.stringify(usersCache);
     usersCache = list;
     if (changedList && route().tab === 'dash') { const du = $('#dashusers'); if (du) du.innerHTML = othersList(); }
@@ -622,6 +626,37 @@ function viewUser(id) {
   return `<nav class="crumbs"><a href="#/users">${t().usersTitle}</a></nav><div class="uhead">${avatar(u.name, u.photo, 'big')}<div><h1>${esc(u.name)}</h1><p class="sub">@${esc(u.username)} · ${t().role[u.role] || u.role}</p></div></div>
     <div style="margin-top:22px">${statsBody(u.cards, false)}</div>
     ${u.uid === me.uid || u.username === OWNER_EMAIL ? '' : `<h2></h2><div class="toolbar"><button class="btn" data-act="toggleRole" data-uid="${esc(u.uid)}">${u.role === 'admin' ? t().unsetAdmin : t().setAdmin}</button><button class="btn danger" data-act="delUser" data-uid="${esc(u.uid)}">${I('trash')}${t().delUser}</button></div>`}`;
+}
+// klíč pro import z programu na PC: samostatný účet s právy správce; klíč = jeho přihlašovací (refresh) token.
+// Nový klíč nebo zrušení smaže záznam starého účtu v Účtech, takže starý klíč hned přestane mít přístup.
+let apiShown = false;
+async function saveApi(key, uid) {
+  me.apiKey = key; me.apiUid = uid;
+  await setDoc(doc(db, 'users', me.uid), { apiKey: key, apiUid: uid }, { merge: true });
+  const cached = lsGet('fc-me-' + me.uid, null); if (cached) lsSet('fc-me-' + me.uid, { ...cached, apiKey: key, apiUid: uid });
+}
+async function newApiKey() {
+  if (me.apiKey && !confirm(t().apiNewConfirm)) return;
+  const sec = initializeApp(CONFIG, 'api-' + Date.now());
+  const a2 = initializeAuth(sec, { persistence: inMemoryPersistence });
+  if (EMU) connectAuthEmulator(a2, 'http://127.0.0.1:9099', { disableWarnings: true });
+  const rnd = (n) => Array.from(crypto.getRandomValues(new Uint8Array(n)), (b) => (b % 36).toString(36)).join('');
+  try {
+    const email = `api-${rnd(12)}@${DOMAIN}`;
+    const cred = await createUserWithEmailAndPassword(a2, email, rnd(40));
+    await setDoc(doc(db, 'users', cred.user.uid), { name: 'Import z programu', username: email, role: 'admin', api: true, owner: me.uid, created: new Date().toISOString() });
+    const old = me.apiUid;
+    await saveApi('fc_' + cred.user.refreshToken, cred.user.uid);
+    if (old) await deleteDoc(doc(db, 'users', old)).catch((e) => console.warn(e));
+    await signOut(a2);
+    apiShown = true; render(); toast(t().apiMade, 4500);
+  } catch (e) { console.warn(e); toast(e.message); }
+  finally { deleteApp(sec).catch(() => {}); }
+}
+async function delApiKey() {
+  if (!confirm(t().apiDelConfirm)) return;
+  try { if (me.apiUid) await deleteDoc(doc(db, 'users', me.apiUid)); await saveApi('', ''); apiShown = false; render(); toast(t().apiDeleted); }
+  catch (e) { console.warn(e); toast(e.message); }
 }
 async function createUser(name, username, pw, role = 'user') {
   const email = toEmail(username);
@@ -649,6 +684,10 @@ function viewAccount() {
     <h2>${t().photo}</h2><div class="settings">
       <div class="srow"><div><b>${t().photo}</b><small>${t().photoHelp}</small></div><div class="acts"><label class="btn">${I('upload')}${t().photoUp}<input type="file" id="photoin" accept="image/*" hidden /></label>${prog.photo ? `<button class="btn" data-act="photoDel">${t().photoDel}</button>` : ''}</div></div>
     </div>
+    ${me.isAdmin ? `<h2>${t().apiTitle}</h2><div class="settings"><div class="srow"><div><b>${t().apiKey}</b><small>${t().apiHelp}</small></div><div class="acts">${me.apiKey
+      ? `<button class="btn" data-act="apiShow">${apiShown ? t().apiHide : t().apiShow}</button><button class="btn" data-act="apiCopy">${t().apiCopy}</button><button class="btn" data-act="apiNew">${t().apiNew}</button><button class="btn danger" data-act="apiDel">${t().apiDel}</button>`
+      : `<button class="btn primary" data-act="apiNew">${t().apiCreate}</button>`}</div>
+      ${me.apiKey ? `<code class="apikey ${apiShown ? '' : 'masked'}">${apiShown ? esc(me.apiKey) : esc(me.apiKey.slice(0, 10)) + '•'.repeat(24)}</code>` : ''}</div></div>` : ''}
     <h2>${t().app}</h2><div class="settings">
       <div class="srow"><div><b>${t().update}</b><small>${t().version(APP_VERSION)} · ${t().updateHelp}</small></div><button class="btn" data-act="update" id="updbtn">${I('refresh')}${t().update}</button></div>
       ${installEvt ? `<div class="srow"><div><b>${t().install}</b></div><button class="btn" data-act="install">${I('download')}${t().install}</button></div>` : ios ? `<div class="srow"><div><b>${t().install}</b><small>${t().installIos}</small></div></div>` : ''}
@@ -1107,6 +1146,10 @@ document.addEventListener('click', async (e) => {
   if (act === 'clearPick') { picked.clear(); document.querySelectorAll('[data-pick]').forEach((x) => { x.checked = false; x.closest('.tile').classList.remove('picked'); }); updatePickBar(); return; }
   if (act === 'update') return manualUpdate(a);
   if (act === 'photoDel') return savePhoto('');
+  if (act === 'apiNew') return newApiKey();
+  if (act === 'apiDel') return delApiKey();
+  if (act === 'apiShow') { apiShown = !apiShown; return render(); }
+  if (act === 'apiCopy') { try { await navigator.clipboard.writeText(me.apiKey); toast(t().apiCopied); } catch (er) { apiShown = true; render(); } return; }
   if (act === 'toggleAns') { lsSet('fc-hideans', !lsGet('fc-hideans', false)); return render(); }
   if (act === 'bullet') {
     const box = a.closest('[data-card], #addcard'); if (!box) return;
