@@ -466,7 +466,7 @@ body.playing .toast { bottom: 24px; margin-left: 0; }
   .crow .bul { grid-column: 2; grid-row: 2; }
   .addcard .bul { justify-self: start; }
   .crow .n { display: none; }
-  .crow .field.q { grid-column: 1; }
+  .crow .qcol { grid-column: 1; }
   .crow .field.a { grid-column: 1; grid-row: 2; }
   .crow .del { grid-column: 2; grid-row: 1; }
   .answers { grid-template-columns: 1fr; }
@@ -484,3 +484,20 @@ body.playing .toast { bottom: 24px; margin-left: 0; }
 .toolbar .btn.primary .i { fill: currentColor; width: 15px; height: 15px; }
 .apikey { flex-basis: 100%; display: block; padding: 12px 14px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); font: 500 12px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow-wrap: anywhere; user-select: all; color: var(--ink-2); }
 .apikey.masked { user-select: none; letter-spacing: .04em; }
+
+/* formátování textu karet: vnořené odrážky, nadpis, štítek */
+.rt-ul .rt-ul { display: block; margin: .12em 0 .1em; padding-left: 1.1em; font-size: .92em; }
+.rt-ul .rt-ul li { list-style-type: circle; }
+.rt-h { display: block; margin: .5em 0 .15em; font-size: .72em; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--c1); }
+.rt-h:first-child { margin-top: 0; }
+.face .txt b, .qrow b, .ans b, .pair b, .fb b b { font-weight: 750; }
+.ctag { display: inline-block; vertical-align: 1px; margin-left: 8px; padding: 2px 9px; border-radius: 99px; background: var(--soft); color: var(--c1); font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.qrow .ctag { margin: 0 0 4px; }
+.qcol { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.crow .field.tagf { min-height: 0; padding: 3px 10px; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--c1); }
+.rt-box { display: inline-block; text-align: left; max-width: 100%; }
+.rt-box > .rt-ul { display: block; }
+.qrow .rt-box, .ans .rt-box, .pair .rt-box, .fb .rt-box { display: block; }
+.face small:has(.ctag) { display: flex; justify-content: center; align-items: center; gap: 8px; top: 14px; }
+.face small .ctag { margin: 0; padding: 2px 8px; font-size: 10px; }
+.face small:has(.ctag) ~ .ask { top: 44px; }

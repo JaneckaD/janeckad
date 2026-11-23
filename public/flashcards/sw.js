@@ -2,8 +2,8 @@
 // Soubory aplikace se berou vždy čerstvé ze serveru (když je internet), uložená kopie slouží jen bez internetu.
 // Pozor: davix.cz jde přes CDN od Wedosu, která drží soubory až 30 dní. Proto se ze serveru vždy stahuje
 // adresa s ?v=… (verze, nebo u stránky aktuální čas) – takovou CDN uloženou nemá a vezme ji čerstvou z GitHubu.
-const VERSION = '2.13';
-const CACHE = 'fc-v14';
+const VERSION = '2.14';
+const CACHE = 'fc-v15';
 const APP = ['./app.js', './app.css', './firebase.js', './manifest.webmanifest'];
 const STATIC_FILES = ['./ikona-180.png', './ikona-192.png', './ikona-512.png', './rethink-sans-latin-wght-normal.woff2', './rethink-sans-latin-ext-wght-normal.woff2'];
 const STATIC = /\.(png|woff2)$/; // obrázky a písma se nemění, ty jdou rovnou z uložené kopie

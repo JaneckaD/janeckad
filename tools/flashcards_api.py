@@ -13,6 +13,19 @@ Použití jako modul:
     api.add_cards("def", [{"question": "Czech cuisine – Breakfast?", "answer": "Breakfast (6–8 a.m.) is light…\\nDruhý řádek"}])
     # -> {"added": 1}
 
+    # s odrážkami, štítkem a tučným písmem:
+    api.add_cards("def", [{"tag": "History", "question": "1215 — **Magna Carta**?",
+                           "answer": "The barons forced King John to sign it\\nEven the king is subject to **the law**.",
+                           "bullets": True}])
+
+Formát kartičky:
+    "question"  text (povinné)
+    "answer"    text, nebo seznam řádků ["bod 1", "bod 2"] (povinné)
+    "bullets"   True = každý řádek odpovědi je odrážka; odsazení 2 mezerami = vnořená odrážka (nepovinné)
+    "tag"       krátký štítek/téma nad otázkou, max. 40 znaků (nepovinné)
+V otázce i odpovědi: **tučně**, *kurzíva*, řádek „# Nadpis“ = malý nadpis v odpovědi.
+Uloží se jako prostý text, odrážka = řádek začínající „• “ (stejně jako tlačítko • v aplikaci).
+
 Chyby: Unauthorized (špatný nebo zrušený klíč, obdoba HTTP 401), NotFound (složka neexistuje, 404),
 ValueError (špatný formát kartiček, 400), FlashcardsError (jiná chyba, třeba bez internetu).
 
@@ -20,7 +33,7 @@ Volitelně jako malé lokální HTTP API (pro programy, které chtějí volat ad
 
     python flashcards_api.py serve            # poslouchá na http://127.0.0.1:8765
     GET  http://127.0.0.1:8765/folders                    (hlavička Authorization: Bearer <klíč>)
-    POST http://127.0.0.1:8765/folders/<id>/cards         tělo {"cards": [{"question": "…", "answer": "…"}]}
+    POST http://127.0.0.1:8765/folders/<id>/cards         tělo {"cards": [{"question": "…", "answer": "…", "bullets": true, "tag": "…"}]}
 
 Rychlá zkouška z příkazové řádky:
 
@@ -30,6 +43,7 @@ Rychlá zkouška z příkazové řádky:
 import datetime
 import json
 import os
+import re
 import secrets
 import string
 import sys
@@ -118,6 +132,61 @@ def _new_id():
     return "".join(secrets.choice(abc) for _ in range(12))
 
 
+BULLET = re.compile(r"^(\s*)[-*•–]\s+")
+
+
+def _text(v, what, i):
+    if isinstance(v, (list, tuple)):
+        if not all(isinstance(x, str) for x in v):
+            raise ValueError('Kartička %d: "%s" jako seznam musí obsahovat jen texty.' % (i, what))
+        v = "\n".join(v)
+    if not isinstance(v, str) or not v.strip():
+        raise ValueError('Kartička %d musí mít neprázdné "question" i "answer" (text).' % i)
+    if len(v) > MAX_TEXT:
+        raise ValueError("Kartička %d je moc dlouhá." % i)
+    lines = v.replace("\r\n", "\n").replace("\r", "\n").replace("\t", "  ").split("\n")
+    while lines and not lines[0].strip():
+        lines.pop(0)
+    return "\n".join(l.rstrip() for l in lines).rstrip()
+
+
+def _bullets(text):
+    """Každý neprázdný řádek → odrážka „• “ (stejně jako tlačítko v aplikaci); odsazení se zachová (vnořené odrážky)."""
+    out = []
+    for line in text.split("\n"):
+        if not line.strip():
+            continue
+        m = BULLET.match(line)
+        indent = m.group(1) if m else line[: len(line) - len(line.lstrip())]
+        rest = line[m.end():] if m else line.lstrip()
+        if rest.startswith("#"):  # nadpis nechá jako nadpis
+            out.append(indent + rest)
+        else:
+            out.append(indent + "• " + rest)
+    return "\n".join(out)
+
+
+def _card(c, i):
+    if not isinstance(c, dict):
+        raise ValueError("Kartička %d není objekt." % i)
+    q = _text(c.get("question"), "question", i)
+    raw_a = c.get("answer")
+    a = _text(raw_a, "answer", i)
+    if c.get("bullets") or isinstance(raw_a, (list, tuple)):
+        a = _bullets(a)
+    card = {"id": _new_id(), "q": q, "a": a}
+    tag = c.get("tag")
+    if tag is not None:
+        if not isinstance(tag, str):
+            raise ValueError('Kartička %d: "tag" musí být text.' % i)
+        tag = " ".join(tag.split())
+        if len(tag) > 40:
+            raise ValueError('Kartička %d: "tag" může mít nejvýš 40 znaků.' % i)
+        if tag:
+            card["tag"] = tag
+    return card
+
+
 def _walk(folders, path=()):
     for f in folders or []:
         p = path + (str(f.get("name", "?")),)
@@ -202,23 +271,20 @@ class FlashcardsAPI:
         return [{"id": str(f.get("id", "")), "name": name} for f, name in _walk(deck["folders"])]
 
     def add_cards(self, folder_id, cards):
-        """Přidá kartičky do složky. cards = [{"question": ..., "answer": ...}]. Vrátí {"added": počet}."""
+        """Přidá kartičky do složky. Vrátí {"added": počet}.
+
+        cards = [{"question": "…", "answer": "…"}, ...]; volitelně u každé:
+          "bullets": True  – každý neprázdný řádek odpovědi bude odrážka (odsazení 2 mezerami = vnořená odrážka)
+          "tag": "…"       – krátký štítek/téma, zobrazí se nad otázkou (max. 40 znaků)
+        "answer" může být i seznam řádků (pak se odrážky zapnou samy). V textu jde **tučně** a *kurzíva*.
+        """
         if not isinstance(cards, (list, tuple)):
             raise ValueError('"cards" musí být seznam.')
         if len(cards) > MAX_CARDS:
             raise ValueError("Najednou jde poslat nejvýš %d kartiček." % MAX_CARDS)
         new = []
         for i, c in enumerate(cards, 1):
-            if not isinstance(c, dict):
-                raise ValueError("Kartička %d není objekt." % i)
-            q, a = c.get("question"), c.get("answer")
-            if not isinstance(q, str) or not isinstance(a, str) or not q.strip() or not a.strip():
-                raise ValueError('Kartička %d musí mít neprázdné "question" i "answer" (text).' % i)
-            if len(q) > MAX_TEXT or len(a) > MAX_TEXT:
-                raise ValueError("Kartička %d je moc dlouhá." % i)
-            q = q.replace("\r\n", "\n").strip()
-            a = a.replace("\r\n", "\n").strip()
-            new.append({"id": _new_id(), "q": q, "a": a})
+            new.append(_card(c, i))
         if not new:
             return {"added": 0}
         for attempt in range(5):

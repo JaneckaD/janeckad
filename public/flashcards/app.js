@@ -6,14 +6,14 @@ import {
   createUserWithEmailAndPassword, updatePassword, EmailAuthProvider, reauthenticateWithCredential, connectAuthEmulator,
   initializeFirestore, persistentLocalCache, persistentMultipleTabManager, connectFirestoreEmulator,
   doc, getDoc, getDocFromServer, setDoc, deleteDoc, collection, getDocs, onSnapshot,
-} from './firebase.js?v=2.13';
+} from './firebase.js?v=2.14';
 
 // ===== nastavení =====
 const FIREBASE_CONFIG = { // z konzole Firebase (projekt flashcards-663fd); není to tajné, zabezpečení řeší firestore.rules
   apiKey: 'AIzaSyA3zzb5ZmReIpOK5tq6jfiIC_EF-3IId6A', authDomain: 'flashcards-663fd.firebaseapp.com', projectId: 'flashcards-663fd',
   storageBucket: 'flashcards-663fd.firebasestorage.app', messagingSenderId: '804475670634', appId: '1:804475670634:web:6f851aa49f3909c613ba13',
 };
-const APP_VERSION = '2.13'; // při změně uprav i ?v= v index.html a v importu firebase.js výše
+const APP_VERSION = '2.14'; // při změně uprav i ?v= v index.html a v importu firebase.js výše
 const DOMAIN = 'flashcards.davidjanecka.cz'; // uživatelská jména se převádí na e-mail jméno@DOMAIN (e-maily se nikam neposílají)
 const OWNER_EMAIL = 'djanecka6@gmail.com'; // hlavní správce, práva mu nejde vzít (stejný e-mail je ve firestore.rules); ostatní správce určuje role v Účtech
 const TIME_LIMIT = 60, LIVES = 3, DAY = 864e5;
@@ -86,7 +86,7 @@ const T = {
     questions: 'Otázky v této složce', hideAns: 'Skrýt odpovědi', showAns: 'Ukázat odpovědi', tapToShow: 'Klepni na otázku a odpověď se ukáže.', q: 'Otázka', a: 'Odpověď', add: 'Přidat', bulk: 'Vložit víc najednou', delCard: 'Smazat kartu',
     bulkHelp: 'Každý řádek je jedna karta: otázka a odpověď oddělené středníkem nebo tabulátorem (třeba zkopírované z Excelu).', bulkPh: 'Francie ; Paříž\nRakousko ; Vídeň',
     bulkDone: (n) => `Přidané karty: ${n}.`, bulkSkip: (n) => `Přeskočené řádky bez středníku: ${n}.`,
-    bullet: 'Odrážka', bulletHelp: 'Odrážky: tlačítkem • nebo napiš na začátek řádku pomlčku. Enter na řádku s odrážkou přidá další, Shift+Enter nový řádek.',
+    bullet: 'Odrážka', tag: 'Štítek', bulletHelp: 'Odrážky: tlačítkem • nebo napiš na začátek řádku pomlčku (2 mezery před ní = vnořená). Enter na řádku s odrážkou přidá další, Shift+Enter nový řádek. **tučně**, *kurzíva*, # nadpis.',
     color: 'Barva složky', colorDef: 'Výchozí',
     backup: 'Stáhnout zálohu', restore: 'Nahrát zálohu', restoreConfirm: 'Nahradit všechny složky obsahem zálohy?', restoreErr: 'Tohle není platná záloha.', restored: 'Záloha nahraná.',
     // účty
@@ -140,16 +140,32 @@ const P = {
   check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>', upload: '<path d="M12 16V5m-4.5 4.5L12 5l4.5 4.5M5 20h14"/>',
   logout: '<path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 16l4-4-4-4M14 12H4"/>',
 };
-// text karty: řádky začínající pomlčkou / hvězdičkou / tečkou jsou odrážky
-const BUL = /^\s*[-*•–]\s+/;
+// text karty: řádky začínající pomlčkou / hvězdičkou / tečkou jsou odrážky (odsazení 2 mezerami = vnořená odrážka),
+// řádek „# …“ je malý nadpis, **tučně** a *kurzíva*
+const BUL = /^(\s*)[-*•–]\s+/;
+const HEAD = /^\s*#{1,3}\s+/;
+const inl = (s) => esc(s).replace(/\*\*(?=\S)(.+?)\*\*/g, '<b>$1</b>').replace(/(^|[^*\w])\*(?=[^\s*])([^*]*?[^\s*])\*(?!\*)/g, '$1<i>$2</i>');
 function rich(text) {
-  const lines = String(text ?? '').split(/\r?\n/); let out = '', list = [], plain = [];
-  const endPlain = () => { if (plain.length) { out += `<span class="rt-p">${plain.map(esc).join('<br>')}</span>`; plain = []; } };
-  const endList = () => { if (list.length) { out += `<ul class="rt-ul">${list.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>`; list = []; } };
-  for (const l of lines) { if (BUL.test(l)) { endPlain(); list.push(l.replace(BUL, '')); } else { endList(); plain.push(l); } }
-  endPlain(); endList(); return out;
+  const lines = String(text ?? '').split(/\r?\n/); let out = '', plain = [], depth = 0;
+  const endPlain = () => { if (plain.length) { out += `<span class="rt-p">${plain.map(inl).join('<br>')}</span>`; plain = []; } };
+  const closeTo = (d) => { while (depth > d) { out += '</li></ul>'; depth--; } };
+  for (const l of lines) {
+    const m = l.match(BUL);
+    if (m) {
+      endPlain();
+      const want = Math.min(Math.floor(m[1].replace(/\t/g, '  ').length / 2) + 1, depth + 1, 4);
+      if (want > depth) { out += `<ul class="rt-ul${depth ? ' sub' : ''}"><li>`; depth++; } else { closeTo(want); out += '</li><li>'; }
+      out += inl(l.slice(m[0].length));
+    } else if (HEAD.test(l)) { closeTo(0); endPlain(); out += `<span class="rt-h">${inl(l.replace(HEAD, ''))}</span>`; }
+    else { closeTo(0); plain.push(l); }
+  }
+  endPlain(); closeTo(0);
+  // s odrážkami nebo nadpisem drží celý blok zarovnaný doleva (na kartě je pak vycentrovaný jako celek)
+  return /<ul|rt-h/.test(out) ? `<span class="rt-box">${out}</span>` : out;
 }
-const flat = (text) => String(text ?? '').split(/\r?\n/).map((l) => l.replace(BUL, '').trim()).filter(Boolean).join(' · ');
+const unmark = (s) => s.replace(/\*\*(?=\S)(.+?)\*\*/g, '$1').replace(/(^|[^*\w])\*(?=[^\s*])([^*]*?[^\s*])\*(?!\*)/g, '$1$2');
+const flat = (text) => String(text ?? '').split(/\r?\n/).map((l) => unmark(l.replace(BUL, '').replace(HEAD, '')).trim()).filter(Boolean).join(' · ');
+const tagHtml = (c) => (c && c.tag ? `<span class="ctag">${esc(c.tag)}</span>` : '');
 const isLong = (text) => String(text ?? '').length > 90 || /\n/.test(String(text ?? ''));
 const COLORS = { blue: '#2563eb', sky: '#0284c7', teal: '#0d9488', green: '#16a34a', yellow: '#ca8a04', orange: '#ea580c', red: '#dc2626', pink: '#db2777', purple: '#7c3aed', gray: '#64748b' };
 function colorOf(id) { const h = id && find(id); if (!h) return ''; for (let i = h.path.length - 1; i >= 0; i--) if (h.path[i].color) return COLORS[h.path[i].color] || ''; return ''; }
@@ -214,7 +230,7 @@ let saveState = 'ok', deckTimer = null;
 const root = $('#root'), gameEl = $('#game'), dlg = $('#dlg');
 
 function normalizeDeck(d) {
-  const fix = (f) => ({ id: f.id || uid(), name: String(f.name || '?'), ...(COLORS[f.color] ? { color: f.color } : {}), cards: (f.cards || []).filter((c) => c && (c.q || c.a)).map((c) => ({ id: c.id || uid(), q: String(c.q ?? ''), a: String(c.a ?? '') })), folders: (f.folders || []).map(fix) });
+  const fix = (f) => ({ id: f.id || uid(), name: String(f.name || '?'), ...(COLORS[f.color] ? { color: f.color } : {}), cards: (f.cards || []).filter((c) => c && (c.q || c.a)).map((c) => ({ id: c.id || uid(), q: String(c.q ?? ''), a: String(c.a ?? ''), ...(typeof c.tag === 'string' && c.tag.trim() ? { tag: c.tag.slice(0, 40) } : {}) })), folders: (f.folders || []).map(fix) });
   return { folders: ((d && d.folders) || []).map(fix) };
 }
 function find(id, list = deck.folders, path = [], parent = null) {
@@ -470,7 +486,7 @@ function questionList(f) {
     ${hide ? `<p class="small muted hint">${t().tapToShow}</p>` : ''}
     <div class="qlist ${hide ? 'hide' : ''}">${f.cards.map((c, i) => {
       const s = st(c.id), k = catOf(s, now);
-      return `<div class="qrow" tabindex="0"><span class="n">${i + 1}</span><div class="qa"><div class="q">${rich(c.q)}</div><div class="a">${rich(c.a)}</div></div><div class="meta"><span class="kpill c${k}">${t().cat[k]}</span>${s && s.n ? `<small>${t().tries(s.n)} · ${accOf(s)}</small>` : ''}</div></div>`;
+      return `<div class="qrow" tabindex="0"><span class="n">${i + 1}</span><div class="qa">${tagHtml(c)}<div class="q">${rich(c.q)}</div><div class="a">${rich(c.a)}</div></div><div class="meta"><span class="kpill c${k}">${t().cat[k]}</span>${s && s.n ? `<small>${t().tries(s.n)} · ${accOf(s)}</small>` : ''}</div></div>`;
     }).join('')}</div>`;
 }
 function foldersGrid(list, title) {
@@ -578,7 +594,7 @@ function viewAdmin(id) {
     out += `<h2>${t().questions} (${f.cards.length})<button class="btn sm" data-act="bulk" style="text-transform:none;letter-spacing:0">${I('list')}${t().bulk}</button></h2>
       <form class="addcard" id="addcard"><textarea class="field" name="q" rows="1" placeholder="${t().q}" required></textarea><textarea class="field" name="a" rows="1" placeholder="${t().a}" required></textarea><button class="icon-btn bul" type="button" data-act="bullet" title="${t().bullet}" aria-label="${t().bullet}">${I('list')}</button><button class="btn primary" type="submit">${I('plus')}${t().add}</button></form>
       <p class="small muted" style="margin:-4px 0 12px">${t().bulletHelp}</p>
-      <div class="cards">${f.cards.map((c, i) => `<div class="crow" data-card="${esc(c.id)}"><span class="n">${i + 1}</span><textarea class="field q" rows="1" data-k="q" aria-label="${t().q}">${esc(c.q)}</textarea><textarea class="field a" rows="1" data-k="a" aria-label="${t().a}">${esc(c.a)}</textarea><button class="icon-btn bul" data-act="bullet" title="${t().bullet}" aria-label="${t().bullet}">${I('list')}</button><button class="icon-btn del" data-act="delCard" title="${t().delCard}" aria-label="${t().delCard}">${I('trash')}</button></div>`).join('')}</div>`;
+      <div class="cards">${f.cards.map((c, i) => `<div class="crow" data-card="${esc(c.id)}"><span class="n">${i + 1}</span><div class="qcol">${'tag' in c ? `<textarea class="field tagf" rows="1" data-k="tag" aria-label="${t().tag}" placeholder="${t().tag}">${esc(c.tag)}</textarea>` : ''}<textarea class="field q" rows="1" data-k="q" aria-label="${t().q}">${esc(c.q)}</textarea></div><textarea class="field a" rows="1" data-k="a" aria-label="${t().a}">${esc(c.a)}</textarea><button class="icon-btn bul" data-act="bullet" title="${t().bullet}" aria-label="${t().bullet}">${I('list')}</button><button class="icon-btn del" data-act="delCard" title="${t().delCard}" aria-label="${t().delCard}">${I('trash')}</button></div>`).join('')}</div>`;
   }
   return out;
 }
@@ -873,8 +889,8 @@ function hud() {
 function tags(it) { const k = catOf(st(it.id)); return `<div class="tags"><span class="path"${fcStyle(colorOf(it.fid))}>${I('folder')}<span>${esc(it.path)}</span></span><span class="kpill c${k}">${t().cat[k]}</span></div>`; }
 function cardHtml(item, flipped, clickable, extra = '') {
   return `<div class="flip ${flipped ? 'on' : ''} ${clickable ? '' : 'static'}" id="g-card"><div class="flip-in">
-    <div class="face"><small>${item.rev ? t().back : t().front}</small><div class="txt ${isLong(sideOf(item, 'front')) ? 'long' : ''}">${rich(sideOf(item, 'front'))}</div>${extra}${clickable ? `<span class="tap">${t().tap}</span>` : ''}</div>
-    <div class="face back"><small>${item.rev ? t().front : t().back}</small><p class="ask" title="${esc(flat(sideOf(item, 'front')))}">${esc(flat(sideOf(item, 'front')))}</p><div class="txt ${isLong(sideOf(item, 'back')) ? 'long' : ''}">${rich(sideOf(item, 'back'))}</div></div></div></div>`;
+    <div class="face"><small>${item.rev ? t().back : t().front}${tagHtml(item)}</small><div class="txt ${isLong(sideOf(item, 'front')) ? 'long' : ''}">${rich(sideOf(item, 'front'))}</div>${extra}${clickable ? `<span class="tap">${t().tap}</span>` : ''}</div>
+    <div class="face back"><small>${item.rev ? t().front : t().back}${tagHtml(item)}</small><p class="ask" title="${esc(flat(sideOf(item, 'front')))}">${esc(flat(sideOf(item, 'front')))}</p><div class="txt ${isLong(sideOf(item, 'back')) ? 'long' : ''}">${rich(sideOf(item, 'back'))}</div></div></div></div>`;
 }
 function drawGame(fresh) {
   const g = G, it = g.cur;
@@ -1259,6 +1275,7 @@ document.addEventListener('submit', async (e) => {
 document.addEventListener('keydown', (e) => {
   const ta = e.target.closest && e.target.closest('#addcard textarea, .crow textarea');
   if (!ta || e.key !== 'Enter' || e.shiftKey || e.isComposing) return;
+  if (ta.dataset.k === 'tag') { e.preventDefault(); return; }
   const p = ta.selectionStart, line = ta.value.slice(ta.value.lastIndexOf('\n', p - 1) + 1, p), m = line.match(BUL);
   if (m) {
     e.preventDefault();
