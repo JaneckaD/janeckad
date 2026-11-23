@@ -14,8 +14,9 @@
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="icon" href="ikona-192.png" type="image/png" />
 <link rel="apple-touch-icon" href="ikona-180.png" />
-<link rel="stylesheet" href="app.css" />
-<link rel="modulepreload" href="firebase.js" />
+<!-- ?v= u souborů musí odpovídat APP_VERSION v app.js (obchází mezipaměť CDN, která drží soubory 30 dní) -->
+<link rel="stylesheet" href="app.css?v=2.13" />
+<link rel="modulepreload" href="firebase.js?v=2.13" />
 </head>
 <body>
 <div id="root"><div class="boot"><div class="spin"></div></div></div>
@@ -23,6 +24,6 @@
 <dialog id="dlg"></dialog>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="update-bar" id="updbar" hidden></div>
-<script type="module" src="app.js"></script>
+<script type="module" src="app.js?v=2.13"></script>
 </body>
 </html>

@@ -6,14 +6,14 @@ import {
   createUserWithEmailAndPassword, updatePassword, EmailAuthProvider, reauthenticateWithCredential, connectAuthEmulator,
   initializeFirestore, persistentLocalCache, persistentMultipleTabManager, connectFirestoreEmulator,
   doc, getDoc, getDocFromServer, setDoc, deleteDoc, collection, getDocs, onSnapshot,
-} from './firebase.js';
+} from './firebase.js?v=2.13';
 
 // ===== nastavení =====
 const FIREBASE_CONFIG = { // z konzole Firebase (projekt flashcards-663fd); není to tajné, zabezpečení řeší firestore.rules
   apiKey: 'AIzaSyA3zzb5ZmReIpOK5tq6jfiIC_EF-3IId6A', authDomain: 'flashcards-663fd.firebaseapp.com', projectId: 'flashcards-663fd',
   storageBucket: 'flashcards-663fd.firebasestorage.app', messagingSenderId: '804475670634', appId: '1:804475670634:web:6f851aa49f3909c613ba13',
 };
-const APP_VERSION = '2.12';
+const APP_VERSION = '2.13'; // při změně uprav i ?v= v index.html a v importu firebase.js výše
 const DOMAIN = 'flashcards.davidjanecka.cz'; // uživatelská jména se převádí na e-mail jméno@DOMAIN (e-maily se nikam neposílají)
 const OWNER_EMAIL = 'djanecka6@gmail.com'; // hlavní správce, práva mu nejde vzít (stejný e-mail je ve firestore.rules); ostatní správce určuje role v Účtech
 const TIME_LIMIT = 60, LIVES = 3, DAY = 864e5;
@@ -1315,12 +1315,15 @@ async function checkVersion() {
 setTimeout(checkVersion, 4000);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkVersion(); });
 // nová verze se instaluje sama na pozadí; lištu ukáže jen kontrola verze, když je na serveru opravdu novější
+function skipWhenHidden() { if (reg && reg.waiting && document.visibilityState === 'hidden') reg.waiting.postMessage('skip'); }
 function watchReg(r) {
   reg = r;
-  if (r.waiting) r.waiting.postMessage('skip');
+  // nový service worker převezme řízení až ve chvíli, kdy aplikaci schováš (přepnutí jinam), ať nepřeruší zrovna načítanou stránku;
+  // do té doby stačí starý – i ten bere soubory čerstvé ze serveru
+  skipWhenHidden();
   r.addEventListener('updatefound', () => {
     const w = r.installing; if (!w) return;
-    w.addEventListener('statechange', () => { if (w.state === 'installed') { w.postMessage('skip'); lastCheck = 0; checkVersion(); } });
+    w.addEventListener('statechange', () => { if (w.state === 'installed') { skipWhenHidden(); lastCheck = 0; checkVersion(); } });
   });
 }
 // tlačítko Aktualizovat: vždy smaže uloženou verzi aplikace, stáhne soubory znovu ze serveru a načte stránku
@@ -1330,20 +1333,21 @@ async function manualUpdate(btn, target) {
   if (target) { try { sessionStorage.setItem('fc-upd', JSON.stringify({ v: target, at: Date.now() })); } catch (e) {} }
   try {
     await new Promise((r) => setTimeout(r, 400)); // ať se stihnou uložit rozehrané odpovědi
-    if (reg) await Promise.race([reg.update().catch(() => {}), new Promise((r) => setTimeout(r, 3000))]);
+    // pryč se starým service workerem i uloženými soubory; stránka se pak načte s ?v=… přímo ze serveru
+    // (adresa s ?v= obejde i mezipaměť CDN u Wedosu, která jinak drží staré soubory až 30 dní)
+    if ('serviceWorker' in navigator) { const regs = await navigator.serviceWorker.getRegistrations(); await Promise.all(regs.filter((r) => new URL(r.scope).pathname.startsWith(new URL('./', location.href).pathname)).map((r) => r.unregister())); }
     if (window.caches) { const keys = await caches.keys(); await Promise.all(keys.filter((k) => k.startsWith('fc-')).map((k) => caches.delete(k))); }
-    await Promise.all(['./', './index.html', './app.js', './app.css', './firebase.js', './sw.js', './manifest.webmanifest'].map((f) => fetch(f, { cache: 'reload' }).catch(() => {})));
   } catch (e) { console.warn(e); }
   const u = new URL(location.href); u.searchParams.set('v', Date.now()); location.replace(u.toString());
 }
 // po vynucené aktualizaci schovej ?v= z adresy
 if (new URLSearchParams(location.search).has('v')) { const u = new URL(location.href); u.searchParams.delete('v'); history.replaceState(null, '', u.toString()); }
 if ('serviceWorker' in navigator && !EMU) {
-  navigator.serviceWorker.register('sw.js').then(watchReg).catch((e) => console.warn(e));
+  navigator.serviceWorker.register('sw.js?v=' + APP_VERSION).then(watchReg).catch((e) => console.warn(e));
   const hadController = !!navigator.serviceWorker.controller; // při úplně první návštěvě se nepřenačítá
   // když převezme řízení nová verze, stránka se nepřenačítá sama (mohl by ses zrovna učit); nový kód se načte při dalším otevření
   navigator.serviceWorker.addEventListener('controllerchange', () => { if (!hadController) return; lastCheck = 0; checkVersion(); });
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && reg) reg.update().catch(() => {}); });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && reg) reg.update().catch(() => {}); skipWhenHidden(); });
 }
 
 // ===== start =====
