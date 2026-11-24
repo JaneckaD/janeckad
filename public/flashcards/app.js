@@ -6,14 +6,14 @@ import {
   createUserWithEmailAndPassword, updatePassword, EmailAuthProvider, reauthenticateWithCredential, connectAuthEmulator,
   initializeFirestore, persistentLocalCache, persistentMultipleTabManager, connectFirestoreEmulator,
   doc, getDoc, getDocFromServer, setDoc, deleteDoc, collection, getDocs, onSnapshot,
-} from './firebase.js?v=2.14';
+} from './firebase.js?v=2.15';
 
 // ===== nastavení =====
 const FIREBASE_CONFIG = { // z konzole Firebase (projekt flashcards-663fd); není to tajné, zabezpečení řeší firestore.rules
   apiKey: 'AIzaSyA3zzb5ZmReIpOK5tq6jfiIC_EF-3IId6A', authDomain: 'flashcards-663fd.firebaseapp.com', projectId: 'flashcards-663fd',
   storageBucket: 'flashcards-663fd.firebasestorage.app', messagingSenderId: '804475670634', appId: '1:804475670634:web:6f851aa49f3909c613ba13',
 };
-const APP_VERSION = '2.14'; // při změně uprav i ?v= v index.html a v importu firebase.js výše
+const APP_VERSION = '2.15'; // při změně uprav i ?v= v index.html a v importu firebase.js výše
 const DOMAIN = 'flashcards.davidjanecka.cz'; // uživatelská jména se převádí na e-mail jméno@DOMAIN (e-maily se nikam neposílají)
 const OWNER_EMAIL = 'djanecka6@gmail.com'; // hlavní správce, práva mu nejde vzít (stejný e-mail je ve firestore.rules); ostatní správce určuje role v Účtech
 const TIME_LIMIT = 60, LIVES = 3, DAY = 864e5;
@@ -86,7 +86,7 @@ const T = {
     questions: 'Otázky v této složce', hideAns: 'Skrýt odpovědi', showAns: 'Ukázat odpovědi', tapToShow: 'Klepni na otázku a odpověď se ukáže.', q: 'Otázka', a: 'Odpověď', add: 'Přidat', bulk: 'Vložit víc najednou', delCard: 'Smazat kartu',
     bulkHelp: 'Každý řádek je jedna karta: otázka a odpověď oddělené středníkem nebo tabulátorem (třeba zkopírované z Excelu).', bulkPh: 'Francie ; Paříž\nRakousko ; Vídeň',
     bulkDone: (n) => `Přidané karty: ${n}.`, bulkSkip: (n) => `Přeskočené řádky bez středníku: ${n}.`,
-    bullet: 'Odrážka', tag: 'Štítek', bulletHelp: 'Odrážky: tlačítkem • nebo napiš na začátek řádku pomlčku (2 mezery před ní = vnořená). Enter na řádku s odrážkou přidá další, Shift+Enter nový řádek. **tučně**, *kurzíva*, # nadpis.',
+    bullet: 'Odrážka', tag: 'Štítek', up: 'O úroveň výš', bulletHelp: 'Odrážky: tlačítkem • nebo napiš na začátek řádku pomlčku (2 mezery před ní = vnořená). Enter na řádku s odrážkou přidá další, Shift+Enter nový řádek. **tučně**, *kurzíva*, # nadpis.',
     color: 'Barva složky', colorDef: 'Výchozí',
     backup: 'Stáhnout zálohu', restore: 'Nahrát zálohu', restoreConfirm: 'Nahradit všechny složky obsahem zálohy?', restoreErr: 'Tohle není platná záloha.', restored: 'Záloha nahraná.',
     // účty
@@ -405,7 +405,7 @@ function renderLogin(err = '') {
 }
 
 function renderShell() {
-  root.innerHTML = `<nav class="nav" id="nav"></nav><main class="main"><div class="wrap"><div class="brand top-m">flashcards<i>.</i></div><div id="view"></div></div></main><div class="pickbar" id="pickbar" hidden></div>`;
+  root.innerHTML = `<nav class="nav" id="nav"></nav><main class="main"><div class="wrap"><div class="brand top-m">flashcards<i>.</i></div><div id="view"></div></div></main><div class="pickbar" id="pickbar" hidden></div><a class="backfab" id="backfab" href="#/dash" hidden aria-label="${t().up}">${I('chev')}</a>`;
   render();
 }
 function renderNav(tab) {
@@ -427,7 +427,28 @@ function render() {
   if (r.tab === 'dash' && me.isAdmin) loadUsers();
   updatePickBar();
   updateSaveChip();
+  backTarget = parentHref(r); updateBack();
 }
+// tlačítko „<“ vlevo nahoře (mobil a tablet): po odscrollování vrátí o úroveň výš
+let backTarget = null;
+const smallScreen = window.matchMedia('(max-width: 899px)');
+function parentHref(r) {
+  if ((r.tab === 'learn' || r.tab === 'admin') && r.arg) {
+    const h = find(r.arg), base = r.tab === 'learn' ? '#/dash' : '#/admin';
+    if (!h || h.path.length < 2) return base;
+    return `#/${r.tab}/${encodeURIComponent(h.path[h.path.length - 2].id)}`;
+  }
+  if (r.tab === 'users' && r.arg) return '#/users';
+  return null;
+}
+function updateBack() {
+  const b = $('#backfab'); if (!b) return;
+  const show = !!backTarget && !G && smallScreen.matches && window.scrollY > 60;
+  if (show) b.setAttribute('href', backTarget);
+  b.classList.toggle('on', show); b.hidden = !backTarget;
+}
+window.addEventListener('scroll', updateBack, { passive: true });
+smallScreen.addEventListener('change', updateBack);
 // překreslí jen když to nevadí (nehraje se a nikdo nepíše do pole)
 function softRender() {
   if (!me || G) return;
@@ -889,7 +910,7 @@ function hud() {
 function tags(it) { const k = catOf(st(it.id)); return `<div class="tags"><span class="path"${fcStyle(colorOf(it.fid))}>${I('folder')}<span>${esc(it.path)}</span></span><span class="kpill c${k}">${t().cat[k]}</span></div>`; }
 function cardHtml(item, flipped, clickable, extra = '') {
   return `<div class="flip ${flipped ? 'on' : ''} ${clickable ? '' : 'static'}" id="g-card"><div class="flip-in">
-    <div class="face"><small>${item.rev ? t().back : t().front}${tagHtml(item)}</small><div class="txt ${isLong(sideOf(item, 'front')) ? 'long' : ''}">${rich(sideOf(item, 'front'))}</div>${extra}${clickable ? `<span class="tap">${t().tap}</span>` : ''}</div>
+    <div class="face"><small>${item.rev ? t().back : t().front}</small>${item.tag ? `<span class="ctag qtag">${esc(item.tag)}</span>` : ''}<div class="txt ${isLong(sideOf(item, 'front')) ? 'long' : ''}">${rich(sideOf(item, 'front'))}</div>${extra}${clickable ? `<span class="tap">${t().tap}</span>` : ''}</div>
     <div class="face back"><small>${item.rev ? t().front : t().back}${tagHtml(item)}</small><p class="ask" title="${esc(flat(sideOf(item, 'front')))}">${esc(flat(sideOf(item, 'front')))}</p><div class="txt ${isLong(sideOf(item, 'back')) ? 'long' : ''}">${rich(sideOf(item, 'back'))}</div></div></div></div>`;
 }
 function drawGame(fresh) {

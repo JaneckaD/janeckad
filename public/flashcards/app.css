@@ -501,3 +501,10 @@ body.playing .toast { bottom: 24px; margin-left: 0; }
 .face small:has(.ctag) { display: flex; justify-content: center; align-items: center; gap: 8px; top: 14px; }
 .face small .ctag { margin: 0; padding: 2px 8px; font-size: 10px; }
 .face small:has(.ctag) ~ .ask { top: 44px; }
+.face .qtag { margin: 0 0 14px; font-size: 12px; padding: 4px 11px; max-width: 90%; }
+
+/* „<“ o úroveň výš – jen na mobilu a tabletu, objeví se po odscrollování */
+.backfab { position: fixed; z-index: 30; top: max(12px, calc(env(safe-area-inset-top) + 8px)); left: 12px; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: var(--ink); background: rgba(255,255,255,.88); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border: 1px solid var(--line); box-shadow: 0 10px 24px -14px rgba(15,23,42,.45); opacity: 0; transform: translateY(-8px) scale(.9); pointer-events: none; transition: opacity .2s, transform .2s; }
+.backfab svg { width: 22px; height: 22px; transform: rotate(180deg); }
+.backfab.on { opacity: 1; transform: none; pointer-events: auto; }
+@media (min-width: 900px) { .backfab { display: none; } }
