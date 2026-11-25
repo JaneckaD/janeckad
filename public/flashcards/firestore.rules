@@ -25,5 +25,9 @@ service cloud.firestore {
       allow create, update: if member() && request.auth.uid == uid;
       allow delete: if isAdmin() || (member() && request.auth.uid == uid);
     }
+    // osobní hub (hub.davix.cz): čte a zapisuje jen účet hubu, nikdo jiný (ani účty z flashcards)
+    match /hub/{id} {
+      allow read, write: if signedIn() && request.auth.token.email == 'hub@hub.davidjanecka.cz';
+    }
   }
 }
